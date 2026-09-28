@@ -1,23 +1,24 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 export default function LoginPage() {
-  const [username, setUsername] = useState("");
+  const router = useRouter();
+
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [message, setMessage] = useState("");
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
     setError("");
-    setMessage("");
 
-    if (!username.trim()) {
+    if (!email.trim()) {
       setError("Please enter your email.");
       return;
     }
@@ -36,7 +37,7 @@ export default function LoginPage() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          email: username,
+          email,
           password,
         }),
       });
@@ -48,9 +49,8 @@ export default function LoginPage() {
         return;
       }
 
-      setMessage("Login successful");
-
-      console.log("Logged in user:", data.user);
+      router.push("/dashboard");
+      router.refresh();
     } catch (error) {
       console.error("Login request failed:", error);
       setError("Unable to connect to the server.");
@@ -81,8 +81,8 @@ export default function LoginPage() {
 
               <input
                 type="email"
-                value={username}
-                onChange={(event) => setUsername(event.target.value)}
+                value={email}
+                onChange={(event) => setEmail(event.target.value)}
                 placeholder="Enter your email"
                 className="w-full rounded-xl border border-sky-200 bg-white px-4 py-3 text-slate-900 placeholder:text-slate-400 outline-none transition focus:border-sky-400 focus:ring-4 focus:ring-sky-100"
               />
@@ -105,12 +105,6 @@ export default function LoginPage() {
             {error && (
               <div className="rounded-xl bg-red-50 px-4 py-3 text-sm font-medium text-red-600">
                 {error}
-              </div>
-            )}
-
-            {message && (
-              <div className="rounded-xl bg-green-50 px-4 py-3 text-sm font-medium text-green-600">
-                {message}
               </div>
             )}
 
@@ -137,4 +131,3 @@ export default function LoginPage() {
     </main>
   );
 }
-
