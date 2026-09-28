@@ -1,4 +1,5 @@
 "use client";
+
 import Link from "next/link";
 import { useState } from "react";
 
@@ -6,22 +7,57 @@ export default function LoginPage() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
 
-function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
-  event.preventDefault();
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [message, setMessage] = useState("");
 
-  if (!username.trim()) {
-    alert("Please enter your username.");
-    return;
+  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+
+    setError("");
+    setMessage("");
+
+    if (!username.trim()) {
+      setError("Please enter your email.");
+      return;
+    }
+
+    if (!password.trim()) {
+      setError("Please enter your password.");
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      const response = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email: username,
+          password,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        setError(data.error || "Login failed.");
+        return;
+      }
+
+      setMessage("Login successful");
+
+      console.log("Logged in user:", data.user);
+    } catch (error) {
+      console.error("Login request failed:", error);
+      setError("Unable to connect to the server.");
+    } finally {
+      setLoading(false);
+    }
   }
-
-  if (!password.trim()) {
-    alert("Please enter your password.");
-    return;
-  }
-
-  console.log("Username:", username);
-  console.log("Password:", password);
-}
 
   return (
     <main className="min-h-screen bg-sky-50 px-6 py-16">
@@ -40,14 +76,14 @@ function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
           <form onSubmit={handleSubmit} className="mt-8 space-y-5">
             <div>
               <label className="mb-2 block text-sm font-semibold text-slate-700">
-                Username
+                Email
               </label>
 
               <input
-                type="text"
+                type="email"
                 value={username}
                 onChange={(event) => setUsername(event.target.value)}
-                placeholder="Enter your username"
+                placeholder="Enter your email"
                 className="w-full rounded-xl border border-sky-200 bg-white px-4 py-3 text-slate-900 placeholder:text-slate-400 outline-none transition focus:border-sky-400 focus:ring-4 focus:ring-sky-100"
               />
             </div>
@@ -66,11 +102,24 @@ function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
               />
             </div>
 
+            {error && (
+              <div className="rounded-xl bg-red-50 px-4 py-3 text-sm font-medium text-red-600">
+                {error}
+              </div>
+            )}
+
+            {message && (
+              <div className="rounded-xl bg-green-50 px-4 py-3 text-sm font-medium text-green-600">
+                {message}
+              </div>
+            )}
+
             <button
               type="submit"
-              className="w-full rounded-xl bg-sky-500 px-6 py-3 font-semibold text-white transition hover:bg-sky-600"
+              disabled={loading}
+              className="w-full rounded-xl bg-sky-500 px-6 py-3 font-semibold text-white transition hover:bg-sky-600 disabled:cursor-not-allowed disabled:opacity-60"
             >
-              Sign In
+              {loading ? "Signing In..." : "Sign In"}
             </button>
           </form>
 
@@ -88,3 +137,4 @@ function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     </main>
   );
 }
+
