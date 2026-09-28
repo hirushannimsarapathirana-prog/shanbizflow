@@ -76,7 +76,7 @@ export default function Navbar() {
   }
 
   return (
-    <nav className="border-b border-sky-100 bg-white">
+    <nav className="no-print border-b border-sky-100 bg-white">
       <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-5">
 
         <div>

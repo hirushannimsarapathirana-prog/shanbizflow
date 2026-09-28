@@ -26,6 +26,7 @@ model Product {
   imageUrl    String?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+  saleItems SaleItem[]
 }
 model Customer {
   id        Int      @id @default(autoincrement())
@@ -36,4 +37,49 @@ model Customer {
   imageUrl  String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  sales Sale[]
+}
+model Sale {
+  id            Int         @id @default(autoincrement())
+  invoiceNumber String      @unique
+  customerId    Int?
+  subtotal      Float
+  discount      Float       @default(0)
+  total         Float
+  paidAmount    Float       @default(0)
+  paymentStatus String      @default("CREDIT")
+  saleStatus    String      @default("COMPLETED")
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  customer      Customer?   @relation(fields: [customerId], references: [id])
+  items         SaleItem[]
+  payments      SalePayment[]
+
+  @@index([createdAt])
+}
+
+model SaleItem {
+  id        Int      @id @default(autoincrement())
+  saleId    Int
+  productId Int
+  quantity  Int
+  unitPrice Float
+  subtotal  Float
+  createdAt DateTime @default(now())
+
+  sale      Sale      @relation(fields: [saleId], references: [id], onDelete: Cascade)
+  product   Product   @relation(fields: [productId], references: [id])
+}
+
+model SalePayment {
+  id            Int      @id @default(autoincrement())
+  saleId        Int
+  amount        Float
+  paymentMethod String
+  paymentDate   DateTime @default(now())
+  note          String?
+
+  sale          Sale     @relation(fields: [saleId], references: [id], onDelete: Cascade)
 }

@@ -32,3 +32,18 @@ export type Product = Prisma.ProductModel
  * 
  */
 export type Customer = Prisma.CustomerModel
+/**
+ * Model Sale
+ * 
+ */
+export type Sale = Prisma.SaleModel
+/**
+ * Model SaleItem
+ * 
+ */
+export type SaleItem = Prisma.SaleItemModel
+/**
+ * Model SalePayment
+ * 
+ */
+export type SalePayment = Prisma.SalePaymentModel

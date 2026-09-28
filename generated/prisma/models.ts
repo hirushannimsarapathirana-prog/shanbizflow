@@ -11,4 +11,7 @@
 export type * from './models/User'
 export type * from './models/Product'
 export type * from './models/Customer'
+export type * from './models/Sale'
+export type * from './models/SaleItem'
+export type * from './models/SalePayment'
 export type * from './commonInputTypes'
