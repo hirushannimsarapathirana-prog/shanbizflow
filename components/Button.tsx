@@ -4,7 +4,7 @@ type ButtonProps = {
 
 export default function Button({ text }: ButtonProps) {
   return (
-    <button className="rounded-lg bg-blue-600 px-5 py-2.5 font-medium text-white hover:bg-blue-700">
+    <button className="rounded-xl bg-sky-500 px-6 py-3 font-semibold text-white shadow-sm transition hover:bg-sky-600">
       {text}
     </button>
   );
