@@ -143,12 +143,26 @@ export async function POST(request: Request) {
       },
       { status: 201 }
     );
-  } catch (error) {
-    console.error("Create customer error:", error);
+    } catch (error: unknown) {
+      console.error("Create customer error:", error);
 
-    return NextResponse.json(
-      { error: "Failed to create customer" },
-      { status: 500 }
-    );
+      if (
+        typeof error === "object" &&
+        error !== null &&
+        "code" in error &&
+        error.code === "P2002"
+      ) {
+        return NextResponse.json(
+          {
+            error: "Phone number or email already exists",
+          },
+          { status: 409 }
+        );
+      }
+
+      return NextResponse.json(
+        { error: "Failed to create customer" },
+        { status: 500 }
+      );
+    }
   }
-}

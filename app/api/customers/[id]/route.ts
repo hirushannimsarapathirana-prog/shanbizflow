@@ -166,8 +166,22 @@ export async function PUT(
       message: "Customer updated successfully",
       customer,
     });
-  } catch (error) {
+} catch (error: unknown) {
     console.error("Update customer error:", error);
+
+    if (
+      typeof error === "object" &&
+      error !== null &&
+      "code" in error &&
+      error.code === "P2002"
+    ) {
+      return NextResponse.json(
+        {
+          error: "Phone number or email already exists",
+        },
+        { status: 409 }
+      );
+    }
 
     return NextResponse.json(
       { error: "Failed to update customer" },
