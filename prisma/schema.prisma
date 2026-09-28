@@ -26,7 +26,9 @@ model Product {
   imageUrl    String?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+
   saleItems SaleItem[]
+  stockMovements StockMovement[]
 }
 model Customer {
   id        Int      @id @default(autoincrement())
@@ -82,4 +84,19 @@ model SalePayment {
   note          String?
 
   sale          Sale     @relation(fields: [saleId], references: [id], onDelete: Cascade)
+}
+model StockMovement {
+  id          Int      @id @default(autoincrement())
+  productId   Int
+  type        String
+  quantity    Int
+  previousStock Int
+  newStock    Int
+  reason      String?
+  createdAt   DateTime @default(now())
+
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@index([productId])
+  @@index([createdAt])
 }

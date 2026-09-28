@@ -71,3 +71,8 @@ export type SaleItem = Prisma.SaleItemModel
  * 
  */
 export type SalePayment = Prisma.SalePaymentModel
+/**
+ * Model StockMovement
+ * 
+ */
+export type StockMovement = Prisma.StockMovementModel
