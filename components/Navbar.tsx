@@ -60,6 +60,7 @@ export default function Navbar() {
   return (
     <nav className="border-b border-sky-100 bg-white">
       <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-5">
+
         <div>
           <Link href="/">
             <h1 className="text-2xl font-bold tracking-tight text-sky-600">
@@ -73,6 +74,7 @@ export default function Navbar() {
         </div>
 
         <div className="flex items-center gap-6">
+
           <Link
             href="/"
             className="font-medium text-slate-700 transition hover:text-sky-600"
@@ -107,7 +109,7 @@ export default function Navbar() {
               <button
                 type="button"
                 onClick={handleLogout}
-                className="rounded-full border border-red-200 px-5 py-2.5 font-semibold text-red-500 transition hover:bg-red-50"
+                className="rounded-full bg-red-500 px-6 py-2.5 font-semibold text-white transition hover:bg-red-600"
               >
                 Logout
               </button>
@@ -129,6 +131,7 @@ export default function Navbar() {
               </Link>
             </>
           )}
+
         </div>
       </div>
     </nav>
