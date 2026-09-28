@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 
 type User = {
   id: number;
@@ -13,47 +13,65 @@ type User = {
 
 export default function Navbar() {
   const router = useRouter();
+  const pathname = usePathname();
 
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    async function getCurrentUser() {
-      try {
-        const response = await fetch("/api/auth/me", {
-          cache: "no-store",
-        });
-
-        if (response.ok) {
-          const data = await response.json();
-          setUser(data.user);
-        } else {
-          setUser(null);
-        }
-      } catch (error) {
-        console.error("Failed to get current user:", error);
-        setUser(null);
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    getCurrentUser();
-  }, []);
-
-  async function handleLogout() {
+  async function getCurrentUser() {
     try {
-      const response = await fetch("/api/auth/logout", {
-        method: "POST",
+      setLoading(true);
+
+      const response = await fetch("/api/auth/me", {
+        cache: "no-store",
       });
 
       if (response.ok) {
+        const data = await response.json();
+        setUser(data.user);
+      } else {
         setUser(null);
-        router.push("/");
-        router.refresh();
       }
     } catch (error) {
-      console.error("Logout failed:", error);
+      console.error(
+        "Failed to get current user:",
+        error
+      );
+
+      setUser(null);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  useEffect(() => {
+    getCurrentUser();
+  }, [pathname]);
+
+  async function handleLogout() {
+    try {
+      const response = await fetch(
+        "/api/auth/logout",
+        {
+          method: "POST",
+        }
+      );
+
+      if (!response.ok) {
+        console.error("Logout failed");
+        return;
+      }
+
+      setUser(null);
+
+      router.push("/");
+
+      router.refresh();
+    } catch (error) {
+      console.error(
+        "Logout error:",
+        error
+      );
     }
   }
 
