@@ -1,4 +1,5 @@
 "use client";
+
 import Link from "next/link";
 import { useState } from "react";
 
@@ -7,27 +8,69 @@ export default function RegisterPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+  const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState("");
+  const [error, setError] = useState("");
+
+  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
+    setMessage("");
+    setError("");
+
     if (!username.trim()) {
-      alert("Please enter your username.");
+      setError("Please enter your username.");
       return;
     }
 
     if (!email.trim()) {
-      alert("Please enter your email.");
+      setError("Please enter your email.");
       return;
     }
 
     if (!password.trim()) {
-      alert("Please enter your password.");
+      setError("Please enter your password.");
       return;
     }
 
-    console.log("Username:", username);
-    console.log("Email:", email);
-    console.log("Password:", password);
+    if (password.length < 6) {
+      setError("Password must be at least 6 characters.");
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      const response = await fetch("/api/auth/register", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name: username,
+          email,
+          password,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        setError(data.error || "Registration failed.");
+        return;
+      }
+
+      setMessage("Account created successfully!");
+
+      setUsername("");
+      setEmail("");
+      setPassword("");
+    } catch (error) {
+      console.error("Registration request failed:", error);
+      setError("Unable to connect to the server.");
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (
@@ -87,11 +130,24 @@ export default function RegisterPage() {
               />
             </div>
 
+            {error && (
+              <div className="rounded-xl bg-red-50 px-4 py-3 text-sm font-medium text-red-600">
+                {error}
+              </div>
+            )}
+
+            {message && (
+              <div className="rounded-xl bg-green-50 px-4 py-3 text-sm font-medium text-green-600">
+                {message}
+              </div>
+            )}
+
             <button
               type="submit"
-              className="w-full rounded-xl bg-sky-500 px-6 py-3 font-semibold text-white transition hover:bg-sky-600"
+              disabled={loading}
+              className="w-full rounded-xl bg-sky-500 px-6 py-3 font-semibold text-white transition hover:bg-sky-600 disabled:cursor-not-allowed disabled:opacity-60"
             >
-              Create Account
+              {loading ? "Creating Account..." : "Create Account"}
             </button>
           </form>
 
@@ -109,3 +165,4 @@ export default function RegisterPage() {
     </main>
   );
 }
+
