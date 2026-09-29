@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/prisma";
-import { NextResponse } from "next/server";
+import bcrypt from "bcryptjs";
 import { SignJWT } from "jose";
+import { NextResponse } from "next/server";
 
 const SESSION_DURATION_SECONDS = 30 * 60;
 
@@ -8,24 +9,20 @@ export async function POST(request: Request) {
   try {
     const body = await request.json();
 
-    const username = String(body.username || "").trim();
-    const password = String(body.password || "");
+    const email =
+      typeof body.email === "string"
+        ? body.email.trim().toLowerCase()
+        : "";
 
-    if (!username) {
+    const password =
+      typeof body.password === "string"
+        ? body.password
+        : "";
+
+    if (!email || !password) {
       return NextResponse.json(
         {
-          error: "Username is required",
-        },
-        {
-          status: 400,
-        }
-      );
-    }
-
-    if (!password) {
-      return NextResponse.json(
-        {
-          error: "Password is required",
+          error: "Email and password are required",
         },
         {
           status: 400,
@@ -35,14 +32,14 @@ export async function POST(request: Request) {
 
     const user = await prisma.user.findUnique({
       where: {
-        username,
+        email,
       },
     });
 
     if (!user) {
       return NextResponse.json(
         {
-          error: "Invalid username or password",
+          error: "Invalid email or password",
         },
         {
           status: 401,
@@ -50,12 +47,15 @@ export async function POST(request: Request) {
       );
     }
 
-    const passwordValid = password === user.password;
+    const passwordMatch = await bcrypt.compare(
+      password,
+      user.password
+    );
 
-    if (!passwordValid) {
+    if (!passwordMatch) {
       return NextResponse.json(
         {
-          error: "Invalid username or password",
+          error: "Invalid email or password",
         },
         {
           status: 401,
@@ -80,6 +80,10 @@ export async function POST(request: Request) {
 
     const secret = new TextEncoder().encode(jwtSecret);
 
+    const expiresAt =
+      Math.floor(Date.now() / 1000) +
+      SESSION_DURATION_SECONDS;
+
     const token = await new SignJWT({
       userId: user.id,
       email: user.email,
@@ -89,7 +93,7 @@ export async function POST(request: Request) {
         alg: "HS256",
       })
       .setIssuedAt()
-      .setExpirationTime("30m")
+      .setExpirationTime(expiresAt)
       .sign(secret);
 
     const response = NextResponse.json({
@@ -100,13 +104,15 @@ export async function POST(request: Request) {
         email: user.email,
         role: user.role,
       },
+      expiresAt: expiresAt * 1000,
     });
 
     response.cookies.set({
       name: "auth_token",
       value: token,
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
+      secure:
+        process.env.NODE_ENV === "production",
       sameSite: "lax",
       maxAge: SESSION_DURATION_SECONDS,
       path: "/",
@@ -126,3 +132,4 @@ export async function POST(request: Request) {
     );
   }
 }
+

@@ -1,14 +1,14 @@
 import { prisma } from "@/lib/prisma";
 import { jwtVerify } from "jose";
+import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 
 export async function GET() {
   try {
-    const cookieStore = await import("next/headers").then(
-      (module) => module.cookies()
-    );
+    const cookieStore = await cookies();
 
-    const token = (await cookieStore).get("auth_token")?.value;
+    const token =
+      cookieStore.get("auth_token")?.value;
 
     if (!token) {
       return NextResponse.json(
@@ -36,39 +36,56 @@ export async function GET() {
       );
     }
 
-    const secret = new TextEncoder().encode(jwtSecret);
+    const secret = new TextEncoder().encode(
+      jwtSecret
+    );
 
     try {
-      const { payload } = await jwtVerify(
-        token,
-        secret
+      const { payload } =
+        await jwtVerify(
+          token,
+          secret
+        );
+
+      const userId = Number(
+        payload.userId
       );
 
-      const userId = Number(payload.userId);
-
-      if (!userId) {
-        throw new Error("Invalid user ID");
+      if (
+        !Number.isInteger(userId) ||
+        userId <= 0
+      ) {
+        throw new Error(
+          "Invalid user ID"
+        );
       }
 
-      const user = await prisma.user.findUnique({
-        where: {
-          id: userId,
-        },
-      });
+      const user =
+        await prisma.user.findUnique({
+          where: {
+            id: userId,
+          },
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            role: true,
+            createdAt: true,
+          },
+        });
 
       if (!user) {
-        throw new Error("User not found");
+        throw new Error(
+          "User not found"
+        );
       }
 
       return NextResponse.json({
         authenticated: true,
-        user: {
-          id: user.id,
-          name: user.name,
-          email: user.email,
-          role: user.role,
-          createdAt: user.createdAt,
-        },
+        user,
+        expiresAt: payload.exp
+          ? payload.exp * 1000
+          : null,
       });
     } catch (jwtError) {
       console.error(
@@ -76,24 +93,27 @@ export async function GET() {
         jwtError
       );
 
-      const response = NextResponse.json(
-        {
-          authenticated: false,
-          user: null,
-        },
-        {
-          status: 401,
-        }
-      );
+      const response =
+        NextResponse.json(
+          {
+            authenticated: false,
+            user: null,
+          },
+          {
+            status: 401,
+          }
+        );
 
       response.cookies.set({
         name: "auth_token",
         value: "",
         httpOnly: true,
         secure:
-          process.env.NODE_ENV === "production",
+          process.env.NODE_ENV ===
+          "production",
         sameSite: "lax",
         maxAge: 0,
+        expires: new Date(0),
         path: "/",
       });
 

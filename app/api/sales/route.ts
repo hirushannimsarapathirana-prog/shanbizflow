@@ -1,4 +1,6 @@
 import { prisma } from "@/lib/prisma";
+import { requireRole } from "@/lib/auth";
+import { UserRole } from "@/generated/prisma/client";
 import { NextResponse } from "next/server";
 
 type SaleItemInput = {
@@ -8,6 +10,12 @@ type SaleItemInput = {
 
 export async function GET() {
   try {
+    await requireRole([
+      UserRole.SUPER_ADMIN,
+      UserRole.ADMIN,
+      UserRole.STAFF,
+    ]);
+
     const sales = await prisma.sale.findMany({
       orderBy: {
         createdAt: "desc",
@@ -38,6 +46,22 @@ export async function GET() {
   } catch (error) {
     console.error("Get sales error:", error);
 
+    if (error instanceof Error && error.message === "UNAUTHORIZED") {
+      return NextResponse.json(
+        { error: "Unauthorized" },
+        { status: 401 }
+      );
+    }
+
+    if (error instanceof Error && error.message === "FORBIDDEN") {
+      return NextResponse.json(
+        {
+          error: "You do not have permission to view sales",
+        },
+        { status: 403 }
+      );
+    }
+
     return NextResponse.json(
       { error: "Failed to fetch sales" },
       { status: 500 }
@@ -47,6 +71,12 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
+    await requireRole([
+      UserRole.SUPER_ADMIN,
+      UserRole.ADMIN,
+      UserRole.STAFF,
+    ]);
+
     const body = await request.json();
 
     const {
@@ -374,6 +404,22 @@ export async function POST(request: Request) {
   } catch (error) {
     console.error("Create sale error:", error);
 
+    if (error instanceof Error && error.message === "UNAUTHORIZED") {
+      return NextResponse.json(
+        { error: "Unauthorized" },
+        { status: 401 }
+      );
+    }
+
+    if (error instanceof Error && error.message === "FORBIDDEN") {
+      return NextResponse.json(
+        {
+          error: "You do not have permission to create sales",
+        },
+        { status: 403 }
+      );
+    }
+
     return NextResponse.json(
       {
         error:
@@ -385,3 +431,4 @@ export async function POST(request: Request) {
     );
   }
 }
+

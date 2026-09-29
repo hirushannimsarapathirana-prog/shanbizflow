@@ -3,6 +3,8 @@
 import { useEffect, useMemo, useState } from "react";
 import DashboardSidebar from "@/components/DashboardSidebar";
 
+type UserRole = "SUPER_ADMIN" | "ADMIN" | "STAFF";
+
 type Customer = {
   id: number;
   name: string;
@@ -34,6 +36,7 @@ type CreatedSale = {
   total: number;
   paidAmount: number;
   paymentStatus: string;
+  saleStatus: string;
   createdAt: string;
   customer: Customer | null;
   items: {
@@ -58,30 +61,68 @@ type CreatedSale = {
 export default function SalesPage() {
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
+  const [sales, setSales] = useState<CreatedSale[]>([]);
   const [cart, setCart] = useState<CartItem[]>([]);
 
   const [customerId, setCustomerId] = useState("");
   const [productId, setProductId] = useState("");
   const [quantity, setQuantity] = useState(1);
 
-  const [discountPercent, setDiscountPercent] =
-    useState("");
-
+  const [discountPercent, setDiscountPercent] = useState("");
   const [paidAmount, setPaidAmount] = useState("");
-
-  const [paymentMethod, setPaymentMethod] =
-    useState("CASH");
-
-  const [paymentNote, setPaymentNote] =
-    useState("");
+  const [paymentMethod, setPaymentMethod] = useState("CASH");
+  const [paymentNote, setPaymentNote] = useState("");
 
   const [createdSale, setCreatedSale] =
     useState<CreatedSale | null>(null);
 
+  const [userRole, setUserRole] =
+    useState<UserRole | null>(null);
+
+  const [userLoading, setUserLoading] = useState(true);
   const [loading, setLoading] = useState(true);
+  const [salesLoading, setSalesLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [cancellingSaleId, setCancellingSaleId] =
+    useState<number | null>(null);
+
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
+
+  const canCreateSale =
+    userRole === "SUPER_ADMIN" ||
+    userRole === "ADMIN" ||
+    userRole === "STAFF";
+
+  const canCancelSale =
+    userRole === "SUPER_ADMIN" ||
+    userRole === "ADMIN";
+
+  async function loadCurrentUser() {
+    try {
+      setUserLoading(true);
+
+      const response = await fetch("/api/auth/me", {
+        method: "GET",
+        credentials: "include",
+        cache: "no-store",
+      });
+
+      if (!response.ok) {
+        return;
+      }
+
+      const data = await response.json();
+
+      if (data.user?.role) {
+        setUserRole(data.user.role as UserRole);
+      }
+    } catch (error) {
+      console.error("Load current user error:", error);
+    } finally {
+      setUserLoading(false);
+    }
+  }
 
   async function loadData() {
     try {
@@ -90,9 +131,13 @@ export default function SalesPage() {
       const [customersResponse, productsResponse] =
         await Promise.all([
           fetch("/api/customers", {
+            method: "GET",
+            credentials: "include",
             cache: "no-store",
           }),
           fetch("/api/products", {
+            method: "GET",
+            credentials: "include",
             cache: "no-store",
           }),
         ]);
@@ -120,10 +165,7 @@ export default function SalesPage() {
       setCustomers(customersData);
       setProducts(productsData);
     } catch (error) {
-      console.error(
-        "Load sales data error:",
-        error
-      );
+      console.error("Load sales data error:", error);
 
       setError(
         error instanceof Error
@@ -135,8 +177,43 @@ export default function SalesPage() {
     }
   }
 
+  async function loadSales() {
+    try {
+      setSalesLoading(true);
+
+      const response = await fetch("/api/sales", {
+        method: "GET",
+        credentials: "include",
+        cache: "no-store",
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(
+          data.error ||
+            "Failed to load sales"
+        );
+      }
+
+      setSales(data);
+    } catch (error) {
+      console.error("Load sales error:", error);
+
+      setError(
+        error instanceof Error
+          ? error.message
+          : "Failed to load sales"
+      );
+    } finally {
+      setSalesLoading(false);
+    }
+  }
+
   useEffect(() => {
+    loadCurrentUser();
     loadData();
+    loadSales();
   }, []);
 
   const selectedProduct = products.find(
@@ -183,6 +260,13 @@ export default function SalesPage() {
   function addProduct() {
     setError("");
     setMessage("");
+
+    if (!canCreateSale) {
+      setError(
+        "You do not have permission to create sales."
+      );
+      return;
+    }
 
     if (!selectedProduct) {
       setError("Please select a product");
@@ -261,6 +345,13 @@ export default function SalesPage() {
     productId: number,
     newQuantity: number
   ) {
+    if (!canCreateSale) {
+      setError(
+        "You do not have permission to modify sales."
+      );
+      return;
+    }
+
     const product = products.find(
       (item) =>
         item.id === productId
@@ -302,6 +393,13 @@ export default function SalesPage() {
   }
 
   function removeItem(productId: number) {
+    if (!canCreateSale) {
+      setError(
+        "You do not have permission to modify sales."
+      );
+      return;
+    }
+
     setCart((previous) =>
       previous.filter(
         (item) =>
@@ -322,11 +420,19 @@ export default function SalesPage() {
     setCart([]);
     setMessage("");
     setError("");
+    setCreatedSale(null);
   }
 
   async function handleCreateSale() {
     setMessage("");
     setError("");
+
+    if (!canCreateSale) {
+      setError(
+        "You do not have permission to create sales."
+      );
+      return;
+    }
 
     if (cart.length === 0) {
       setError(
@@ -376,31 +482,27 @@ export default function SalesPage() {
             "Content-Type":
               "application/json",
           },
+          credentials: "include",
           body: JSON.stringify({
             customerId: customerId
               ? Number(customerId)
               : null,
-
             items: cart.map((item) => ({
               productId:
                 item.productId,
               quantity:
                 item.quantity,
             })),
-
             discount:
               Number(
                 discountAmount.toFixed(2)
               ),
-
             paidAmount:
               cleanPaidAmount,
-
             paymentMethod:
               cleanPaidAmount > 0
                 ? paymentMethod
                 : null,
-
             paymentNote,
           }),
         }
@@ -431,7 +533,10 @@ export default function SalesPage() {
       setPaymentNote("");
       setCart([]);
 
-      await loadData();
+      await Promise.all([
+        loadData(),
+        loadSales(),
+      ]);
     } catch (error) {
       console.error(
         "Create sale error:",
@@ -445,6 +550,78 @@ export default function SalesPage() {
       );
     } finally {
       setSaving(false);
+    }
+  }
+
+  async function handleCancelSale(
+    saleId: number
+  ) {
+    if (!canCancelSale) {
+      setError(
+        "You do not have permission to cancel sales."
+      );
+      return;
+    }
+
+    const confirmed = window.confirm(
+      "Are you sure you want to cancel this sale? The sold stock will be restored."
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
+    try {
+      setCancellingSaleId(saleId);
+      setError("");
+      setMessage("");
+
+      const response = await fetch(
+        `/api/sales/${saleId}`,
+        {
+          method: "PATCH",
+          headers: {
+            "Content-Type":
+              "application/json",
+          },
+          credentials: "include",
+          body: JSON.stringify({
+            action: "CANCEL",
+          }),
+        }
+      );
+
+      const data =
+        await response.json();
+
+      if (!response.ok) {
+        throw new Error(
+          data.error ||
+            "Failed to cancel sale"
+        );
+      }
+
+      setMessage(
+        `Sale ${data.sale.invoiceNumber} cancelled successfully. Stock has been restored.`
+      );
+
+      await Promise.all([
+        loadSales(),
+        loadData(),
+      ]);
+    } catch (error) {
+      console.error(
+        "Cancel sale error:",
+        error
+      );
+
+      setError(
+        error instanceof Error
+          ? error.message
+          : "Failed to cancel sale"
+      );
+    } finally {
+      setCancellingSaleId(null);
     }
   }
 
@@ -467,41 +644,57 @@ export default function SalesPage() {
   return (
     <>
       <div className="no-print">
-        <div className="flex min-h-screen bg-slate-50">
+        <div className="flex min-h-screen bg-slate-50 dark:bg-slate-950">
 
           <DashboardSidebar />
 
-          <main className="min-w-0 flex-1 px-6 py-10">
+          <main className="min-w-0 flex-1 px-6 py-10 lg:ml-64">
             <div className="mx-auto max-w-7xl">
 
               <div className="mb-10">
-                <p className="text-sm font-semibold uppercase tracking-wider text-sky-500">
-                  Sales Management
-                </p>
+                <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
 
-                <h1 className="mt-2 text-4xl font-extrabold tracking-tight text-slate-900">
-                  Create Sale
-                </h1>
+                  <div>
+                    <p className="text-sm font-semibold uppercase tracking-wider text-sky-500">
+                      Sales Management
+                    </p>
 
-                <p className="mt-2 text-slate-500">
-                  Create sales, manage products and record payments.
-                </p>
+                    <h1 className="mt-2 text-4xl font-extrabold tracking-tight text-slate-900 dark:text-white">
+                      Create Sale
+                    </h1>
+
+                    <p className="mt-2 text-slate-500 dark:text-slate-400">
+                      Create sales, manage products and record payments.
+                    </p>
+                  </div>
+
+                  {userLoading ? (
+                    <div className="rounded-full bg-slate-100 px-4 py-2 text-xs font-bold text-slate-500 dark:bg-slate-800 dark:text-slate-400">
+                      Checking permissions...
+                    </div>
+                  ) : (
+                    <div className="rounded-full bg-sky-50 px-4 py-2 text-xs font-bold text-sky-600 dark:bg-sky-950/40 dark:text-sky-400">
+                      Role: {userRole || "UNKNOWN"}
+                    </div>
+                  )}
+
+                </div>
               </div>
 
               {message && (
-                <div className="mb-6 rounded-xl border border-green-200 bg-green-50 px-5 py-4 text-sm font-medium text-green-700">
+                <div className="mb-6 rounded-xl border border-green-200 bg-green-50 px-5 py-4 text-sm font-medium text-green-700 dark:border-green-900 dark:bg-green-950/30 dark:text-green-400">
                   {message}
                 </div>
               )}
 
               {error && (
-                <div className="mb-6 rounded-xl border border-red-200 bg-red-50 px-5 py-4 text-sm font-medium text-red-700">
+                <div className="mb-6 rounded-xl border border-red-200 bg-red-50 px-5 py-4 text-sm font-medium text-red-700 dark:border-red-900 dark:bg-red-950/30 dark:text-red-400">
                   {error}
                 </div>
               )}
 
               {createdSale && (
-                <div className="mb-8 rounded-3xl border border-sky-100 bg-white p-7 shadow-sm">
+                <div className="mb-8 rounded-3xl border border-sky-100 bg-white p-7 shadow-sm dark:border-slate-800 dark:bg-slate-900">
                   <div className="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
 
                     <div>
@@ -509,11 +702,11 @@ export default function SalesPage() {
                         Sale Completed
                       </p>
 
-                      <h2 className="mt-1 text-2xl font-bold text-slate-900">
+                      <h2 className="mt-1 text-2xl font-bold text-slate-900 dark:text-white">
                         {createdSale.invoiceNumber}
                       </h2>
 
-                      <p className="mt-1 text-sm text-slate-500">
+                      <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
                         Your bill is ready to print.
                       </p>
                     </div>
@@ -530,23 +723,39 @@ export default function SalesPage() {
                 </div>
               )}
 
-              {loading ? (
-                <div className="rounded-3xl border border-sky-100 bg-white p-12 text-center shadow-sm">
-                  <p className="font-medium text-slate-500">
-                    Loading sales data...
+              {userLoading || loading ? (
+                <div className="rounded-3xl border border-sky-100 bg-white p-12 text-center shadow-sm dark:border-slate-800 dark:bg-slate-900">
+                  <p className="font-medium text-slate-500 dark:text-slate-400">
+                    {userLoading
+                      ? "Checking permissions..."
+                      : "Loading sales data..."}
+                  </p>
+                </div>
+              ) : !canCreateSale ? (
+                <div className="rounded-3xl border border-red-200 bg-red-50 p-12 text-center shadow-sm dark:border-red-900 dark:bg-red-950/30">
+                  <div className="text-4xl">
+                    🔒
+                  </div>
+
+                  <h2 className="mt-4 text-xl font-bold text-red-700 dark:text-red-400">
+                    Access Denied
+                  </h2>
+
+                  <p className="mt-2 text-sm text-red-600 dark:text-red-400">
+                    You do not have permission to create sales.
                   </p>
                 </div>
               ) : (
                 <div className="grid gap-8 xl:grid-cols-[1.5fr_1fr]">
 
-                  <section className="rounded-3xl border border-sky-100 bg-white p-7 shadow-sm">
+                  <section className="rounded-3xl border border-sky-100 bg-white p-7 shadow-sm dark:border-slate-800 dark:bg-slate-900">
 
                     <div className="mb-7">
-                      <h2 className="text-2xl font-bold text-slate-900">
+                      <h2 className="text-2xl font-bold text-slate-900 dark:text-white">
                         Sale Details
                       </h2>
 
-                      <p className="mt-1 text-sm text-slate-500">
+                      <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
                         Select a customer and add products.
                       </p>
                     </div>
@@ -554,7 +763,7 @@ export default function SalesPage() {
                     <div className="grid gap-5 md:grid-cols-2">
 
                       <div>
-                        <label className="mb-2 block text-sm font-semibold text-slate-700">
+                        <label className="mb-2 block text-sm font-semibold text-slate-700 dark:text-slate-300">
                           Customer
                         </label>
 
@@ -565,7 +774,7 @@ export default function SalesPage() {
                               event.target.value
                             )
                           }
-                          className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-slate-900 outline-none focus:border-sky-400 focus:ring-4 focus:ring-sky-50"
+                          className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-slate-900 outline-none focus:border-sky-400 focus:ring-4 focus:ring-sky-50 dark:border-slate-700 dark:bg-slate-800 dark:text-white dark:focus:ring-sky-900/30"
                         >
                           <option value="">
                             Walk-in Customer
@@ -595,7 +804,7 @@ export default function SalesPage() {
                       </div>
 
                       <div>
-                        <label className="mb-2 block text-sm font-semibold text-slate-700">
+                        <label className="mb-2 block text-sm font-semibold text-slate-700 dark:text-slate-300">
                           Product
                         </label>
 
@@ -606,7 +815,7 @@ export default function SalesPage() {
                               event.target.value
                             )
                           }
-                          className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-slate-900 outline-none focus:border-sky-400 focus:ring-4 focus:ring-sky-50"
+                          className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-slate-900 outline-none focus:border-sky-400 focus:ring-4 focus:ring-sky-50 dark:border-slate-700 dark:bg-slate-800 dark:text-white dark:focus:ring-sky-900/30"
                         >
                           <option value="">
                             Select Product
@@ -642,7 +851,7 @@ export default function SalesPage() {
                       </div>
 
                       <div>
-                        <label className="mb-2 block text-sm font-semibold text-slate-700">
+                        <label className="mb-2 block text-sm font-semibold text-slate-700 dark:text-slate-300">
                           Quantity
                         </label>
 
@@ -657,7 +866,7 @@ export default function SalesPage() {
                               )
                             )
                           }
-                          className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-slate-900 outline-none focus:border-sky-400 focus:ring-4 focus:ring-sky-50"
+                          className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-slate-900 outline-none focus:border-sky-400 focus:ring-4 focus:ring-sky-50 dark:border-slate-700 dark:bg-slate-800 dark:text-white dark:focus:ring-sky-900/30"
                         />
                       </div>
 
@@ -678,11 +887,11 @@ export default function SalesPage() {
                     <div className="mt-8">
 
                       <div className="mb-4 flex items-center justify-between">
-                        <h3 className="text-lg font-bold text-slate-900">
+                        <h3 className="text-lg font-bold text-slate-900 dark:text-white">
                           Sale Items
                         </h3>
 
-                        <span className="rounded-full bg-sky-50 px-3 py-1 text-xs font-semibold text-sky-600">
+                        <span className="rounded-full bg-sky-50 px-3 py-1 text-xs font-semibold text-sky-600 dark:bg-sky-950/40 dark:text-sky-400">
                           {cart.length}{" "}
                           item
                           {cart.length !==
@@ -693,13 +902,13 @@ export default function SalesPage() {
                       </div>
 
                       {cart.length === 0 ? (
-                        <div className="rounded-2xl border border-dashed border-slate-200 bg-slate-50 p-10 text-center">
+                        <div className="rounded-2xl border border-dashed border-slate-200 bg-slate-50 p-10 text-center dark:border-slate-700 dark:bg-slate-800/50">
 
                           <div className="text-4xl">
                             🛒
                           </div>
 
-                          <p className="mt-3 font-semibold text-slate-700">
+                          <p className="mt-3 font-semibold text-slate-700 dark:text-slate-300">
                             No products added
                           </p>
 
@@ -709,9 +918,9 @@ export default function SalesPage() {
 
                         </div>
                       ) : (
-                        <div className="overflow-hidden rounded-2xl border border-slate-200">
+                        <div className="overflow-hidden rounded-2xl border border-slate-200 dark:border-slate-700">
 
-                          <div className="hidden grid-cols-[1fr_110px_150px_40px] gap-4 bg-slate-50 px-5 py-3 text-xs font-semibold uppercase tracking-wide text-slate-500 md:grid">
+                          <div className="hidden grid-cols-[1fr_110px_150px_40px] gap-4 bg-slate-50 px-5 py-3 text-xs font-semibold uppercase tracking-wide text-slate-500 dark:bg-slate-800 dark:text-slate-400 md:grid">
                             <span>
                               Product
                             </span>
@@ -733,10 +942,10 @@ export default function SalesPage() {
                                 key={
                                   item.productId
                                 }
-                                className="grid gap-4 border-t border-slate-100 px-5 py-5 md:grid-cols-[1fr_110px_150px_40px] md:items-center"
+                                className="grid gap-4 border-t border-slate-100 px-5 py-5 dark:border-slate-800 md:grid-cols-[1fr_110px_150px_40px] md:items-center"
                               >
                                 <div>
-                                  <p className="font-semibold text-slate-900">
+                                  <p className="font-semibold text-slate-900 dark:text-white">
                                     {
                                       item.name
                                     }
@@ -766,10 +975,10 @@ export default function SalesPage() {
                                       )
                                     )
                                   }
-                                  className="w-full rounded-lg border border-slate-200 px-3 py-2 text-slate-900 outline-none focus:border-sky-400"
+                                  className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-slate-900 outline-none focus:border-sky-400 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
                                 />
 
-                                <p className="font-bold text-slate-900">
+                                <p className="font-bold text-slate-900 dark:text-white">
                                   Rs.{" "}
                                   {item.subtotal.toLocaleString()}
                                 </p>
@@ -781,7 +990,7 @@ export default function SalesPage() {
                                       item.productId
                                     )
                                   }
-                                  className="rounded-lg px-2 py-2 text-red-500 hover:bg-red-50"
+                                  className="rounded-lg px-2 py-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30"
                                 >
                                   ✕
                                 </button>
@@ -796,31 +1005,31 @@ export default function SalesPage() {
 
                   </section>
 
-                  <section className="h-fit rounded-3xl border border-sky-100 bg-white p-7 shadow-sm">
+                  <section className="h-fit rounded-3xl border border-sky-100 bg-white p-7 shadow-sm dark:border-slate-800 dark:bg-slate-900">
 
-                    <h2 className="text-2xl font-bold text-slate-900">
+                    <h2 className="text-2xl font-bold text-slate-900 dark:text-white">
                       Payment
                     </h2>
 
-                    <p className="mt-1 text-sm text-slate-500">
+                    <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
                       Review totals and record payment.
                     </p>
 
                     <div className="mt-7 space-y-5">
 
-                      <div className="flex justify-between text-slate-600">
+                      <div className="flex justify-between text-slate-600 dark:text-slate-400">
                         <span>
                           Subtotal
                         </span>
 
-                        <span className="font-semibold">
+                        <span className="font-semibold text-slate-900 dark:text-white">
                           Rs.{" "}
                           {subtotal.toLocaleString()}
                         </span>
                       </div>
 
                       <div>
-                        <label className="mb-2 block text-sm font-semibold text-slate-700">
+                        <label className="mb-2 block text-sm font-semibold text-slate-700 dark:text-slate-300">
                           Discount (%)
                         </label>
 
@@ -842,7 +1051,7 @@ export default function SalesPage() {
                               )
                             }
                             placeholder="0"
-                            className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 pr-12 text-slate-900 outline-none placeholder:text-slate-400 focus:border-sky-400 focus:ring-4 focus:ring-sky-50"
+                            className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 pr-12 text-slate-900 outline-none placeholder:text-slate-400 focus:border-sky-400 focus:ring-4 focus:ring-sky-50 dark:border-slate-700 dark:bg-slate-800 dark:text-white dark:focus:ring-sky-900/30"
                           />
 
                           <span className="absolute right-4 top-1/2 -translate-y-1/2 font-bold text-slate-400">
@@ -867,9 +1076,9 @@ export default function SalesPage() {
                         </div>
                       </div>
 
-                      <div className="border-t border-slate-100 pt-4">
+                      <div className="border-t border-slate-100 pt-4 dark:border-slate-800">
                         <div className="flex justify-between">
-                          <span className="font-semibold text-slate-700">
+                          <span className="font-semibold text-slate-700 dark:text-slate-300">
                             Total
                           </span>
 
@@ -886,7 +1095,7 @@ export default function SalesPage() {
                       </div>
 
                       <div>
-                        <label className="mb-2 block text-sm font-semibold text-slate-700">
+                        <label className="mb-2 block text-sm font-semibold text-slate-700 dark:text-slate-300">
                           Paid Amount
                         </label>
 
@@ -907,7 +1116,7 @@ export default function SalesPage() {
                             )
                           }
                           placeholder="Enter amount customer pays"
-                          className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-slate-900 outline-none placeholder:text-slate-400 focus:border-sky-400 focus:ring-4 focus:ring-sky-50"
+                          className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-slate-900 outline-none placeholder:text-slate-400 focus:border-sky-400 focus:ring-4 focus:ring-sky-50 dark:border-slate-700 dark:bg-slate-800 dark:text-white dark:focus:ring-sky-900/30"
                         />
 
                         <p className="mt-1 text-xs text-slate-400">
@@ -915,13 +1124,13 @@ export default function SalesPage() {
                         </p>
                       </div>
 
-                      <div className="rounded-xl bg-slate-50 p-4">
+                      <div className="rounded-xl bg-slate-50 p-4 dark:bg-slate-800">
                         <div className="flex justify-between">
-                          <span className="font-medium text-slate-500">
+                          <span className="font-medium text-slate-500 dark:text-slate-400">
                             Balance
                           </span>
 
-                          <span className="text-lg font-bold text-slate-900">
+                          <span className="text-lg font-bold text-slate-900 dark:text-white">
                             Rs.{" "}
                             {balance.toLocaleString(
                               undefined,
@@ -938,7 +1147,7 @@ export default function SalesPage() {
                       </div>
 
                       <div>
-                        <label className="mb-2 block text-sm font-semibold text-slate-700">
+                        <label className="mb-2 block text-sm font-semibold text-slate-700 dark:text-slate-300">
                           Payment Method
                         </label>
 
@@ -954,7 +1163,7 @@ export default function SalesPage() {
                                 .value
                             )
                           }
-                          className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-slate-900 outline-none focus:border-sky-400 focus:ring-4 focus:ring-sky-50"
+                          className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-slate-900 outline-none focus:border-sky-400 focus:ring-4 focus:ring-sky-50 dark:border-slate-700 dark:bg-slate-800 dark:text-white dark:focus:ring-sky-900/30"
                         >
                           <option value="CASH">
                             Cash
@@ -971,7 +1180,7 @@ export default function SalesPage() {
                       </div>
 
                       <div>
-                        <label className="mb-2 block text-sm font-semibold text-slate-700">
+                        <label className="mb-2 block text-sm font-semibold text-slate-700 dark:text-slate-300">
                           Payment Note
                         </label>
 
@@ -989,17 +1198,17 @@ export default function SalesPage() {
                           }
                           rows={3}
                           placeholder="Optional payment note"
-                          className="w-full resize-none rounded-xl border border-slate-200 bg-white px-4 py-3 text-slate-900 outline-none placeholder:text-slate-400 focus:border-sky-400 focus:ring-4 focus:ring-sky-50"
+                          className="w-full resize-none rounded-xl border border-slate-200 bg-white px-4 py-3 text-slate-900 outline-none placeholder:text-slate-400 focus:border-sky-400 focus:ring-4 focus:ring-sky-50 dark:border-slate-700 dark:bg-slate-800 dark:text-white dark:focus:ring-sky-900/30"
                         />
                       </div>
 
-                      <div className="rounded-xl border border-sky-100 bg-sky-50 p-4">
+                      <div className="rounded-xl border border-sky-100 bg-sky-50 p-4 dark:border-sky-900/50 dark:bg-sky-950/30">
                         <div className="flex items-center justify-between">
-                          <span className="text-sm font-semibold text-slate-600">
+                          <span className="text-sm font-semibold text-slate-600 dark:text-slate-300">
                             Payment Status
                           </span>
 
-                          <span className="rounded-full bg-white px-3 py-1 text-xs font-bold text-sky-600">
+                          <span className="rounded-full bg-white px-3 py-1 text-xs font-bold text-sky-600 dark:bg-slate-800 dark:text-sky-400">
                             {
                               paymentStatus
                             }
@@ -1034,7 +1243,7 @@ export default function SalesPage() {
                           disabled={
                             saving
                           }
-                          className="rounded-xl border border-slate-200 px-6 py-3 font-semibold text-slate-600 transition hover:bg-slate-50"
+                          className="rounded-xl border border-slate-200 px-6 py-3 font-semibold text-slate-600 transition hover:bg-slate-50 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800"
                         >
                           Clear
                         </button>
@@ -1047,6 +1256,253 @@ export default function SalesPage() {
 
                 </div>
               )}
+
+              <section className="mt-10 rounded-3xl border border-sky-100 bg-white p-7 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+
+                <div className="mb-7 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+
+                  <div>
+                    <p className="text-sm font-semibold uppercase tracking-wider text-sky-500">
+                      Transaction Records
+                    </p>
+
+                    <h2 className="mt-1 text-2xl font-bold text-slate-900 dark:text-white">
+                      Sales History
+                    </h2>
+
+                    <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+                      View completed and cancelled sales.
+                    </p>
+                  </div>
+
+                  <div className="rounded-full bg-sky-50 px-4 py-2 text-sm font-bold text-sky-600 dark:bg-sky-950/40 dark:text-sky-400">
+                    {sales.length} Sales
+                  </div>
+
+                </div>
+
+                {salesLoading ? (
+                  <div className="rounded-2xl bg-slate-50 p-10 text-center dark:bg-slate-800">
+                    <p className="font-medium text-slate-500 dark:text-slate-400">
+                      Loading sales history...
+                    </p>
+                  </div>
+                ) : sales.length === 0 ? (
+                  <div className="rounded-2xl border border-dashed border-slate-200 bg-slate-50 p-10 text-center dark:border-slate-700 dark:bg-slate-800/50">
+
+                    <div className="text-4xl">
+                      📋
+                    </div>
+
+                    <p className="mt-3 font-semibold text-slate-700 dark:text-slate-300">
+                      No sales found
+                    </p>
+
+                    <p className="mt-1 text-sm text-slate-400">
+                      Created sales will appear here.
+                    </p>
+
+                  </div>
+                ) : (
+                  <div className="overflow-x-auto rounded-2xl border border-slate-200 dark:border-slate-700">
+
+                    <table className="w-full min-w-[1100px] text-left">
+
+                      <thead className="bg-slate-50 dark:bg-slate-800">
+                        <tr className="text-xs font-bold uppercase tracking-wide text-slate-500 dark:text-slate-400">
+
+                          <th className="px-5 py-4">
+                            Invoice
+                          </th>
+
+                          <th className="px-5 py-4">
+                            Customer
+                          </th>
+
+                          <th className="px-5 py-4">
+                            Date
+                          </th>
+
+                          <th className="px-5 py-4 text-right">
+                            Total
+                          </th>
+
+                          <th className="px-5 py-4 text-right">
+                            Paid
+                          </th>
+
+                          <th className="px-5 py-4 text-right">
+                            Balance
+                          </th>
+
+                          <th className="px-5 py-4">
+                            Payment
+                          </th>
+
+                          <th className="px-5 py-4">
+                            Status
+                          </th>
+
+                          {canCancelSale && (
+                            <th className="px-5 py-4 text-right">
+                              Action
+                            </th>
+                          )}
+
+                        </tr>
+                      </thead>
+
+                      <tbody>
+
+                        {sales.map((sale) => {
+
+                          const saleBalance =
+                            Math.max(
+                              sale.total -
+                                sale.paidAmount,
+                              0
+                            );
+
+                          const isCancelled =
+                            sale.saleStatus ===
+                            "CANCELLED";
+
+                          return (
+                            <tr
+                              key={sale.id}
+                              className="border-t border-slate-100 dark:border-slate-800"
+                            >
+
+                              <td className="px-5 py-5">
+                                <p className="font-bold text-slate-900 dark:text-white">
+                                  {
+                                    sale.invoiceNumber
+                                  }
+                                </p>
+
+                                <p className="mt-1 text-xs text-slate-400">
+                                  #{sale.id}
+                                </p>
+                              </td>
+
+                              <td className="px-5 py-5">
+                                <p className="font-semibold text-slate-800 dark:text-slate-200">
+                                  {sale.customer?.name ||
+                                    "Walk-in Customer"}
+                                </p>
+
+                                {sale.customer?.phone && (
+                                  <p className="mt-1 text-xs text-slate-400">
+                                    {
+                                      sale.customer.phone
+                                    }
+                                  </p>
+                                )}
+                              </td>
+
+                              <td className="px-5 py-5 text-sm text-slate-500 dark:text-slate-400">
+                                {formatDate(
+                                  sale.createdAt
+                                )}
+                              </td>
+
+                              <td className="px-5 py-5 text-right font-bold text-slate-900 dark:text-white">
+                                Rs.{" "}
+                                {sale.total.toLocaleString(
+                                  undefined,
+                                  {
+                                    maximumFractionDigits: 2,
+                                  }
+                                )}
+                              </td>
+
+                              <td className="px-5 py-5 text-right font-semibold text-green-600">
+                                Rs.{" "}
+                                {sale.paidAmount.toLocaleString(
+                                  undefined,
+                                  {
+                                    maximumFractionDigits: 2,
+                                  }
+                                )}
+                              </td>
+
+                              <td className="px-5 py-5 text-right font-semibold text-orange-500">
+                                Rs.{" "}
+                                {saleBalance.toLocaleString(
+                                  undefined,
+                                  {
+                                    maximumFractionDigits: 2,
+                                  }
+                                )}
+                              </td>
+
+                              <td className="px-5 py-5">
+                                <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-bold text-slate-600 dark:bg-slate-800 dark:text-slate-300">
+                                  {sale.payments[0]
+                                    ?.paymentMethod ||
+                                    "CREDIT"}
+                                </span>
+                              </td>
+
+                              <td className="px-5 py-5">
+
+                                <span
+                                  className={`rounded-full px-3 py-1 text-xs font-bold ${
+                                    isCancelled
+                                      ? "bg-red-50 text-red-600 dark:bg-red-950/30 dark:text-red-400"
+                                      : "bg-green-50 text-green-600 dark:bg-green-950/30 dark:text-green-400"
+                                  }`}
+                                >
+                                  {isCancelled
+                                    ? "CANCELLED"
+                                    : "COMPLETED"}
+                                </span>
+
+                              </td>
+
+                              {canCancelSale && (
+                                <td className="px-5 py-5 text-right">
+
+                                  {!isCancelled ? (
+                                    <button
+                                      type="button"
+                                      onClick={() =>
+                                        handleCancelSale(
+                                          sale.id
+                                        )
+                                      }
+                                      disabled={
+                                        cancellingSaleId ===
+                                        sale.id
+                                      }
+                                      className="rounded-lg bg-red-50 px-3 py-2 text-xs font-bold text-red-600 transition hover:bg-red-100 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-red-950/30 dark:text-red-400 dark:hover:bg-red-950/50"
+                                    >
+                                      {cancellingSaleId ===
+                                      sale.id
+                                        ? "Cancelling..."
+                                        : "Cancel Sale"}
+                                    </button>
+                                  ) : (
+                                    <span className="text-xs font-semibold text-slate-400">
+                                      Cancelled
+                                    </span>
+                                  )}
+
+                                </td>
+                              )}
+
+                            </tr>
+                          );
+                        })}
+
+                      </tbody>
+
+                    </table>
+
+                  </div>
+                )}
+
+              </section>
 
             </div>
           </main>
@@ -1109,36 +1565,28 @@ export default function SalesPage() {
                 <>
                   <p className="mt-1 font-bold">
                     {
-                      createdSale
-                        .customer.name
+                      createdSale.customer.name
                     }
                   </p>
 
                   <p className="text-sm">
                     {
-                      createdSale
-                        .customer.phone
+                      createdSale.customer.phone
                     }
                   </p>
 
-                  {createdSale.customer
-                    .email && (
+                  {createdSale.customer.email && (
                     <p className="text-sm">
                       {
-                        createdSale
-                          .customer
-                          .email
+                        createdSale.customer.email
                       }
                     </p>
                   )}
 
-                  {createdSale.customer
-                    .address && (
+                  {createdSale.customer.address && (
                     <p className="text-sm">
                       {
-                        createdSale
-                          .customer
-                          .address
+                        createdSale.customer.address
                       }
                     </p>
                   )}
@@ -1185,8 +1633,7 @@ export default function SalesPage() {
 
                       <td className="py-3 pr-3">
                         {
-                          item.product
-                            .name
+                          item.product.name
                         }
                       </td>
 
@@ -1314,8 +1761,7 @@ export default function SalesPage() {
 
                   <span className="font-bold">
                     {
-                      createdSale
-                        .payments[0]
+                      createdSale.payments[0]
                         .paymentMethod
                     }
                   </span>
