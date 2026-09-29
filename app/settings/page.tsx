@@ -44,10 +44,7 @@ export default function SettingsPage() {
 
     setDarkMode(isDark);
 
-    document.documentElement.classList.toggle(
-      "dark",
-      isDark
-    );
+    document.documentElement.classList.toggle("dark", isDark);
   }, []);
 
   async function loadUser() {
@@ -68,9 +65,7 @@ export default function SettingsPage() {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(
-          data.error || "Failed to load profile"
-        );
+        throw new Error(data.error || "Failed to load profile");
       }
 
       setUser(data.user);
@@ -84,9 +79,7 @@ export default function SettingsPage() {
     }
   }
 
-  async function updateProfile(
-    event: React.FormEvent<HTMLFormElement>
-  ) {
+  async function updateProfile(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
     setProfileMessage("");
@@ -100,16 +93,12 @@ export default function SettingsPage() {
     }
 
     if (trimmedName.length < 2) {
-      setProfileError(
-        "Name must be at least 2 characters."
-      );
+      setProfileError("Name must be at least 2 characters.");
       return;
     }
 
     if (trimmedName.length > 100) {
-      setProfileError(
-        "Name cannot exceed 100 characters."
-      );
+      setProfileError("Name cannot exceed 100 characters.");
       return;
     }
 
@@ -130,18 +119,14 @@ export default function SettingsPage() {
       const data = await response.json();
 
       if (!response.ok) {
-        setProfileError(
-          data.error || "Failed to update profile."
-        );
+        setProfileError(data.error || "Failed to update profile.");
         return;
       }
 
       setUser(data.user);
       setName(data.user.name);
 
-      setProfileMessage(
-        "Profile updated successfully."
-      );
+      setProfileMessage("Profile updated successfully.");
     } catch (error) {
       console.error("Profile update error:", error);
 
@@ -153,43 +138,29 @@ export default function SettingsPage() {
     }
   }
 
-  async function changePassword(
-    event: React.FormEvent<HTMLFormElement>
-  ) {
+  async function changePassword(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
     setPasswordMessage("");
     setPasswordError("");
 
-    if (
-      !currentPassword ||
-      !newPassword ||
-      !confirmPassword
-    ) {
-      setPasswordError(
-        "Please fill all password fields."
-      );
+    if (!currentPassword || !newPassword || !confirmPassword) {
+      setPasswordError("Please fill all password fields.");
       return;
     }
 
     if (newPassword.length < 6) {
-      setPasswordError(
-        "New password must be at least 6 characters."
-      );
+      setPasswordError("New password must be at least 6 characters.");
       return;
     }
 
     if (newPassword.length > 100) {
-      setPasswordError(
-        "New password cannot exceed 100 characters."
-      );
+      setPasswordError("New password cannot exceed 100 characters.");
       return;
     }
 
     if (newPassword !== confirmPassword) {
-      setPasswordError(
-        "New passwords do not match."
-      );
+      setPasswordError("New passwords do not match.");
       return;
     }
 
@@ -203,28 +174,22 @@ export default function SettingsPage() {
     try {
       setChangingPassword(true);
 
-      const response = await fetch(
-        "/api/users/me/password",
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          credentials: "include",
-          body: JSON.stringify({
-            currentPassword,
-            newPassword,
-          }),
-        }
-      );
+      const response = await fetch("/api/users/me/password", {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify({
+          currentPassword,
+          newPassword,
+        }),
+      });
 
       const data = await response.json();
 
       if (!response.ok) {
-        setPasswordError(
-          data.error ||
-            "Failed to change password."
-        );
+        setPasswordError(data.error || "Failed to change password.");
         return;
       }
 
@@ -232,14 +197,9 @@ export default function SettingsPage() {
       setNewPassword("");
       setConfirmPassword("");
 
-      setPasswordMessage(
-        "Password changed successfully."
-      );
+      setPasswordMessage("Password changed successfully.");
     } catch (error) {
-      console.error(
-        "Password change error:",
-        error
-      );
+      console.error("Password change error:", error);
 
       setPasswordError(
         "Something went wrong while changing your password."
@@ -254,15 +214,9 @@ export default function SettingsPage() {
 
     setDarkMode(nextValue);
 
-    document.documentElement.classList.toggle(
-      "dark",
-      nextValue
-    );
+    document.documentElement.classList.toggle("dark", nextValue);
 
-    localStorage.setItem(
-      "theme",
-      nextValue ? "dark" : "light"
-    );
+    localStorage.setItem("theme", nextValue ? "dark" : "light");
 
     window.dispatchEvent(
       new CustomEvent("theme-change", {
@@ -292,20 +246,20 @@ export default function SettingsPage() {
 
   if (loading) {
     return (
-      <div className="flex min-h-screen bg-slate-50 dark:bg-slate-950">
+      <div className="flex min-h-screen overflow-x-hidden bg-slate-50 dark:bg-slate-950">
         <DashboardSidebar />
 
-        <main className="flex-1 p-6 lg:p-10">
+        <main className="min-w-0 flex-1 px-4 py-6 sm:px-6 sm:py-8 lg:ml-64 lg:px-8 lg:py-10">
           <div className="mx-auto max-w-5xl animate-pulse">
-            <div className="h-10 w-48 rounded bg-slate-200 dark:bg-slate-800" />
+            <div className="h-8 w-40 rounded bg-slate-200 dark:bg-slate-800 sm:h-10 sm:w-48" />
 
-            <div className="mt-3 h-5 w-80 rounded bg-slate-200 dark:bg-slate-800" />
+            <div className="mt-3 h-5 w-full max-w-md rounded bg-slate-200 dark:bg-slate-800" />
 
-            <div className="mt-8 h-64 rounded-2xl bg-white dark:bg-slate-900" />
+            <div className="mt-6 h-64 rounded-2xl bg-white dark:bg-slate-900 sm:mt-8" />
 
-            <div className="mt-6 h-80 rounded-2xl bg-white dark:bg-slate-900" />
+            <div className="mt-5 h-80 rounded-2xl bg-white dark:bg-slate-900 sm:mt-6" />
 
-            <div className="mt-6 h-64 rounded-2xl bg-white dark:bg-slate-900" />
+            <div className="mt-5 h-64 rounded-2xl bg-white dark:bg-slate-900 sm:mt-6" />
           </div>
         </main>
       </div>
@@ -313,45 +267,43 @@ export default function SettingsPage() {
   }
 
   return (
-    <div className="flex min-h-screen bg-slate-50 dark:bg-slate-950">
+    <div className="flex min-h-screen overflow-x-hidden bg-slate-50 dark:bg-slate-950">
       <DashboardSidebar />
 
-      <main className="flex-1 p-6 lg:p-10">
-        <div className="mx-auto max-w-5xl">
+      <main className="min-w-0 flex-1 px-4 py-6 sm:px-6 sm:py-8 lg:ml-64 lg:px-8 lg:py-10">
+        <div className="mx-auto max-w-5xl min-w-0">
 
           {/* Header */}
           <div>
-            <p className="text-sm font-semibold uppercase tracking-wider text-sky-500">
+            <p className="text-xs font-semibold uppercase tracking-wider text-sky-500 sm:text-sm">
               Account & System
             </p>
 
-            <h1 className="mt-2 text-4xl font-extrabold tracking-tight text-slate-900 dark:text-white">
+            <h1 className="mt-2 text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white sm:text-4xl">
               Settings
             </h1>
 
-            <p className="mt-2 text-slate-500 dark:text-slate-400">
+            <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-500 dark:text-slate-400 sm:text-base">
               Manage your profile, security and application preferences.
             </p>
           </div>
 
           {/* Profile */}
-          <section className="mt-8 rounded-2xl border border-sky-100 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
+          <section className="mt-6 min-w-0 overflow-hidden rounded-2xl border border-sky-100 bg-white shadow-sm sm:mt-8 dark:border-slate-800 dark:bg-slate-900">
 
-            <div className="border-b border-slate-100 p-6 dark:border-slate-800">
-              <div className="flex items-center gap-4">
+            <div className="border-b border-slate-100 p-5 dark:border-slate-800 sm:p-6">
+              <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
 
-                <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-sky-100 text-xl font-bold text-sky-600 dark:bg-sky-950 dark:text-sky-400">
-                  {name
-                    ? name.charAt(0).toUpperCase()
-                    : "U"}
+                <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-sky-100 text-xl font-bold text-sky-600 dark:bg-sky-950 dark:text-sky-400">
+                  {name ? name.charAt(0).toUpperCase() : "U"}
                 </div>
 
-                <div>
-                  <h2 className="text-xl font-bold text-slate-900 dark:text-white">
+                <div className="min-w-0">
+                  <h2 className="text-lg font-bold text-slate-900 dark:text-white sm:text-xl">
                     Profile Information
                   </h2>
 
-                  <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+                  <p className="mt-1 text-sm leading-5 text-slate-500 dark:text-slate-400">
                     Update your personal account information.
                   </p>
                 </div>
@@ -359,13 +311,10 @@ export default function SettingsPage() {
               </div>
             </div>
 
-            <form
-              onSubmit={updateProfile}
-              className="p-6"
-            >
-              <div className="grid gap-5 md:grid-cols-2">
+            <form onSubmit={updateProfile} className="p-5 sm:p-6">
+              <div className="grid min-w-0 gap-5 md:grid-cols-2">
 
-                <div>
+                <div className="min-w-0">
                   <label className="mb-2 block text-sm font-semibold text-slate-700 dark:text-slate-300">
                     Full Name
                   </label>
@@ -373,16 +322,14 @@ export default function SettingsPage() {
                   <input
                     type="text"
                     value={name}
-                    onChange={(event) =>
-                      setName(event.target.value)
-                    }
+                    onChange={(event) => setName(event.target.value)}
                     maxLength={100}
-                    className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-slate-900 outline-none transition focus:border-sky-500 focus:ring-2 focus:ring-sky-100 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
+                    className="w-full min-w-0 rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-sky-500 focus:ring-2 focus:ring-sky-100 dark:border-slate-700 dark:bg-slate-800 dark:text-white sm:text-base"
                     placeholder="Your name"
                   />
                 </div>
 
-                <div>
+                <div className="min-w-0">
                   <label className="mb-2 block text-sm font-semibold text-slate-700 dark:text-slate-300">
                     Email Address
                   </label>
@@ -391,7 +338,7 @@ export default function SettingsPage() {
                     type="email"
                     value={email}
                     disabled
-                    className="w-full cursor-not-allowed rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-slate-500 outline-none dark:border-slate-700 dark:bg-slate-800 dark:text-slate-500"
+                    className="w-full min-w-0 cursor-not-allowed rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-500 outline-none dark:border-slate-700 dark:bg-slate-800 dark:text-slate-500 sm:text-base"
                   />
 
                   <p className="mt-2 text-xs text-slate-400">
@@ -402,13 +349,13 @@ export default function SettingsPage() {
               </div>
 
               {profileError && (
-                <div className="mt-5 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-700 dark:border-red-900 dark:bg-red-950 dark:text-red-300">
+                <div className="mt-5 break-words rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium leading-5 text-red-700 dark:border-red-900 dark:bg-red-950 dark:text-red-300">
                   {profileError}
                 </div>
               )}
 
               {profileMessage && (
-                <div className="mt-5 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-medium text-emerald-700 dark:border-emerald-900 dark:bg-emerald-950 dark:text-emerald-300">
+                <div className="mt-5 break-words rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-medium leading-5 text-emerald-700 dark:border-emerald-900 dark:bg-emerald-950 dark:text-emerald-300">
                   {profileMessage}
                 </div>
               )}
@@ -416,31 +363,29 @@ export default function SettingsPage() {
               <button
                 type="submit"
                 disabled={savingProfile}
-                className="mt-6 rounded-xl bg-sky-500 px-6 py-3 font-semibold text-white shadow-sm transition hover:bg-sky-600 disabled:cursor-not-allowed disabled:opacity-50"
+                className="mt-6 w-full rounded-xl bg-sky-500 px-6 py-3 font-semibold text-white shadow-sm transition hover:bg-sky-600 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
               >
-                {savingProfile
-                  ? "Saving..."
-                  : "Save Changes"}
+                {savingProfile ? "Saving..." : "Save Changes"}
               </button>
             </form>
           </section>
 
           {/* Security */}
-          <section className="mt-6 rounded-2xl border border-sky-100 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
+          <section className="mt-5 min-w-0 overflow-hidden rounded-2xl border border-sky-100 bg-white shadow-sm sm:mt-6 dark:border-slate-800 dark:bg-slate-900">
 
-            <div className="border-b border-slate-100 p-6 dark:border-slate-800">
-              <div className="flex items-center gap-4">
+            <div className="border-b border-slate-100 p-5 dark:border-slate-800 sm:p-6">
+              <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
 
-                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-slate-100 text-xl dark:bg-slate-800">
+                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-slate-100 text-xl dark:bg-slate-800">
                   🔐
                 </div>
 
-                <div>
-                  <h2 className="text-xl font-bold text-slate-900 dark:text-white">
+                <div className="min-w-0">
+                  <h2 className="text-lg font-bold text-slate-900 dark:text-white sm:text-xl">
                     Security
                   </h2>
 
-                  <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+                  <p className="mt-1 text-sm leading-5 text-slate-500 dark:text-slate-400">
                     Keep your account password secure.
                   </p>
                 </div>
@@ -448,13 +393,10 @@ export default function SettingsPage() {
               </div>
             </div>
 
-            <form
-              onSubmit={changePassword}
-              className="p-6"
-            >
-              <div className="grid gap-5 md:grid-cols-3">
+            <form onSubmit={changePassword} className="p-5 sm:p-6">
+              <div className="grid min-w-0 gap-5 md:grid-cols-2 lg:grid-cols-3">
 
-                <div>
+                <div className="min-w-0">
                   <label className="mb-2 block text-sm font-semibold text-slate-700 dark:text-slate-300">
                     Current Password
                   </label>
@@ -463,16 +405,14 @@ export default function SettingsPage() {
                     type="password"
                     value={currentPassword}
                     onChange={(event) =>
-                      setCurrentPassword(
-                        event.target.value
-                      )
+                      setCurrentPassword(event.target.value)
                     }
-                    className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-slate-900 outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-100 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
+                    className="w-full min-w-0 rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-100 dark:border-slate-700 dark:bg-slate-800 dark:text-white sm:text-base"
                     placeholder="Current password"
                   />
                 </div>
 
-                <div>
+                <div className="min-w-0">
                   <label className="mb-2 block text-sm font-semibold text-slate-700 dark:text-slate-300">
                     New Password
                   </label>
@@ -481,11 +421,9 @@ export default function SettingsPage() {
                     type="password"
                     value={newPassword}
                     onChange={(event) =>
-                      setNewPassword(
-                        event.target.value
-                      )
+                      setNewPassword(event.target.value)
                     }
-                    className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-slate-900 outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-100 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
+                    className="w-full min-w-0 rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-100 dark:border-slate-700 dark:bg-slate-800 dark:text-white sm:text-base"
                     placeholder="New password"
                   />
 
@@ -494,7 +432,7 @@ export default function SettingsPage() {
                   </p>
                 </div>
 
-                <div>
+                <div className="min-w-0">
                   <label className="mb-2 block text-sm font-semibold text-slate-700 dark:text-slate-300">
                     Confirm Password
                   </label>
@@ -503,11 +441,9 @@ export default function SettingsPage() {
                     type="password"
                     value={confirmPassword}
                     onChange={(event) =>
-                      setConfirmPassword(
-                        event.target.value
-                      )
+                      setConfirmPassword(event.target.value)
                     }
-                    className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-slate-900 outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-100 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
+                    className="w-full min-w-0 rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-100 dark:border-slate-700 dark:bg-slate-800 dark:text-white sm:text-base"
                     placeholder="Confirm password"
                   />
                 </div>
@@ -515,13 +451,13 @@ export default function SettingsPage() {
               </div>
 
               {passwordError && (
-                <div className="mt-5 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-700 dark:border-red-900 dark:bg-red-950 dark:text-red-300">
+                <div className="mt-5 break-words rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium leading-5 text-red-700 dark:border-red-900 dark:bg-red-950 dark:text-red-300">
                   {passwordError}
                 </div>
               )}
 
               {passwordMessage && (
-                <div className="mt-5 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-medium text-emerald-700 dark:border-emerald-900 dark:bg-emerald-950 dark:text-emerald-300">
+                <div className="mt-5 break-words rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-medium leading-5 text-emerald-700 dark:border-emerald-900 dark:bg-emerald-950 dark:text-emerald-300">
                   {passwordMessage}
                 </div>
               )}
@@ -529,7 +465,7 @@ export default function SettingsPage() {
               <button
                 type="submit"
                 disabled={changingPassword}
-                className="mt-6 rounded-xl bg-slate-900 px-6 py-3 font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-white dark:text-slate-900 dark:hover:bg-slate-200"
+                className="mt-6 w-full rounded-xl bg-slate-900 px-6 py-3 font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-white dark:text-slate-900 dark:hover:bg-slate-200 sm:w-auto"
               >
                 {changingPassword
                   ? "Changing..."
@@ -539,14 +475,14 @@ export default function SettingsPage() {
           </section>
 
           {/* Preferences */}
-          <section className="mt-6 rounded-2xl border border-sky-100 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
+          <section className="mt-5 min-w-0 overflow-hidden rounded-2xl border border-sky-100 bg-white shadow-sm sm:mt-6 dark:border-slate-800 dark:bg-slate-900">
 
-            <div className="border-b border-slate-100 p-6 dark:border-slate-800">
-              <h2 className="text-xl font-bold text-slate-900 dark:text-white">
+            <div className="border-b border-slate-100 p-5 dark:border-slate-800 sm:p-6">
+              <h2 className="text-lg font-bold text-slate-900 dark:text-white sm:text-xl">
                 Preferences
               </h2>
 
-              <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+              <p className="mt-1 text-sm leading-5 text-slate-500 dark:text-slate-400">
                 Customize your ShanBizFlow experience.
               </p>
             </div>
@@ -554,19 +490,19 @@ export default function SettingsPage() {
             <div className="divide-y divide-slate-100 dark:divide-slate-800">
 
               {/* Dark Mode */}
-              <div className="flex items-center justify-between gap-5 p-6">
+              <div className="flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:justify-between sm:p-6">
 
-                <div className="flex items-center gap-4">
-                  <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-sky-50 text-xl dark:bg-sky-950">
+                <div className="flex min-w-0 items-center gap-4">
+                  <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-sky-50 text-xl dark:bg-sky-950">
                     {darkMode ? "🌙" : "☀️"}
                   </div>
 
-                  <div>
+                  <div className="min-w-0">
                     <h3 className="font-bold text-slate-900 dark:text-white">
                       Dark Mode
                     </h3>
 
-                    <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+                    <p className="mt-1 text-sm leading-5 text-slate-500 dark:text-slate-400">
                       Use a darker appearance throughout ShanBizFlow.
                     </p>
                   </div>
@@ -577,17 +513,13 @@ export default function SettingsPage() {
                   onClick={toggleDarkMode}
                   aria-label="Toggle dark mode"
                   aria-pressed={darkMode}
-                  className={`relative h-7 w-12 rounded-full transition ${
-                    darkMode
-                      ? "bg-sky-500"
-                      : "bg-slate-300"
+                  className={`relative h-7 w-12 shrink-0 self-end rounded-full transition sm:self-auto ${
+                    darkMode ? "bg-sky-500" : "bg-slate-300"
                   }`}
                 >
                   <span
                     className={`absolute top-1 h-5 w-5 rounded-full bg-white shadow transition ${
-                      darkMode
-                        ? "left-6"
-                        : "left-1"
+                      darkMode ? "left-6" : "left-1"
                     }`}
                   />
                 </button>
@@ -598,21 +530,21 @@ export default function SettingsPage() {
           </section>
 
           {/* Account Information */}
-          <section className="mt-6 rounded-2xl border border-sky-100 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
+          <section className="mt-5 min-w-0 overflow-hidden rounded-2xl border border-sky-100 bg-white shadow-sm sm:mt-6 dark:border-slate-800 dark:bg-slate-900">
 
-            <div className="border-b border-slate-100 p-6 dark:border-slate-800">
-              <h2 className="text-xl font-bold text-slate-900 dark:text-white">
+            <div className="border-b border-slate-100 p-5 dark:border-slate-800 sm:p-6">
+              <h2 className="text-lg font-bold text-slate-900 dark:text-white sm:text-xl">
                 Account Information
               </h2>
 
-              <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+              <p className="mt-1 text-sm leading-5 text-slate-500 dark:text-slate-400">
                 Information about your ShanBizFlow account.
               </p>
             </div>
 
-            <div className="grid gap-5 p-6 sm:grid-cols-3">
+            <div className="grid gap-4 p-5 sm:grid-cols-2 sm:gap-5 sm:p-6 lg:grid-cols-3">
 
-              <div className="rounded-2xl bg-slate-50 p-5 dark:bg-slate-800">
+              <div className="min-w-0 rounded-2xl bg-slate-50 p-5 dark:bg-slate-800">
                 <p className="text-xs font-semibold uppercase tracking-wider text-slate-400">
                   User ID
                 </p>
@@ -622,17 +554,17 @@ export default function SettingsPage() {
                 </p>
               </div>
 
-              <div className="rounded-2xl bg-slate-50 p-5 dark:bg-slate-800">
+              <div className="min-w-0 rounded-2xl bg-slate-50 p-5 dark:bg-slate-800">
                 <p className="text-xs font-semibold uppercase tracking-wider text-slate-400">
                   Role
                 </p>
 
-                <p className="mt-2 text-lg font-bold text-sky-600 dark:text-sky-400">
+                <p className="mt-2 break-words text-lg font-bold text-sky-600 dark:text-sky-400">
                   {user?.role}
                 </p>
               </div>
 
-              <div className="rounded-2xl bg-slate-50 p-5 dark:bg-slate-800">
+              <div className="min-w-0 rounded-2xl bg-slate-50 p-5 dark:bg-slate-800">
                 <p className="text-xs font-semibold uppercase tracking-wider text-slate-400">
                   Account Status
                 </p>
@@ -646,32 +578,32 @@ export default function SettingsPage() {
           </section>
 
           {/* Session */}
-          <section className="mt-6 rounded-2xl border border-sky-100 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
+          <section className="mt-5 min-w-0 overflow-hidden rounded-2xl border border-sky-100 bg-white shadow-sm sm:mt-6 dark:border-slate-800 dark:bg-slate-900">
 
-            <div className="border-b border-slate-100 p-6 dark:border-slate-800">
-              <h2 className="text-xl font-bold text-slate-900 dark:text-white">
+            <div className="border-b border-slate-100 p-5 dark:border-slate-800 sm:p-6">
+              <h2 className="text-lg font-bold text-slate-900 dark:text-white sm:text-xl">
                 Session
               </h2>
 
-              <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+              <p className="mt-1 text-sm leading-5 text-slate-500 dark:text-slate-400">
                 Your session automatically expires after 30 minutes.
               </p>
             </div>
 
-            <div className="flex flex-col justify-between gap-5 p-6 sm:flex-row sm:items-center">
+            <div className="flex flex-col gap-5 p-5 sm:flex-row sm:items-center sm:justify-between sm:p-6">
 
-              <div className="flex items-center gap-4">
+              <div className="flex min-w-0 items-center gap-4">
 
-                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-emerald-50 text-xl dark:bg-emerald-950">
+                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-emerald-50 text-xl dark:bg-emerald-950">
                   🛡️
                 </div>
 
-                <div>
+                <div className="min-w-0">
                   <p className="font-semibold text-slate-900 dark:text-white">
                     Current session
                   </p>
 
-                  <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+                  <p className="mt-1 text-sm leading-5 text-slate-500 dark:text-slate-400">
                     Your authentication session is active.
                   </p>
                 </div>
@@ -682,17 +614,15 @@ export default function SettingsPage() {
                 type="button"
                 onClick={handleLogout}
                 disabled={loggingOut}
-                className="rounded-xl bg-red-500 px-6 py-3 font-semibold text-white transition hover:bg-red-600 disabled:cursor-not-allowed disabled:opacity-50"
+                className="w-full rounded-xl bg-red-500 px-6 py-3 font-semibold text-white transition hover:bg-red-600 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
               >
-                {loggingOut
-                  ? "Logging out..."
-                  : "Logout"}
+                {loggingOut ? "Logging out..." : "Logout"}
               </button>
 
             </div>
           </section>
 
-          <div className="mb-10 mt-8 text-center">
+          <div className="mb-8 mt-6 text-center sm:mb-10 sm:mt-8">
             <p className="text-xs text-slate-400">
               ShanBizFlow • Business Management System
             </p>
@@ -703,3 +633,4 @@ export default function SettingsPage() {
     </div>
   );
 }
+
