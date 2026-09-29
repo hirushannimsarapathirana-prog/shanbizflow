@@ -12,46 +12,146 @@
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* =========================================
+   BASE
+========================================= */
+
+html {
+  background: #ffffff;
 }
 
 body {
+  margin: 0;
+  padding: 0;
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
-@media print {
-  body {
-    background: white !important;
-  }
 
-  .no-print {
-    display: none !important;
-  }
-
-  .print-bill {
-    display: block !important;
-  }
-}
-@media print {
-  .no-print {
-    display: none !important;
-  }
-
-  .print-bill {
-    display: block !important;
-  }
-
-  body {
-    background: white !important;
-  }
-}
 /* =========================================
-   SHANBIZFLOW BILL PRINT DESIGN
+   DARK MODE
+========================================= */
+
+html.dark {
+  background: #020617;
+}
+
+html.dark body {
+  background: #020617;
+  color: #e2e8f0;
+}
+
+html.dark .bg-white {
+  background-color: #0f172a !important;
+}
+
+html.dark .bg-slate-50 {
+  background-color: #020617 !important;
+}
+
+html.dark .bg-slate-100 {
+  background-color: #1e293b !important;
+}
+
+html.dark .bg-gray-100 {
+  background-color: #020617 !important;
+}
+
+html.dark .bg-sky-50 {
+  background-color: #082f49 !important;
+}
+
+html.dark .bg-sky-100 {
+  background-color: #0c4a6e !important;
+}
+
+html.dark .text-slate-900 {
+  color: #f8fafc !important;
+}
+
+html.dark .text-slate-800 {
+  color: #f1f5f9 !important;
+}
+
+html.dark .text-slate-700 {
+  color: #e2e8f0 !important;
+}
+
+html.dark .text-slate-600 {
+  color: #cbd5e1 !important;
+}
+
+html.dark .text-slate-500 {
+  color: #94a3b8 !important;
+}
+
+html.dark .text-gray-900 {
+  color: #f8fafc !important;
+}
+
+html.dark .text-gray-700 {
+  color: #e2e8f0 !important;
+}
+
+html.dark .text-gray-600 {
+  color: #cbd5e1 !important;
+}
+
+html.dark .border-slate-100 {
+  border-color: #1e293b !important;
+}
+
+html.dark .border-slate-200 {
+  border-color: #334155 !important;
+}
+
+html.dark .border-sky-100 {
+  border-color: #164e63 !important;
+}
+
+html.dark input,
+html.dark textarea,
+html.dark select {
+  background-color: #1e293b !important;
+  color: #f8fafc !important;
+  border-color: #334155 !important;
+}
+
+html.dark input::placeholder,
+html.dark textarea::placeholder {
+  color: #64748b !important;
+}
+
+html.dark input:disabled {
+  background-color: #0f172a !important;
+  color: #64748b !important;
+}
+
+html.dark thead {
+  background-color: #1e293b !important;
+}
+
+html.dark td {
+  border-color: #334155 !important;
+}
+
+html.dark tr:hover {
+  background-color: #1e293b !important;
+}
+
+html.dark .divide-slate-100 > :not([hidden]) ~ :not([hidden]) {
+  border-color: #1e293b !important;
+}
+
+html.dark nav {
+  background-color: #0f172a !important;
+  border-color: #1e293b !important;
+}
+
+/* =========================================
+   SHANBIZFLOW BILL
 ========================================= */
 
 .print-bill {
@@ -68,6 +168,10 @@ body {
   font-family: Arial, Helvetica, sans-serif;
   box-sizing: border-box;
 }
+
+/* =========================================
+   INVOICE HEADER
+========================================= */
 
 .invoice-header {
   display: flex;
@@ -121,6 +225,10 @@ body {
   );
 }
 
+/* =========================================
+   INVOICE INFORMATION
+========================================= */
+
 .invoice-info {
   display: flex;
   justify-content: space-between;
@@ -169,6 +277,10 @@ body {
 .invoice-meta strong {
   color: #0f172a;
 }
+
+/* =========================================
+   INVOICE TABLE
+========================================= */
 
 .invoice-table {
   width: 100%;
@@ -245,6 +357,10 @@ body {
   color: #0f172a !important;
   font-weight: 700;
 }
+
+/* =========================================
+   INVOICE BOTTOM
+========================================= */
 
 .invoice-bottom {
   display: flex;
@@ -336,6 +452,10 @@ body {
   color: #ea580c;
 }
 
+/* =========================================
+   INVOICE FOOTER BOX
+========================================= */
+
 .invoice-footer-box {
   display: flex;
   align-items: center;
@@ -390,6 +510,10 @@ body {
   color: #0f172a;
 }
 
+/* =========================================
+   INVOICE FOOTER
+========================================= */
+
 .invoice-footer {
   display: flex;
   justify-content: space-between;
@@ -399,6 +523,10 @@ body {
   font-size: 8px;
   color: #94a3b8;
 }
+
+/* =========================================
+   INVOICE ACTIONS
+========================================= */
 
 .invoice-actions {
   display: flex;
@@ -434,13 +562,11 @@ body {
   background: #cbd5e1;
 }
 
-
 /* =========================================
-   PRINT
+   PRINT ONLY
 ========================================= */
 
 @media print {
-
   @page {
     size: A4;
     margin: 0;
@@ -452,7 +578,7 @@ body {
     min-height: 297mm;
     margin: 0 !important;
     padding: 0 !important;
-    background: white !important;
+    background: #ffffff !important;
   }
 
   body {
@@ -460,32 +586,77 @@ body {
     print-color-adjust: exact !important;
   }
 
+  /*
+     Hide EVERYTHING first.
+     This prevents Navbar, Sidebar,
+     Dashboard panels and Sales UI
+     from appearing in the print.
+  */
+
+  body * {
+    visibility: hidden !important;
+  }
+
+  /*
+     Show ONLY invoice.
+  */
+
+  .print-bill,
+  .print-bill * {
+    visibility: visible !important;
+  }
+
+  /*
+     Completely remove normal application UI.
+  */
+
   .no-print {
     display: none !important;
   }
 
+  /*
+     Put invoice at the very top-left
+     of the printed page.
+  */
+
   .print-bill {
     display: block !important;
-    width: 210mm;
-    min-height: 297mm;
-    margin: 0;
-    padding: 0;
-    background: white !important;
+    position: absolute !important;
+    left: 0 !important;
+    top: 0 !important;
+    width: 210mm !important;
+    min-height: 297mm !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    background: #ffffff !important;
   }
+
+  /*
+     A4 invoice layout.
+  */
 
   .invoice-page {
     display: block !important;
-    width: 210mm;
-    min-height: 297mm;
-    margin: 0;
-    padding: 14mm;
-    box-sizing: border-box;
-    background: white !important;
+    width: 210mm !important;
+    min-height: 297mm !important;
+    margin: 0 !important;
+    padding: 14mm !important;
+    box-sizing: border-box !important;
+    background: #ffffff !important;
+    color: #0f172a !important;
   }
+
+  /*
+     Never print invoice action buttons.
+  */
 
   .invoice-actions {
     display: none !important;
   }
+
+  /*
+     Keep invoice rows together.
+  */
 
   .invoice-table {
     page-break-inside: auto;
