@@ -760,38 +760,44 @@ export default function SalesPage() {
     });
   }
 
+  const selectClass =
+    "w-full min-w-0 rounded-xl border border-slate-200 bg-white px-3 py-3 text-sm text-slate-900 outline-none focus:border-sky-400 focus:ring-4 focus:ring-sky-50 sm:px-4 sm:text-base dark:border-slate-700 dark:bg-slate-800 dark:text-white dark:focus:ring-sky-900/30";
+
+  const inputClass =
+    "w-full min-w-0 rounded-xl border border-slate-200 bg-white px-3 py-3 text-sm text-slate-900 outline-none placeholder:text-slate-400 focus:border-sky-400 focus:ring-4 focus:ring-sky-50 sm:px-4 sm:text-base dark:border-slate-700 dark:bg-slate-800 dark:text-white dark:focus:ring-sky-900/30";
+
   return (
     <>
-      <div className="no-print">
-        <div className="flex min-h-screen bg-slate-50 dark:bg-slate-950">
+      <div className="no-print overflow-x-hidden">
+        <div className="min-h-screen bg-slate-50 dark:bg-slate-950">
           <DashboardSidebar />
 
-          <main className="min-w-0 flex-1 px-6 py-10 lg:ml-64">
-            <div className="mx-auto max-w-7xl">
+          <main className="min-w-0 lg:ml-64">
+            <div className="mx-auto w-full max-w-7xl px-4 py-6 sm:px-6 sm:py-8 lg:px-8 lg:py-10">
 
-              <div className="mb-10">
+              <div className="mb-7 sm:mb-10">
                 <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
 
-                  <div>
-                    <p className="text-sm font-semibold uppercase tracking-wider text-sky-500">
+                  <div className="min-w-0">
+                    <p className="text-xs font-semibold uppercase tracking-wider text-sky-500 sm:text-sm">
                       Sales Management
                     </p>
 
-                    <h1 className="mt-2 text-4xl font-extrabold tracking-tight text-slate-900 dark:text-white">
+                    <h1 className="mt-2 text-3xl font-extrabold tracking-tight text-slate-900 sm:text-4xl dark:text-white">
                       Create Sale
                     </h1>
 
-                    <p className="mt-2 text-slate-500 dark:text-slate-400">
+                    <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-500 sm:text-base dark:text-slate-400">
                       Create sales, manage products and record payments.
                     </p>
                   </div>
 
                   {userLoading ? (
-                    <div className="rounded-full bg-slate-100 px-4 py-2 text-xs font-bold text-slate-500 dark:bg-slate-800 dark:text-slate-400">
+                    <div className="w-fit rounded-full bg-slate-100 px-3 py-2 text-xs font-bold text-slate-500 sm:px-4 dark:bg-slate-800 dark:text-slate-400">
                       Checking permissions...
                     </div>
                   ) : (
-                    <div className="rounded-full bg-sky-50 px-4 py-2 text-xs font-bold text-sky-600 dark:bg-sky-950/40 dark:text-sky-400">
+                    <div className="w-fit rounded-full bg-sky-50 px-3 py-2 text-xs font-bold text-sky-600 sm:px-4 dark:bg-sky-950/40 dark:text-sky-400">
                       Role: {userRole || "UNKNOWN"}
                     </div>
                   )}
@@ -800,27 +806,28 @@ export default function SalesPage() {
               </div>
 
               {message && (
-                <div className="mb-6 rounded-xl border border-green-200 bg-green-50 px-5 py-4 text-sm font-medium text-green-700 dark:border-green-900 dark:bg-green-950/30 dark:text-green-400">
+                <div className="mb-5 rounded-xl border border-green-200 bg-green-50 px-4 py-3 text-sm font-medium text-green-700 sm:mb-6 sm:px-5 sm:py-4 dark:border-green-900 dark:bg-green-950/30 dark:text-green-400">
                   {message}
                 </div>
               )}
 
               {error && (
-                <div className="mb-6 rounded-xl border border-red-200 bg-red-50 px-5 py-4 text-sm font-medium text-red-700 dark:border-red-900 dark:bg-red-950/30 dark:text-red-400">
+                <div className="mb-5 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-700 sm:mb-6 sm:px-5 sm:py-4 dark:border-red-900 dark:bg-red-950/30 dark:text-red-400">
                   {error}
                 </div>
               )}
 
               {createdSale && (
-                <div className="mb-8 rounded-3xl border border-sky-100 bg-white p-7 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-                  <div className="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
+                <div className="mb-6 rounded-2xl border border-sky-100 bg-white p-4 shadow-sm sm:mb-8 sm:rounded-3xl sm:p-6 lg:p-7 dark:border-slate-800 dark:bg-slate-900">
 
-                    <div>
-                      <p className="text-sm font-semibold uppercase tracking-wider text-green-500">
+                  <div className="flex flex-col gap-4 sm:gap-5 md:flex-row md:items-center md:justify-between">
+
+                    <div className="min-w-0">
+                      <p className="text-xs font-semibold uppercase tracking-wider text-green-500 sm:text-sm">
                         Sale Completed
                       </p>
 
-                      <h2 className="mt-1 text-2xl font-bold text-slate-900 dark:text-white">
+                      <h2 className="mt-1 truncate text-xl font-bold text-slate-900 sm:text-2xl dark:text-white">
                         {createdSale.invoiceNumber}
                       </h2>
 
@@ -832,7 +839,7 @@ export default function SalesPage() {
                     <button
                       type="button"
                       onClick={printBill}
-                      className="rounded-xl bg-sky-500 px-7 py-3.5 font-bold text-white shadow-sm transition hover:bg-sky-600"
+                      className="w-full rounded-xl bg-sky-500 px-5 py-3.5 text-sm font-bold text-white shadow-sm transition hover:bg-sky-600 sm:w-auto sm:px-7"
                     >
                       🖨️ Print Bill
                     </button>
@@ -842,7 +849,7 @@ export default function SalesPage() {
               )}
 
               {userLoading || loading ? (
-                <div className="rounded-3xl border border-sky-100 bg-white p-12 text-center shadow-sm dark:border-slate-800 dark:bg-slate-900">
+                <div className="rounded-2xl border border-sky-100 bg-white p-8 text-center shadow-sm sm:rounded-3xl sm:p-12 dark:border-slate-800 dark:bg-slate-900">
                   <p className="font-medium text-slate-500 dark:text-slate-400">
                     {userLoading
                       ? "Checking permissions..."
@@ -850,7 +857,7 @@ export default function SalesPage() {
                   </p>
                 </div>
               ) : !canCreateSale ? (
-                <div className="rounded-3xl border border-red-200 bg-red-50 p-12 text-center shadow-sm dark:border-red-900 dark:bg-red-950/30">
+                <div className="rounded-2xl border border-red-200 bg-red-50 p-8 text-center shadow-sm sm:rounded-3xl sm:p-12 dark:border-red-900 dark:bg-red-950/30">
 
                   <div className="text-4xl">
                     🔒
@@ -866,12 +873,12 @@ export default function SalesPage() {
 
                 </div>
               ) : (
-                <div className="grid gap-8 xl:grid-cols-[1.5fr_1fr]">
+                <div className="grid min-w-0 gap-6 lg:gap-8 xl:grid-cols-[1.5fr_1fr]">
 
-                  <section className="rounded-3xl border border-sky-100 bg-white p-7 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+                  <section className="min-w-0 rounded-2xl border border-sky-100 bg-white p-4 shadow-sm sm:rounded-3xl sm:p-6 lg:p-7 dark:border-slate-800 dark:bg-slate-900">
 
-                    <div className="mb-7">
-                      <h2 className="text-2xl font-bold text-slate-900 dark:text-white">
+                    <div className="mb-5 sm:mb-7">
+                      <h2 className="text-xl font-bold text-slate-900 sm:text-2xl dark:text-white">
                         Sale Details
                       </h2>
 
@@ -880,9 +887,9 @@ export default function SalesPage() {
                       </p>
                     </div>
 
-                    <div className="grid gap-5 md:grid-cols-2">
+                    <div className="grid min-w-0 gap-4 sm:gap-5 md:grid-cols-2">
 
-                      <div>
+                      <div className="min-w-0">
                         <label className="mb-2 block text-sm font-semibold text-slate-700 dark:text-slate-300">
                           Customer
                         </label>
@@ -894,7 +901,7 @@ export default function SalesPage() {
                               event.target.value
                             )
                           }
-                          className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-slate-900 outline-none focus:border-sky-400 focus:ring-4 focus:ring-sky-50 dark:border-slate-700 dark:bg-slate-800 dark:text-white dark:focus:ring-sky-900/30"
+                          className={selectClass}
                         >
                           <option value="">
                             Walk-in Customer
@@ -923,7 +930,7 @@ export default function SalesPage() {
                         </select>
                       </div>
 
-                      <div>
+                      <div className="min-w-0">
                         <label className="mb-2 block text-sm font-semibold text-slate-700 dark:text-slate-300">
                           Product
                         </label>
@@ -935,7 +942,7 @@ export default function SalesPage() {
                               event.target.value
                             )
                           }
-                          className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-slate-900 outline-none focus:border-sky-400 focus:ring-4 focus:ring-sky-50 dark:border-slate-700 dark:bg-slate-800 dark:text-white dark:focus:ring-sky-900/30"
+                          className={selectClass}
                         >
                           <option value="">
                             Select Product
@@ -970,7 +977,7 @@ export default function SalesPage() {
                         </select>
                       </div>
 
-                      <div>
+                      <div className="min-w-0">
                         <label className="mb-2 block text-sm font-semibold text-slate-700 dark:text-slate-300">
                           Quantity
                         </label>
@@ -986,15 +993,15 @@ export default function SalesPage() {
                               )
                             )
                           }
-                          className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-slate-900 outline-none focus:border-sky-400 focus:ring-4 focus:ring-sky-50 dark:border-slate-700 dark:bg-slate-800 dark:text-white dark:focus:ring-sky-900/30"
+                          className={inputClass}
                         />
                       </div>
 
-                      <div className="flex items-end">
+                      <div className="flex min-w-0 items-end">
                         <button
                           type="button"
                           onClick={addProduct}
-                          className="w-full rounded-xl bg-sky-500 px-6 py-3.5 font-semibold text-white transition hover:bg-sky-600"
+                          className="w-full rounded-xl bg-sky-500 px-5 py-3.5 text-sm font-semibold text-white transition hover:bg-sky-600 sm:px-6"
                         >
                           + Add Product
                         </button>
@@ -1002,9 +1009,9 @@ export default function SalesPage() {
 
                     </div>
 
-                    <div className="mt-8">
+                    <div className="mt-6 sm:mt-8">
 
-                      <div className="mb-4 flex items-center justify-between">
+                      <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
 
                         <h3 className="text-lg font-bold text-slate-900 dark:text-white">
                           Sale Items
@@ -1021,7 +1028,7 @@ export default function SalesPage() {
                       </div>
 
                       {cart.length === 0 ? (
-                        <div className="rounded-2xl border border-dashed border-slate-200 bg-slate-50 p-10 text-center dark:border-slate-700 dark:bg-slate-800/50">
+                        <div className="rounded-2xl border border-dashed border-slate-200 bg-slate-50 p-7 text-center sm:p-10 dark:border-slate-700 dark:bg-slate-800/50">
 
                           <div className="text-4xl">
                             🛒
@@ -1039,7 +1046,7 @@ export default function SalesPage() {
                       ) : (
                         <div className="overflow-hidden rounded-2xl border border-slate-200 dark:border-slate-700">
 
-                          <div className="hidden grid-cols-[1fr_110px_150px_40px] gap-4 bg-slate-50 px-5 py-3 text-xs font-semibold uppercase tracking-wide text-slate-500 dark:bg-slate-800 dark:text-slate-400 md:grid">
+                          <div className="hidden grid-cols-[minmax(0,1fr)_110px_150px_40px] gap-4 bg-slate-50 px-5 py-3 text-xs font-semibold uppercase tracking-wide text-slate-500 dark:bg-slate-800 dark:text-slate-400 md:grid">
 
                             <span>
                               Product
@@ -1063,11 +1070,11 @@ export default function SalesPage() {
                                 key={
                                   item.productId
                                 }
-                                className="grid gap-4 border-t border-slate-100 px-5 py-5 dark:border-slate-800 md:grid-cols-[1fr_110px_150px_40px] md:items-center"
+                                className="grid gap-3 border-t border-slate-100 p-4 dark:border-slate-800 sm:gap-4 sm:px-5 sm:py-5 md:grid-cols-[minmax(0,1fr)_110px_150px_40px] md:items-center"
                               >
 
-                                <div>
-                                  <p className="font-semibold text-slate-900 dark:text-white">
+                                <div className="min-w-0">
+                                  <p className="break-words font-semibold text-slate-900 dark:text-white">
                                     {
                                       item.name
                                     }
@@ -1080,30 +1087,42 @@ export default function SalesPage() {
                                   </p>
                                 </div>
 
-                                <input
-                                  type="number"
-                                  min="1"
-                                  value={
-                                    item.quantity
-                                  }
-                                  onChange={(
-                                    event
-                                  ) =>
-                                    updateQuantity(
-                                      item.productId,
-                                      Number(
-                                        event.target
-                                          .value
-                                      )
-                                    )
-                                  }
-                                  className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-slate-900 outline-none focus:border-sky-400 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
-                                />
+                                <div className="grid grid-cols-[auto_1fr] items-center gap-3 md:block">
+                                  <span className="text-xs font-semibold text-slate-400 md:hidden">
+                                    Qty
+                                  </span>
 
-                                <p className="font-bold text-slate-900 dark:text-white">
-                                  Rs.{" "}
-                                  {item.subtotal.toLocaleString()}
-                                </p>
+                                  <input
+                                    type="number"
+                                    min="1"
+                                    value={
+                                      item.quantity
+                                    }
+                                    onChange={(
+                                      event
+                                    ) =>
+                                      updateQuantity(
+                                        item.productId,
+                                        Number(
+                                          event.target
+                                            .value
+                                        )
+                                      )
+                                    }
+                                    className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 outline-none focus:border-sky-400 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
+                                  />
+                                </div>
+
+                                <div className="flex items-center justify-between md:block">
+                                  <span className="text-xs font-semibold text-slate-400 md:hidden">
+                                    Subtotal
+                                  </span>
+
+                                  <p className="font-bold text-slate-900 dark:text-white">
+                                    Rs.{" "}
+                                    {item.subtotal.toLocaleString()}
+                                  </p>
+                                </div>
 
                                 <button
                                   type="button"
@@ -1112,9 +1131,15 @@ export default function SalesPage() {
                                       item.productId
                                     )
                                   }
-                                  className="rounded-lg px-2 py-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30"
+                                  className="w-full rounded-lg px-2 py-2 text-left text-sm font-semibold text-red-500 hover:bg-red-50 md:w-auto md:text-center md:text-base dark:hover:bg-red-950/30"
                                 >
-                                  ✕
+                                  <span className="md:hidden">
+                                    Remove
+                                  </span>
+
+                                  <span className="hidden md:inline">
+                                    ✕
+                                  </span>
                                 </button>
 
                               </div>
@@ -1128,9 +1153,9 @@ export default function SalesPage() {
 
                   </section>
 
-                  <section className="h-fit rounded-3xl border border-sky-100 bg-white p-7 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+                  <section className="h-fit min-w-0 rounded-2xl border border-sky-100 bg-white p-4 shadow-sm sm:rounded-3xl sm:p-6 lg:p-7 dark:border-slate-800 dark:bg-slate-900">
 
-                    <h2 className="text-2xl font-bold text-slate-900 dark:text-white">
+                    <h2 className="text-xl font-bold text-slate-900 sm:text-2xl dark:text-white">
                       Payment
                     </h2>
 
@@ -1138,15 +1163,15 @@ export default function SalesPage() {
                       Review totals and record payment.
                     </p>
 
-                    <div className="mt-7 space-y-5">
+                    <div className="mt-6 space-y-4 sm:mt-7 sm:space-y-5">
 
-                      <div className="flex justify-between text-slate-600 dark:text-slate-400">
+                      <div className="flex items-center justify-between gap-4 text-sm text-slate-600 sm:text-base dark:text-slate-400">
 
                         <span>
                           Subtotal
                         </span>
 
-                        <span className="font-semibold text-slate-900 dark:text-white">
+                        <span className="shrink-0 font-semibold text-slate-900 dark:text-white">
                           Rs.{" "}
                           {subtotal.toLocaleString()}
                         </span>
@@ -1178,7 +1203,7 @@ export default function SalesPage() {
                               )
                             }
                             placeholder="0"
-                            className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 pr-12 text-slate-900 outline-none placeholder:text-slate-400 focus:border-sky-400 focus:ring-4 focus:ring-sky-50 dark:border-slate-700 dark:bg-slate-800 dark:text-white dark:focus:ring-sky-900/30"
+                            className={`${inputClass} pr-12`}
                           />
 
                           <span className="absolute right-4 top-1/2 -translate-y-1/2 font-bold text-slate-400">
@@ -1187,13 +1212,13 @@ export default function SalesPage() {
 
                         </div>
 
-                        <div className="mt-2 flex justify-between text-sm">
+                        <div className="mt-2 flex items-center justify-between gap-3 text-sm">
 
                           <span className="text-slate-400">
                             Discount Amount
                           </span>
 
-                          <span className="font-semibold text-red-500">
+                          <span className="shrink-0 font-semibold text-red-500">
                             - Rs.{" "}
                             {discountAmount.toLocaleString(
                               undefined,
@@ -1209,13 +1234,13 @@ export default function SalesPage() {
 
                       <div className="border-t border-slate-100 pt-4 dark:border-slate-800">
 
-                        <div className="flex justify-between">
+                        <div className="flex items-center justify-between gap-4">
 
                           <span className="font-semibold text-slate-700 dark:text-slate-300">
                             Total
                           </span>
 
-                          <span className="text-2xl font-extrabold text-sky-600">
+                          <span className="text-xl font-extrabold text-sky-600 sm:text-2xl">
                             Rs.{" "}
                             {total.toLocaleString(
                               undefined,
@@ -1252,7 +1277,7 @@ export default function SalesPage() {
                             )
                           }
                           placeholder="Enter amount customer pays"
-                          className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-slate-900 outline-none placeholder:text-slate-400 focus:border-sky-400 focus:ring-4 focus:ring-sky-50 dark:border-slate-700 dark:bg-slate-800 dark:text-white dark:focus:ring-sky-900/30"
+                          className={inputClass}
                         />
 
                         <p className="mt-1 text-xs text-slate-400">
@@ -1261,9 +1286,9 @@ export default function SalesPage() {
 
                       </div>
 
-                      <div className="rounded-xl bg-slate-50 p-4 dark:bg-slate-800">
+                      <div className="rounded-xl bg-slate-50 p-3.5 sm:p-4 dark:bg-slate-800">
 
-                        <div className="flex justify-between">
+                        <div className="flex items-center justify-between gap-4">
 
                           <span className="font-medium text-slate-500 dark:text-slate-400">
                             Balance
@@ -1305,7 +1330,7 @@ export default function SalesPage() {
                                 .value
                             )
                           }
-                          className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-slate-900 outline-none focus:border-sky-400 focus:ring-4 focus:ring-sky-50 dark:border-slate-700 dark:bg-slate-800 dark:text-white dark:focus:ring-sky-900/30"
+                          className={selectClass}
                         >
 
                           <option value="CASH">
@@ -1344,20 +1369,20 @@ export default function SalesPage() {
                           }
                           rows={3}
                           placeholder="Optional payment note"
-                          className="w-full resize-none rounded-xl border border-slate-200 bg-white px-4 py-3 text-slate-900 outline-none placeholder:text-slate-400 focus:border-sky-400 focus:ring-4 focus:ring-sky-50 dark:border-slate-700 dark:bg-slate-800 dark:text-white dark:focus:ring-sky-900/30"
+                          className="w-full resize-none rounded-xl border border-slate-200 bg-white px-3 py-3 text-sm text-slate-900 outline-none placeholder:text-slate-400 focus:border-sky-400 focus:ring-4 focus:ring-sky-50 sm:px-4 sm:text-base dark:border-slate-700 dark:bg-slate-800 dark:text-white dark:focus:ring-sky-900/30"
                         />
 
                       </div>
 
-                      <div className="rounded-xl border border-sky-100 bg-sky-50 p-4 dark:border-sky-900/50 dark:bg-sky-950/30">
+                      <div className="rounded-xl border border-sky-100 bg-sky-50 p-3.5 sm:p-4 dark:border-sky-900/50 dark:bg-sky-950/30">
 
-                        <div className="flex items-center justify-between">
+                        <div className="flex items-center justify-between gap-3">
 
                           <span className="text-sm font-semibold text-slate-600 dark:text-slate-300">
                             Payment Status
                           </span>
 
-                          <span className="rounded-full bg-white px-3 py-1 text-xs font-bold text-sky-600 dark:bg-slate-800 dark:text-sky-400">
+                          <span className="rounded-full bg-white px-2.5 py-1 text-[11px] font-bold text-sky-600 sm:px-3 sm:text-xs dark:bg-slate-800 dark:text-sky-400">
                             {
                               paymentStatus
                             }
@@ -1367,7 +1392,7 @@ export default function SalesPage() {
 
                       </div>
 
-                      <div className="grid gap-3 pt-3">
+                      <div className="grid gap-3 pt-2 sm:pt-3">
 
                         <button
                           type="button"
@@ -1379,7 +1404,7 @@ export default function SalesPage() {
                             cart.length ===
                               0
                           }
-                          className="rounded-xl bg-sky-500 px-6 py-4 font-bold text-white shadow-sm transition hover:bg-sky-600 disabled:cursor-not-allowed disabled:opacity-50"
+                          className="rounded-xl bg-sky-500 px-5 py-3.5 text-sm font-bold text-white shadow-sm transition hover:bg-sky-600 disabled:cursor-not-allowed disabled:opacity-50 sm:px-6 sm:py-4"
                         >
                           {saving
                             ? "Creating Sale..."
@@ -1394,7 +1419,7 @@ export default function SalesPage() {
                           disabled={
                             saving
                           }
-                          className="rounded-xl border border-slate-200 px-6 py-3 font-semibold text-slate-600 transition hover:bg-slate-50 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800"
+                          className="rounded-xl border border-slate-200 px-5 py-3 text-sm font-semibold text-slate-600 transition hover:bg-slate-50 sm:px-6 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800"
                         >
                           Clear
                         </button>
@@ -1408,16 +1433,16 @@ export default function SalesPage() {
                 </div>
               )}
 
-              <section className="mt-10 rounded-3xl border border-sky-100 bg-white p-7 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+              <section className="mt-7 rounded-2xl border border-sky-100 bg-white p-4 shadow-sm sm:mt-10 sm:rounded-3xl sm:p-6 lg:p-7 dark:border-slate-800 dark:bg-slate-900">
 
-                <div className="mb-7 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+                <div className="mb-5 flex flex-col gap-3 sm:mb-7 md:flex-row md:items-center md:justify-between">
 
-                  <div>
-                    <p className="text-sm font-semibold uppercase tracking-wider text-sky-500">
+                  <div className="min-w-0">
+                    <p className="text-xs font-semibold uppercase tracking-wider text-sky-500 sm:text-sm">
                       Transaction Records
                     </p>
 
-                    <h2 className="mt-1 text-2xl font-bold text-slate-900 dark:text-white">
+                    <h2 className="mt-1 text-xl font-bold text-slate-900 sm:text-2xl dark:text-white">
                       Sales History
                     </h2>
 
@@ -1426,20 +1451,20 @@ export default function SalesPage() {
                     </p>
                   </div>
 
-                  <div className="rounded-full bg-sky-50 px-4 py-2 text-sm font-bold text-sky-600 dark:bg-sky-950/40 dark:text-sky-400">
+                  <div className="w-fit rounded-full bg-sky-50 px-3 py-2 text-xs font-bold text-sky-600 sm:px-4 sm:text-sm dark:bg-sky-950/40 dark:text-sky-400">
                     {sales.length} Sales
                   </div>
 
                 </div>
 
                 {salesLoading ? (
-                  <div className="rounded-2xl bg-slate-50 p-10 text-center dark:bg-slate-800">
+                  <div className="rounded-2xl bg-slate-50 p-8 text-center sm:p-10 dark:bg-slate-800">
                     <p className="font-medium text-slate-500 dark:text-slate-400">
                       Loading sales history...
                     </p>
                   </div>
                 ) : sales.length === 0 ? (
-                  <div className="rounded-2xl border border-dashed border-slate-200 bg-slate-50 p-10 text-center dark:border-slate-700 dark:bg-slate-800/50">
+                  <div className="rounded-2xl border border-dashed border-slate-200 bg-slate-50 p-8 text-center sm:p-10 dark:border-slate-700 dark:bg-slate-800/50">
 
                     <div className="text-4xl">
                       📋
@@ -1455,7 +1480,7 @@ export default function SalesPage() {
 
                   </div>
                 ) : (
-                  <div className="overflow-x-auto rounded-2xl border border-slate-200 dark:border-slate-700">
+                  <div className="w-full overflow-x-auto rounded-2xl border border-slate-200 dark:border-slate-700">
 
                     <table className="w-full min-w-[1100px] text-left">
 
@@ -1463,40 +1488,40 @@ export default function SalesPage() {
 
                         <tr className="text-xs font-bold uppercase tracking-wide text-slate-500 dark:text-slate-400">
 
-                          <th className="px-5 py-4">
+                          <th className="whitespace-nowrap px-5 py-4">
                             Invoice
                           </th>
 
-                          <th className="px-5 py-4">
+                          <th className="whitespace-nowrap px-5 py-4">
                             Customer
                           </th>
 
-                          <th className="px-5 py-4">
+                          <th className="whitespace-nowrap px-5 py-4">
                             Date
                           </th>
 
-                          <th className="px-5 py-4 text-right">
+                          <th className="whitespace-nowrap px-5 py-4 text-right">
                             Total
                           </th>
 
-                          <th className="px-5 py-4 text-right">
+                          <th className="whitespace-nowrap px-5 py-4 text-right">
                             Paid
                           </th>
 
-                          <th className="px-5 py-4 text-right">
+                          <th className="whitespace-nowrap px-5 py-4 text-right">
                             Balance
                           </th>
 
-                          <th className="px-5 py-4">
+                          <th className="whitespace-nowrap px-5 py-4">
                             Payment
                           </th>
 
-                          <th className="px-5 py-4">
+                          <th className="whitespace-nowrap px-5 py-4">
                             Status
                           </th>
 
                           {canCancelSale && (
-                            <th className="px-5 py-4 text-right">
+                            <th className="whitespace-nowrap px-5 py-4 text-right">
                               Action
                             </th>
                           )}
@@ -1526,7 +1551,7 @@ export default function SalesPage() {
                               className="border-t border-slate-100 dark:border-slate-800"
                             >
 
-                              <td className="px-5 py-5">
+                              <td className="whitespace-nowrap px-5 py-5">
 
                                 <p className="font-bold text-slate-900 dark:text-white">
                                   {
@@ -1542,7 +1567,7 @@ export default function SalesPage() {
 
                               <td className="px-5 py-5">
 
-                                <p className="font-semibold text-slate-800 dark:text-slate-200">
+                                <p className="max-w-[180px] truncate font-semibold text-slate-800 dark:text-slate-200">
                                   {sale.customer?.name ||
                                     "Walk-in Customer"}
                                 </p>
@@ -1557,13 +1582,13 @@ export default function SalesPage() {
 
                               </td>
 
-                              <td className="px-5 py-5 text-sm text-slate-500 dark:text-slate-400">
+                              <td className="whitespace-nowrap px-5 py-5 text-sm text-slate-500 dark:text-slate-400">
                                 {formatDate(
                                   sale.createdAt
                                 )}
                               </td>
 
-                              <td className="px-5 py-5 text-right font-bold text-slate-900 dark:text-white">
+                              <td className="whitespace-nowrap px-5 py-5 text-right font-bold text-slate-900 dark:text-white">
                                 Rs.{" "}
                                 {sale.total.toLocaleString(
                                   undefined,
@@ -1573,7 +1598,7 @@ export default function SalesPage() {
                                 )}
                               </td>
 
-                              <td className="px-5 py-5 text-right font-semibold text-green-600">
+                              <td className="whitespace-nowrap px-5 py-5 text-right font-semibold text-green-600">
                                 Rs.{" "}
                                 {sale.paidAmount.toLocaleString(
                                   undefined,
@@ -1583,7 +1608,7 @@ export default function SalesPage() {
                                 )}
                               </td>
 
-                              <td className="px-5 py-5 text-right font-semibold text-orange-500">
+                              <td className="whitespace-nowrap px-5 py-5 text-right font-semibold text-orange-500">
                                 Rs.{" "}
                                 {saleBalance.toLocaleString(
                                   undefined,
@@ -1593,7 +1618,7 @@ export default function SalesPage() {
                                 )}
                               </td>
 
-                              <td className="px-5 py-5">
+                              <td className="whitespace-nowrap px-5 py-5">
 
                                 <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-bold text-slate-600 dark:bg-slate-800 dark:text-slate-300">
                                   {sale.payments[0]
@@ -1603,7 +1628,7 @@ export default function SalesPage() {
 
                               </td>
 
-                              <td className="px-5 py-5">
+                              <td className="whitespace-nowrap px-5 py-5">
 
                                 <span
                                   className={`rounded-full px-3 py-1 text-xs font-bold ${
@@ -1620,7 +1645,7 @@ export default function SalesPage() {
                               </td>
 
                               {canCancelSale && (
-                                <td className="px-5 py-5 text-right">
+                                <td className="whitespace-nowrap px-5 py-5 text-right">
 
                                   {!isCancelled ? (
                                     <button
@@ -1671,25 +1696,25 @@ export default function SalesPage() {
       {createdSale && (
         <div className="print-bill">
 
-          <div className="mx-auto w-full max-w-3xl px-8 py-8 text-black">
+          <div className="mx-auto w-full max-w-3xl px-4 py-6 text-black sm:px-8 sm:py-8">
 
-            <div className="border-b-2 border-black pb-5 text-center">
+            <div className="border-b-2 border-black pb-4 text-center sm:pb-5">
 
-              <h1 className="text-3xl font-extrabold">
+              <h1 className="text-2xl font-extrabold sm:text-3xl">
                 SHANBIZFLOW
               </h1>
 
-              <p className="mt-1 text-sm">
+              <p className="mt-1 text-xs sm:text-sm">
                 Business Management System
               </p>
 
-              <p className="mt-1 text-xs">
+              <p className="mt-1 text-[11px] sm:text-xs">
                 Sales Invoice
               </p>
 
             </div>
 
-            <div className="mt-6 flex justify-between">
+            <div className="mt-5 flex flex-col gap-4 sm:mt-6 sm:flex-row sm:justify-between">
 
               <div>
 
@@ -1697,7 +1722,7 @@ export default function SalesPage() {
                   Invoice
                 </p>
 
-                <p className="mt-1 text-lg font-bold">
+                <p className="mt-1 text-base font-bold sm:text-lg">
                   {
                     createdSale.invoiceNumber
                   }
@@ -1705,7 +1730,7 @@ export default function SalesPage() {
 
               </div>
 
-              <div className="text-right">
+              <div className="text-left sm:text-right">
 
                 <p className="text-xs font-semibold uppercase">
                   Date
@@ -1721,7 +1746,7 @@ export default function SalesPage() {
 
             </div>
 
-            <div className="mt-7 border-y border-black py-4">
+            <div className="mt-6 border-y border-black py-4 sm:mt-7">
 
               <p className="text-xs font-semibold uppercase">
                 Customer
@@ -1729,7 +1754,7 @@ export default function SalesPage() {
 
               {createdSale.customer ? (
                 <>
-                  <p className="mt-1 font-bold">
+                  <p className="mt-1 break-words font-bold">
                     {
                       createdSale.customer.name
                     }
@@ -1742,7 +1767,7 @@ export default function SalesPage() {
                   </p>
 
                   {createdSale.customer.email && (
-                    <p className="text-sm">
+                    <p className="break-all text-sm">
                       {
                         createdSale.customer.email
                       }
@@ -1750,7 +1775,7 @@ export default function SalesPage() {
                   )}
 
                   {createdSale.customer.address && (
-                    <p className="text-sm">
+                    <p className="break-words text-sm">
                       {
                         createdSale.customer.address
                       }
@@ -1765,93 +1790,97 @@ export default function SalesPage() {
 
             </div>
 
-            <table className="mt-7 w-full border-collapse">
+            <div className="mt-6 w-full overflow-x-auto sm:mt-7">
 
-              <thead>
+              <table className="w-full min-w-[600px] border-collapse">
 
-                <tr className="border-b-2 border-black text-left">
+                <thead>
 
-                  <th className="py-3 pr-3">
-                    Product
-                  </th>
+                  <tr className="border-b-2 border-black text-left">
 
-                  <th className="px-3 py-3 text-center">
-                    Qty
-                  </th>
+                    <th className="py-3 pr-3">
+                      Product
+                    </th>
 
-                  <th className="px-3 py-3 text-right">
-                    Unit Price
-                  </th>
+                    <th className="px-3 py-3 text-center">
+                      Qty
+                    </th>
 
-                  <th className="py-3 pl-3 text-right">
-                    Amount
-                  </th>
+                    <th className="px-3 py-3 text-right">
+                      Unit Price
+                    </th>
 
-                </tr>
+                    <th className="py-3 pl-3 text-right">
+                      Amount
+                    </th>
 
-              </thead>
+                  </tr>
 
-              <tbody>
+                </thead>
 
-                {createdSale.items.map(
-                  (item) => (
-                    <tr
-                      key={item.id}
-                      className="border-b border-gray-300"
-                    >
+                <tbody>
 
-                      <td className="py-3 pr-3">
-                        {
-                          item.product.name
-                        }
-                      </td>
+                  {createdSale.items.map(
+                    (item) => (
+                      <tr
+                        key={item.id}
+                        className="border-b border-gray-300"
+                      >
 
-                      <td className="px-3 py-3 text-center">
-                        {
-                          item.quantity
-                        }
-                      </td>
+                        <td className="break-words py-3 pr-3">
+                          {
+                            item.product.name
+                          }
+                        </td>
 
-                      <td className="px-3 py-3 text-right">
-                        Rs.{" "}
-                        {item.unitPrice.toLocaleString()}
-                      </td>
+                        <td className="px-3 py-3 text-center">
+                          {
+                            item.quantity
+                          }
+                        </td>
 
-                      <td className="py-3 pl-3 text-right font-semibold">
-                        Rs.{" "}
-                        {item.subtotal.toLocaleString()}
-                      </td>
+                        <td className="px-3 py-3 text-right">
+                          Rs.{" "}
+                          {item.unitPrice.toLocaleString()}
+                        </td>
 
-                    </tr>
-                  )
-                )}
+                        <td className="py-3 pl-3 text-right font-semibold">
+                          Rs.{" "}
+                          {item.subtotal.toLocaleString()}
+                        </td>
 
-              </tbody>
+                      </tr>
+                    )
+                  )}
 
-            </table>
+                </tbody>
 
-            <div className="ml-auto mt-7 w-full max-w-sm space-y-3">
+              </table>
 
-              <div className="flex justify-between">
+            </div>
+
+            <div className="ml-auto mt-6 w-full max-w-sm space-y-3 sm:mt-7">
+
+              <div className="flex justify-between gap-4">
 
                 <span>
                   Subtotal
                 </span>
 
-                <span>
+                <span className="shrink-0">
                   Rs.{" "}
                   {createdSale.subtotal.toLocaleString()}
                 </span>
 
               </div>
 
-              <div className="flex justify-between">
+              <div className="flex justify-between gap-4">
 
                 <span>
                   Discount
                 </span>
 
-                <span>
+                <span className="shrink-0">
                   Rs.{" "}
                   {createdSale.discount.toLocaleString(
                     undefined,
@@ -1863,13 +1892,13 @@ export default function SalesPage() {
 
               </div>
 
-              <div className="flex justify-between border-t-2 border-black pt-3 text-xl font-extrabold">
+              <div className="flex justify-between gap-4 border-t-2 border-black pt-3 text-lg font-extrabold sm:text-xl">
 
                 <span>
                   TOTAL
                 </span>
 
-                <span>
+                <span className="shrink-0">
                   Rs.{" "}
                   {createdSale.total.toLocaleString(
                     undefined,
@@ -1881,13 +1910,13 @@ export default function SalesPage() {
 
               </div>
 
-              <div className="flex justify-between">
+              <div className="flex justify-between gap-4">
 
                 <span>
                   Paid Amount
                 </span>
 
-                <span>
+                <span className="shrink-0">
                   Rs.{" "}
                   {createdSale.paidAmount.toLocaleString(
                     undefined,
@@ -1899,13 +1928,13 @@ export default function SalesPage() {
 
               </div>
 
-              <div className="flex justify-between font-bold">
+              <div className="flex justify-between gap-4 font-bold">
 
                 <span>
                   Balance
                 </span>
 
-                <span>
+                <span className="shrink-0">
                   Rs.{" "}
                   {Math.max(
                     createdSale.total -
@@ -1921,13 +1950,13 @@ export default function SalesPage() {
 
               </div>
 
-              <div className="flex justify-between border-t border-gray-400 pt-3">
+              <div className="flex justify-between gap-4 border-t border-gray-400 pt-3">
 
                 <span>
                   Payment Status
                 </span>
 
-                <span className="font-bold">
+                <span className="shrink-0 font-bold">
                   {
                     createdSale.paymentStatus
                   }
@@ -1936,13 +1965,13 @@ export default function SalesPage() {
               </div>
 
               {createdSale.payments.length > 0 && (
-                <div className="flex justify-between">
+                <div className="flex justify-between gap-4">
 
                   <span>
                     Payment Method
                   </span>
 
-                  <span className="font-bold">
+                  <span className="shrink-0 font-bold">
                     {
                       createdSale.payments[0]
                         .paymentMethod
@@ -1954,7 +1983,7 @@ export default function SalesPage() {
 
             </div>
 
-            <div className="mt-12 border-t-2 border-black pt-5 text-center">
+            <div className="mt-10 border-t-2 border-black pt-5 text-center sm:mt-12">
 
               <p className="font-bold">
                 Thank You!
@@ -1976,3 +2005,4 @@ export default function SalesPage() {
     </>
   );
 }
+
