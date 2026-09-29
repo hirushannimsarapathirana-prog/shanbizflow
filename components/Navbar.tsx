@@ -11,6 +11,18 @@ type User = {
   role: string;
 };
 
+const DASHBOARD_PATHS = [
+  "/dashboard",
+  "/products",
+  "/customers",
+  "/sales",
+  "/inventory",
+  "/payments",
+  "/reports",
+  "/users",
+  "/settings",
+];
+
 export default function Navbar() {
   const router = useRouter();
   const pathname = usePathname();
@@ -20,18 +32,17 @@ export default function Navbar() {
   const [loggingOut, setLoggingOut] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
+  const isDashboardPage = DASHBOARD_PATHS.includes(pathname);
+
   async function checkAuthentication() {
     try {
+      setLoading(true);
+
       const response = await fetch("/api/auth/me", {
         method: "GET",
         credentials: "include",
         cache: "no-store",
       });
-
-      if (response.status === 401) {
-        setUser(null);
-        return;
-      }
 
       if (!response.ok) {
         setUser(null);
@@ -40,7 +51,7 @@ export default function Navbar() {
 
       const data = await response.json();
 
-      if (data.authenticated === true && data.user) {
+      if (data.authenticated && data.user) {
         setUser(data.user);
       } else {
         setUser(null);
@@ -54,15 +65,12 @@ export default function Navbar() {
   }
 
   useEffect(() => {
-    setLoading(true);
-    setMobileMenuOpen(false);
     checkAuthentication();
+    setMobileMenuOpen(false);
   }, [pathname]);
 
   async function handleLogout() {
-    if (loggingOut) {
-      return;
-    }
+    if (loggingOut) return;
 
     try {
       setLoggingOut(true);
@@ -74,7 +82,13 @@ export default function Navbar() {
       });
 
       if (!response.ok) {
-        console.error("Logout failed:", response.status);
+        const data = await response.json().catch(() => null);
+
+        console.error(
+          "Logout failed:",
+          data?.error || `HTTP ${response.status}`
+        );
+
         return;
       }
 
@@ -90,52 +104,83 @@ export default function Navbar() {
     }
   }
 
+  function handleMobileButton() {
+    if (isDashboardPage) {
+      window.dispatchEvent(new Event("open-mobile-sidebar"));
+      return;
+    }
+
+    setMobileMenuOpen((open) => !open);
+  }
+
+  function closeMobileMenu() {
+    setMobileMenuOpen(false);
+  }
+
   return (
-    <nav className="border-b border-sky-100 bg-white dark:border-slate-800 dark:bg-slate-900">
-      <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-4 sm:px-6 sm:py-5">
+    <nav className="relative z-50 w-full border-b border-sky-100 bg-white dark:border-slate-800 dark:bg-slate-900">
+      <div className="mx-auto flex min-h-[76px] w-full max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
 
         {/* Logo */}
-        <div className="min-w-0">
-          <Link href="/" onClick={() => setMobileMenuOpen(false)}>
+        <Link
+          href="/"
+          onClick={closeMobileMenu}
+          className="min-w-0 shrink-0"
+        >
+          <div>
             <h1 className="truncate text-xl font-bold tracking-tight text-sky-600 sm:text-2xl">
               ShanBizFlow
             </h1>
-          </Link>
 
-          <p className="truncate text-[11px] text-slate-400 sm:text-xs dark:text-slate-500">
-            Business Management
-          </p>
-        </div>
+            <p className="truncate text-[11px] text-slate-400 sm:text-xs dark:text-slate-500">
+              Business Management
+            </p>
+          </div>
+        </Link>
 
         {/* Desktop Navigation */}
-        <div className="hidden items-center gap-5 lg:flex xl:gap-6">
+        <div className="hidden items-center gap-5 lg:flex xl:gap-7">
 
           <Link
             href="/"
-            className="font-medium text-slate-700 transition hover:text-sky-600 dark:text-slate-300 dark:hover:text-sky-400"
+            className={`whitespace-nowrap font-medium transition ${
+              pathname === "/"
+                ? "text-sky-600 dark:text-sky-400"
+                : "text-slate-700 hover:text-sky-600 dark:text-slate-300 dark:hover:text-sky-400"
+            }`}
           >
             Home
           </Link>
 
           <Link
             href="/about"
-            className="font-medium text-slate-700 transition hover:text-sky-600 dark:text-slate-300 dark:hover:text-sky-400"
+            className={`whitespace-nowrap font-medium transition ${
+              pathname === "/about"
+                ? "text-sky-600 dark:text-sky-400"
+                : "text-slate-700 hover:text-sky-600 dark:text-slate-300 dark:hover:text-sky-400"
+            }`}
           >
             About
           </Link>
 
           {loading ? (
-            <div className="h-10 w-28 animate-pulse rounded-full bg-slate-100 dark:bg-slate-800" />
-          ) : user !== null ? (
+            <span className="text-sm text-slate-400">
+              Loading...
+            </span>
+          ) : user ? (
             <>
               <Link
                 href="/dashboard"
-                className="font-medium text-slate-700 transition hover:text-sky-600 dark:text-slate-300 dark:hover:text-sky-400"
+                className={`whitespace-nowrap font-medium transition ${
+                  pathname === "/dashboard"
+                    ? "text-sky-600 dark:text-sky-400"
+                    : "text-slate-700 hover:text-sky-600 dark:text-slate-300 dark:hover:text-sky-400"
+                }`}
               >
                 Dashboard
               </Link>
 
-              <span className="max-w-40 truncate font-medium text-slate-600 dark:text-slate-300">
+              <span className="max-w-[160px] truncate whitespace-nowrap font-medium text-slate-600 dark:text-slate-300">
                 Hi, {user.name}
               </span>
 
@@ -143,7 +188,7 @@ export default function Navbar() {
                 type="button"
                 onClick={handleLogout}
                 disabled={loggingOut}
-                className="whitespace-nowrap rounded-full bg-red-500 px-6 py-2.5 font-semibold text-white transition hover:bg-red-600 disabled:cursor-not-allowed disabled:opacity-50"
+                className="whitespace-nowrap rounded-full bg-red-500 px-5 py-2.5 font-semibold text-white transition hover:bg-red-600 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {loggingOut ? "Logging out..." : "Logout"}
               </button>
@@ -152,7 +197,11 @@ export default function Navbar() {
             <>
               <Link
                 href="/login"
-                className="font-medium text-slate-700 transition hover:text-sky-600 dark:text-slate-300 dark:hover:text-sky-400"
+                className={`whitespace-nowrap font-medium transition ${
+                  pathname === "/login"
+                    ? "text-sky-600 dark:text-sky-400"
+                    : "text-slate-700 hover:text-sky-600 dark:text-slate-300 dark:hover:text-sky-400"
+                }`}
               >
                 Login
               </Link>
@@ -167,114 +216,140 @@ export default function Navbar() {
           )}
         </div>
 
-        {/* Mobile Menu Button */}
+        {/* Mobile Button */}
         <button
           type="button"
-          aria-label="Toggle navigation menu"
-          aria-expanded={mobileMenuOpen}
-          onClick={() => setMobileMenuOpen((open) => !open)}
+          onClick={handleMobileButton}
+          aria-label={
+            isDashboardPage
+              ? "Open dashboard menu"
+              : mobileMenuOpen
+                ? "Close menu"
+                : "Open menu"
+          }
           className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-sky-100 bg-white text-slate-700 transition hover:bg-sky-50 lg:hidden dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
         >
-          {mobileMenuOpen ? (
+          {mobileMenuOpen && !isDashboardPage ? (
             <svg
-              xmlns="http://www.w3.org/2000/svg"
               className="h-5 w-5"
               fill="none"
-              viewBox="0 0 24 24"
               stroke="currentColor"
+              viewBox="0 0 24 24"
               strokeWidth={2}
             >
-              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M6 18L18 6M6 6l12 12"
+              />
             </svg>
           ) : (
             <svg
-              xmlns="http://www.w3.org/2000/svg"
               className="h-5 w-5"
               fill="none"
-              viewBox="0 0 24 24"
               stroke="currentColor"
+              viewBox="0 0 24 24"
               strokeWidth={2}
             >
-              <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M4 6h16M4 12h16M4 18h16"
+              />
             </svg>
           )}
         </button>
       </div>
 
-      {/* Mobile Navigation */}
-      {mobileMenuOpen && (
-        <div className="border-t border-sky-100 bg-white px-4 py-4 lg:hidden dark:border-slate-800 dark:bg-slate-900">
-          <div className="mx-auto flex max-w-7xl flex-col gap-2">
+      {/* Public Mobile Navigation */}
+      {!isDashboardPage && mobileMenuOpen && (
+        <div className="border-t border-sky-100 bg-white lg:hidden dark:border-slate-800 dark:bg-slate-900">
+          <div className="mx-auto w-full max-w-7xl px-4 py-3 sm:px-6">
 
-            <Link
-              href="/"
-              onClick={() => setMobileMenuOpen(false)}
-              className="rounded-lg px-4 py-3 font-medium text-slate-700 transition hover:bg-sky-50 hover:text-sky-600 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-sky-400"
-            >
-              Home
-            </Link>
+            <div className="flex flex-col gap-1">
 
-            <Link
-              href="/about"
-              onClick={() => setMobileMenuOpen(false)}
-              className="rounded-lg px-4 py-3 font-medium text-slate-700 transition hover:bg-sky-50 hover:text-sky-600 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-sky-400"
-            >
-              About
-            </Link>
+              <Link
+                href="/"
+                onClick={closeMobileMenu}
+                className={`rounded-xl px-4 py-3 font-medium transition ${
+                  pathname === "/"
+                    ? "bg-sky-50 text-sky-600 dark:bg-sky-900/20 dark:text-sky-400"
+                    : "text-slate-700 hover:bg-slate-50 hover:text-sky-600 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-sky-400"
+                }`}
+              >
+                Home
+              </Link>
 
-            {loading ? (
-              <div className="my-2 h-10 w-full animate-pulse rounded-lg bg-slate-100 dark:bg-slate-800" />
-            ) : user !== null ? (
-              <>
-                <Link
-                  href="/dashboard"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="rounded-lg px-4 py-3 font-medium text-slate-700 transition hover:bg-sky-50 hover:text-sky-600 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-sky-400"
-                >
-                  Dashboard
-                </Link>
+              <Link
+                href="/about"
+                onClick={closeMobileMenu}
+                className={`rounded-xl px-4 py-3 font-medium transition ${
+                  pathname === "/about"
+                    ? "bg-sky-50 text-sky-600 dark:bg-sky-900/20 dark:text-sky-400"
+                    : "text-slate-700 hover:bg-slate-50 hover:text-sky-600 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-sky-400"
+                }`}
+              >
+                About
+              </Link>
 
-                <div className="rounded-lg bg-sky-50 px-4 py-3 dark:bg-slate-800">
-                  <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
-                    Signed in as
-                  </p>
-                  <p className="mt-1 truncate font-semibold text-slate-700 dark:text-slate-200">
-                    {user.name}
-                  </p>
+              {loading ? (
+                <div className="px-4 py-3 text-sm text-slate-400">
+                  Loading...
                 </div>
+              ) : user ? (
+                <>
+                  <Link
+                    href="/dashboard"
+                    onClick={closeMobileMenu}
+                    className="rounded-xl px-4 py-3 font-medium text-slate-700 transition hover:bg-slate-50 hover:text-sky-600 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-sky-400"
+                  >
+                    Dashboard
+                  </Link>
 
-                <button
-                  type="button"
-                  onClick={handleLogout}
-                  disabled={loggingOut}
-                  className="w-full rounded-full bg-red-500 px-6 py-3 font-semibold text-white transition hover:bg-red-600 disabled:cursor-not-allowed disabled:opacity-50"
-                >
-                  {loggingOut ? "Logging out..." : "Logout"}
-                </button>
-              </>
-            ) : (
-              <>
-                <Link
-                  href="/login"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="rounded-lg px-4 py-3 font-medium text-slate-700 transition hover:bg-sky-50 hover:text-sky-600 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-sky-400"
-                >
-                  Login
-                </Link>
+                  <div className="mt-1 rounded-xl bg-sky-50 px-4 py-3 dark:bg-slate-800">
+                    <p className="text-xs text-slate-400 dark:text-slate-500">
+                      Signed in as
+                    </p>
 
-                <Link
-                  href="/register"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="w-full rounded-full bg-sky-500 px-6 py-3 text-center font-semibold text-white transition hover:bg-sky-600"
-                >
-                  Get Started
-                </Link>
-              </>
-            )}
+                    <p className="mt-1 truncate font-semibold text-slate-700 dark:text-slate-200">
+                      {user.name}
+                    </p>
+                  </div>
 
+                  <button
+                    type="button"
+                    onClick={handleLogout}
+                    disabled={loggingOut}
+                    className="mt-1 w-full rounded-full bg-red-500 px-6 py-3 font-semibold text-white transition hover:bg-red-600 disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    {loggingOut ? "Logging out..." : "Logout"}
+                  </button>
+                </>
+              ) : (
+                <>
+                  <Link
+                    href="/login"
+                    onClick={closeMobileMenu}
+                    className="rounded-xl px-4 py-3 font-medium text-slate-700 transition hover:bg-slate-50 hover:text-sky-600 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-sky-400"
+                  >
+                    Login
+                  </Link>
+
+                  <Link
+                    href="/register"
+                    onClick={closeMobileMenu}
+                    className="mt-1 w-full rounded-full bg-sky-500 px-6 py-3 text-center font-semibold text-white transition hover:bg-sky-600"
+                  >
+                    Get Started
+                  </Link>
+                </>
+              )}
+
+            </div>
           </div>
         </div>
       )}
     </nav>
   );
 }
+
