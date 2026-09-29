@@ -48,14 +48,11 @@ function formatCurrency(value: number) {
 }
 
 function formatDate(dateString: string) {
-  return new Date(dateString).toLocaleDateString(
-    "en-LK",
-    {
-      day: "2-digit",
-      month: "short",
-      year: "numeric",
-    }
-  );
+  return new Date(dateString).toLocaleDateString("en-LK", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  });
 }
 
 function getRoleLabel(role: UserRole) {
@@ -71,10 +68,7 @@ function getRoleLabel(role: UserRole) {
 }
 
 export default function ReportsPage() {
-  const [data, setData] = useState<ReportData | null>(
-    null
-  );
-
+  const [data, setData] = useState<ReportData | null>(null);
   const [range, setRange] = useState("month");
 
   const [startDate, setStartDate] = useState("");
@@ -83,8 +77,7 @@ export default function ReportsPage() {
   const [loading, setLoading] = useState(true);
   const [userLoading, setUserLoading] = useState(true);
   const [error, setError] = useState("");
-  const [userRole, setUserRole] =
-    useState<UserRole | null>(null);
+  const [userRole, setUserRole] = useState<UserRole | null>(null);
 
   const canViewReports =
     userRole === "SUPER_ADMIN" ||
@@ -114,11 +107,7 @@ export default function ReportsPage() {
         setUserRole(null);
       }
     } catch (error) {
-      console.error(
-        "User loading error:",
-        error
-      );
-
+      console.error("User loading error:", error);
       setUserRole(null);
     } finally {
       setUserLoading(false);
@@ -132,11 +121,7 @@ export default function ReportsPage() {
 
       let url = `/api/reports?range=${range}`;
 
-      if (
-        range === "custom" &&
-        startDate &&
-        endDate
-      ) {
+      if (range === "custom" && startDate && endDate) {
         url += `&start=${startDate}&end=${endDate}`;
       }
 
@@ -161,17 +146,12 @@ export default function ReportsPage() {
       }
 
       if (!response.ok) {
-        throw new Error(
-          result.error || "Failed to load reports"
-        );
+        throw new Error(result.error || "Failed to load reports");
       }
 
       setData(result);
     } catch (error) {
-      console.error(
-        "Reports loading error:",
-        error
-      );
+      console.error("Reports loading error:", error);
 
       setError(
         error instanceof Error
@@ -194,16 +174,11 @@ export default function ReportsPage() {
 
     if (!canViewReports) {
       setLoading(false);
-      setError(
-        "You do not have permission to view reports."
-      );
+      setError("You do not have permission to view reports.");
       return;
     }
 
-    if (
-      range === "custom" &&
-      (!startDate || !endDate)
-    ) {
+    if (range === "custom" && (!startDate || !endDate)) {
       setLoading(false);
       return;
     }
@@ -223,37 +198,33 @@ export default function ReportsPage() {
     }
 
     return Math.max(
-      ...data.salesByDay.map(
-        (item) => item.revenue
-      ),
+      ...data.salesByDay.map((item) => item.revenue),
       1
     );
   }, [data]);
 
   if (loading || userLoading) {
     return (
-      <div className="flex min-h-screen bg-slate-50 dark:bg-slate-950">
+      <div className="flex min-h-screen min-w-0 overflow-x-hidden bg-slate-50 dark:bg-slate-950">
         <DashboardSidebar />
 
-        <main className="flex-1 p-6 lg:ml-64 lg:p-10">
-          <div className="mx-auto max-w-7xl">
+        <main className="min-w-0 flex-1 px-4 py-6 sm:px-6 sm:py-8 lg:ml-64 lg:px-8 lg:py-10">
+          <div className="mx-auto min-w-0 max-w-7xl">
             <div className="animate-pulse">
-              <div className="h-10 w-48 rounded bg-slate-200 dark:bg-slate-800" />
+              <div className="h-9 w-40 rounded bg-slate-200 sm:h-10 sm:w-48 dark:bg-slate-800" />
 
-              <div className="mt-3 h-5 w-80 rounded bg-slate-200 dark:bg-slate-800" />
+              <div className="mt-3 h-5 w-full max-w-80 rounded bg-slate-200 dark:bg-slate-800" />
 
-              <div className="mt-8 grid gap-5 md:grid-cols-2 xl:grid-cols-4">
-                {Array.from({
-                  length: 4,
-                }).map((_, index) => (
+              <div className="mt-8 grid gap-4 sm:gap-5 md:grid-cols-2 xl:grid-cols-4">
+                {Array.from({ length: 4 }).map((_, index) => (
                   <div
                     key={index}
-                    className="h-36 rounded-2xl bg-white shadow-sm dark:bg-slate-900"
+                    className="h-32 rounded-2xl bg-white shadow-sm sm:h-36 dark:bg-slate-900"
                   />
                 ))}
               </div>
 
-              <div className="mt-8 h-96 rounded-2xl bg-white shadow-sm dark:bg-slate-900" />
+              <div className="mt-8 h-80 rounded-2xl bg-white shadow-sm sm:h-96 dark:bg-slate-900" />
             </div>
           </div>
         </main>
@@ -263,23 +234,23 @@ export default function ReportsPage() {
 
   if (error) {
     return (
-      <div className="flex min-h-screen bg-slate-50 dark:bg-slate-950">
+      <div className="flex min-h-screen min-w-0 overflow-x-hidden bg-slate-50 dark:bg-slate-950">
         <DashboardSidebar />
 
-        <main className="flex-1 p-6 lg:ml-64 lg:p-10">
-          <div className="mx-auto max-w-7xl">
-            <div className="rounded-2xl border border-red-200 bg-red-50 p-6 text-red-700 dark:border-red-900 dark:bg-red-950/40 dark:text-red-300">
+        <main className="min-w-0 flex-1 px-4 py-6 sm:px-6 sm:py-8 lg:ml-64 lg:px-8 lg:py-10">
+          <div className="mx-auto min-w-0 max-w-7xl">
+            <div className="rounded-2xl border border-red-200 bg-red-50 p-5 text-red-700 sm:p-6 dark:border-red-900 dark:bg-red-950/40 dark:text-red-300">
               <h2 className="text-lg font-bold">
                 Failed to load reports
               </h2>
 
-              <p className="mt-2 text-sm">
+              <p className="mt-2 break-words text-sm">
                 {error}
               </p>
 
               <button
                 onClick={loadReports}
-                className="mt-4 rounded-xl bg-red-600 px-5 py-2.5 font-semibold text-white transition hover:bg-red-700"
+                className="mt-4 w-full rounded-xl bg-red-600 px-5 py-2.5 font-semibold text-white transition hover:bg-red-700 sm:w-auto"
               >
                 Try Again
               </button>
@@ -295,40 +266,41 @@ export default function ReportsPage() {
   }
 
   return (
-    <div className="flex min-h-screen bg-slate-50 dark:bg-slate-950">
+    <div className="flex min-h-screen min-w-0 overflow-x-hidden bg-slate-50 dark:bg-slate-950">
       <DashboardSidebar />
 
-      <main className="flex-1 p-6 lg:ml-64 lg:p-10">
-        <div className="mx-auto max-w-7xl">
+      <main className="min-w-0 flex-1 px-4 py-6 sm:px-6 sm:py-8 lg:ml-64 lg:px-8 lg:py-10">
+        <div className="mx-auto min-w-0 max-w-7xl">
 
           {/* Header */}
-          <div className="flex flex-col justify-between gap-5 lg:flex-row lg:items-end">
-            <div>
+          <div className="flex min-w-0 flex-col justify-between gap-5 lg:flex-row lg:items-end">
+
+            <div className="min-w-0">
               <div className="flex flex-wrap items-center gap-3">
-                <p className="text-sm font-semibold uppercase tracking-wider text-sky-500">
+                <p className="text-xs font-semibold uppercase tracking-wider text-sky-500 sm:text-sm">
                   Business Analytics
                 </p>
 
                 {userRole && (
-                  <span className="rounded-full bg-sky-50 px-3 py-1 text-xs font-bold text-sky-600 dark:bg-sky-950 dark:text-sky-300">
+                  <span className="shrink-0 rounded-full bg-sky-50 px-3 py-1 text-xs font-bold text-sky-600 dark:bg-sky-950 dark:text-sky-300">
                     {getRoleLabel(userRole)}
                   </span>
                 )}
               </div>
 
-              <h1 className="mt-2 text-4xl font-extrabold tracking-tight text-slate-900 dark:text-white">
+              <h1 className="mt-2 text-3xl font-extrabold tracking-tight text-slate-900 sm:text-4xl dark:text-white">
                 Reports
               </h1>
 
-              <p className="mt-2 text-slate-500 dark:text-slate-400">
-                Monitor sales, payments and business
-                performance.
+              <p className="mt-2 max-w-2xl text-sm text-slate-500 sm:text-base dark:text-slate-400">
+                Monitor sales, payments and business performance.
               </p>
             </div>
 
             {/* Date Filter */}
-            <div className="rounded-2xl border border-sky-100 bg-white p-3 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-              <div className="flex flex-wrap gap-2">
+            <div className="w-full min-w-0 rounded-2xl border border-sky-100 bg-white p-3 shadow-sm lg:w-auto dark:border-slate-800 dark:bg-slate-900">
+
+              <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap">
                 {[
                   {
                     value: "today",
@@ -350,10 +322,8 @@ export default function ReportsPage() {
                   <button
                     key={item.value}
                     type="button"
-                    onClick={() =>
-                      setRange(item.value)
-                    }
-                    className={`rounded-xl px-4 py-2 text-sm font-semibold transition ${
+                    onClick={() => setRange(item.value)}
+                    className={`rounded-xl px-3 py-2 text-sm font-semibold transition sm:px-4 ${
                       range === item.value
                         ? "bg-sky-500 text-white shadow-sm"
                         : "text-slate-600 hover:bg-sky-50 hover:text-sky-600 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-sky-400"
@@ -370,22 +340,18 @@ export default function ReportsPage() {
                     type="date"
                     value={startDate}
                     onChange={(event) =>
-                      setStartDate(
-                        event.target.value
-                      )
+                      setStartDate(event.target.value)
                     }
-                    className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-100 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
+                    className="w-full min-w-0 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-100 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
                   />
 
                   <input
                     type="date"
                     value={endDate}
                     onChange={(event) =>
-                      setEndDate(
-                        event.target.value
-                      )
+                      setEndDate(event.target.value)
                     }
-                    className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-100 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
+                    className="w-full min-w-0 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-100 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
                   />
                 </div>
               )}
@@ -393,23 +359,21 @@ export default function ReportsPage() {
           </div>
 
           {/* Summary Cards */}
-          <div className="mt-8 grid gap-5 md:grid-cols-2 xl:grid-cols-4">
+          <div className="mt-8 grid gap-4 sm:gap-5 md:grid-cols-2 xl:grid-cols-4">
 
-            <div className="rounded-2xl border border-sky-100 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-              <div className="flex items-center justify-between">
-                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-sky-50 text-xl dark:bg-sky-950">
+            <div className="min-w-0 rounded-2xl border border-sky-100 bg-white p-5 shadow-sm sm:p-6 dark:border-slate-800 dark:bg-slate-900">
+              <div className="flex items-center justify-between gap-3">
+                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-sky-50 text-xl sm:h-12 sm:w-12 dark:bg-sky-950">
                   💰
                 </div>
 
-                <span className="text-xs font-semibold uppercase tracking-wide text-slate-400">
+                <span className="text-right text-xs font-semibold uppercase tracking-wide text-slate-400">
                   Revenue
                 </span>
               </div>
 
-              <p className="mt-5 text-3xl font-extrabold text-slate-900 dark:text-white">
-                {formatCurrency(
-                  data.summary.totalRevenue
-                )}
+              <p className="mt-5 break-words text-2xl font-extrabold text-slate-900 sm:text-3xl dark:text-white">
+                {formatCurrency(data.summary.totalRevenue)}
               </p>
 
               <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
@@ -417,18 +381,18 @@ export default function ReportsPage() {
               </p>
             </div>
 
-            <div className="rounded-2xl border border-sky-100 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-              <div className="flex items-center justify-between">
-                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-sky-50 text-xl dark:bg-sky-950">
+            <div className="min-w-0 rounded-2xl border border-sky-100 bg-white p-5 shadow-sm sm:p-6 dark:border-slate-800 dark:bg-slate-900">
+              <div className="flex items-center justify-between gap-3">
+                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-sky-50 text-xl sm:h-12 sm:w-12 dark:bg-sky-950">
                   🧾
                 </div>
 
-                <span className="text-xs font-semibold uppercase tracking-wide text-slate-400">
+                <span className="text-right text-xs font-semibold uppercase tracking-wide text-slate-400">
                   Sales
                 </span>
               </div>
 
-              <p className="mt-5 text-3xl font-extrabold text-slate-900 dark:text-white">
+              <p className="mt-5 break-words text-2xl font-extrabold text-slate-900 sm:text-3xl dark:text-white">
                 {data.summary.totalSales}
               </p>
 
@@ -437,21 +401,19 @@ export default function ReportsPage() {
               </p>
             </div>
 
-            <div className="rounded-2xl border border-sky-100 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-              <div className="flex items-center justify-between">
-                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-sky-50 text-xl dark:bg-sky-950">
+            <div className="min-w-0 rounded-2xl border border-sky-100 bg-white p-5 shadow-sm sm:p-6 dark:border-slate-800 dark:bg-slate-900">
+              <div className="flex items-center justify-between gap-3">
+                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-sky-50 text-xl sm:h-12 sm:w-12 dark:bg-sky-950">
                   💳
                 </div>
 
-                <span className="text-xs font-semibold uppercase tracking-wide text-slate-400">
+                <span className="text-right text-xs font-semibold uppercase tracking-wide text-slate-400">
                   Payments
                 </span>
               </div>
 
-              <p className="mt-5 text-3xl font-extrabold text-slate-900 dark:text-white">
-                {formatCurrency(
-                  data.summary.totalPayments
-                )}
+              <p className="mt-5 break-words text-2xl font-extrabold text-slate-900 sm:text-3xl dark:text-white">
+                {formatCurrency(data.summary.totalPayments)}
               </p>
 
               <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
@@ -459,34 +421,33 @@ export default function ReportsPage() {
               </p>
             </div>
 
-            <div className="rounded-2xl border border-sky-100 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-              <div className="flex items-center justify-between">
-                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-orange-50 text-xl dark:bg-orange-950">
+            <div className="min-w-0 rounded-2xl border border-sky-100 bg-white p-5 shadow-sm sm:p-6 dark:border-slate-800 dark:bg-slate-900">
+              <div className="flex items-center justify-between gap-3">
+                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-orange-50 text-xl sm:h-12 sm:w-12 dark:bg-orange-950">
                   ⚠️
                 </div>
 
-                <span className="text-xs font-semibold uppercase tracking-wide text-slate-400">
+                <span className="text-right text-xs font-semibold uppercase tracking-wide text-slate-400">
                   Outstanding
                 </span>
               </div>
 
-              <p className="mt-5 text-3xl font-extrabold text-slate-900 dark:text-white">
-                {formatCurrency(
-                  data.summary.outstanding
-                )}
+              <p className="mt-5 break-words text-2xl font-extrabold text-slate-900 sm:text-3xl dark:text-white">
+                {formatCurrency(data.summary.outstanding)}
               </p>
 
               <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
                 Remaining customer balance
               </p>
             </div>
+
           </div>
 
           {/* Bar Graph */}
-          <section className="mt-8 rounded-2xl border border-sky-100 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+          <section className="mt-8 rounded-2xl border border-sky-100 bg-white p-5 shadow-sm sm:p-6 dark:border-slate-800 dark:bg-slate-900">
 
-            <div className="flex flex-col justify-between gap-2 sm:flex-row sm:items-center">
-              <div>
+            <div className="flex min-w-0 flex-col justify-between gap-3 sm:flex-row sm:items-center">
+              <div className="min-w-0">
                 <h2 className="text-xl font-bold text-slate-900 dark:text-white">
                   Sales Revenue
                 </h2>
@@ -496,96 +457,80 @@ export default function ReportsPage() {
                 </p>
               </div>
 
-              <div className="rounded-xl bg-sky-50 px-4 py-2 text-sm font-semibold text-sky-600 dark:bg-sky-950 dark:text-sky-300">
+              <div className="w-fit shrink-0 rounded-xl bg-sky-50 px-4 py-2 text-sm font-semibold text-sky-600 dark:bg-sky-950 dark:text-sky-300">
                 {data.summary.totalSales} sales
               </div>
             </div>
 
             {data.salesByDay.length === 0 ? (
-              <div className="flex h-80 items-center justify-center">
+              <div className="flex h-72 items-center justify-center sm:h-80">
                 <div className="text-center">
-                  <div className="text-4xl">
-                    📊
-                  </div>
+                  <div className="text-4xl">📊</div>
 
                   <p className="mt-3 font-semibold text-slate-700 dark:text-slate-200">
                     No sales data
                   </p>
 
-                  <p className="mt-1 text-sm text-slate-400">
-                    There are no completed sales for
-                    this period.
+                  <p className="mt-1 px-4 text-sm text-slate-400">
+                    There are no completed sales for this period.
                   </p>
                 </div>
               </div>
             ) : (
-              <div className="mt-8 overflow-x-auto">
+              <div className="mt-8 overflow-x-auto pb-2">
                 <div
                   className="flex min-w-[700px] items-end gap-3"
                   style={{
                     height: "320px",
                   }}
                 >
-                  {data.salesByDay.map(
-                    (item) => {
-                      const height =
-                        Math.max(
-                          (item.revenue /
-                            maxRevenue) *
-                            240,
-                          8
-                        );
+                  {data.salesByDay.map((item) => {
+                    const height = Math.max(
+                      (item.revenue / maxRevenue) * 240,
+                      8
+                    );
 
-                      return (
-                        <div
-                          key={item.date}
-                          className="group flex min-w-[42px] flex-1 flex-col items-center justify-end"
-                        >
-                          <div className="mb-2 hidden rounded-lg bg-slate-900 px-3 py-1.5 text-xs font-semibold text-white group-hover:block dark:bg-white dark:text-slate-900">
-                            {formatCurrency(
-                              item.revenue
-                            )}
-                          </div>
-
-                          <div
-                            className="w-full max-w-[48px] rounded-t-xl bg-sky-500 transition-all duration-300 hover:bg-sky-600"
-                            style={{
-                              height: `${height}px`,
-                            }}
-                            title={`${formatCurrency(
-                              item.revenue
-                            )} - ${
-                              item.sales
-                            } sales`}
-                          />
-
-                          <div className="mt-3 text-center">
-                            <p className="text-xs font-medium text-slate-500 dark:text-slate-400">
-                              {new Date(
-                                `${item.date}T00:00:00`
-                              ).toLocaleDateString(
-                                "en-LK",
-                                {
-                                  day: "2-digit",
-                                  month: "short",
-                                }
-                              )}
-                            </p>
-                          </div>
+                    return (
+                      <div
+                        key={item.date}
+                        className="group flex min-w-[42px] flex-1 flex-col items-center justify-end"
+                      >
+                        <div className="mb-2 hidden max-w-32 truncate rounded-lg bg-slate-900 px-3 py-1.5 text-xs font-semibold text-white group-hover:block dark:bg-white dark:text-slate-900">
+                          {formatCurrency(item.revenue)}
                         </div>
-                      );
-                    }
-                  )}
+
+                        <div
+                          className="w-full max-w-[48px] rounded-t-xl bg-sky-500 transition-all duration-300 hover:bg-sky-600"
+                          style={{
+                            height: `${height}px`,
+                          }}
+                          title={`${formatCurrency(item.revenue)} - ${item.sales} sales`}
+                        />
+
+                        <div className="mt-3 text-center">
+                          <p className="whitespace-nowrap text-xs font-medium text-slate-500 dark:text-slate-400">
+                            {new Date(
+                              `${item.date}T00:00:00`
+                            ).toLocaleDateString("en-LK", {
+                              day: "2-digit",
+                              month: "short",
+                            })}
+                          </p>
+                        </div>
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
             )}
           </section>
 
           {/* Payment Summary + Items */}
-          <div className="mt-8 grid gap-6 lg:grid-cols-2">
+          <div className="mt-8 grid min-w-0 gap-6 lg:grid-cols-2">
 
             {/* Payment Methods */}
-            <section className="rounded-2xl border border-sky-100 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+            <section className="min-w-0 rounded-2xl border border-sky-100 bg-white p-5 shadow-sm sm:p-6 dark:border-slate-800 dark:bg-slate-900">
+
               <div>
                 <h2 className="text-xl font-bold text-slate-900 dark:text-white">
                   Payment Methods
@@ -630,30 +575,25 @@ export default function ReportsPage() {
                     ];
 
                   const percentage =
-                    data.summary.totalPayments >
-                    0
-                      ? (amount /
-                          data.summary
-                            .totalPayments) *
-                        100
+                    data.summary.totalPayments > 0
+                      ? (amount / data.summary.totalPayments) * 100
                       : 0;
 
                   return (
-                    <div
-                      key={method.key}
-                    >
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-3">
-                          <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-slate-50 dark:bg-slate-800">
+                    <div key={method.key} className="min-w-0">
+
+                      <div className="flex min-w-0 items-center justify-between gap-3">
+                        <div className="flex min-w-0 items-center gap-3">
+                          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-slate-50 dark:bg-slate-800">
                             {method.icon}
                           </span>
 
-                          <span className="font-medium text-slate-700 dark:text-slate-200">
+                          <span className="truncate font-medium text-slate-700 dark:text-slate-200">
                             {method.label}
                           </span>
                         </div>
 
-                        <span className="font-semibold text-slate-900 dark:text-white">
+                        <span className="shrink-0 text-right text-sm font-semibold text-slate-900 dark:text-white">
                           {formatCurrency(amount)}
                         </span>
                       </div>
@@ -669,6 +609,7 @@ export default function ReportsPage() {
                           }}
                         />
                       </div>
+
                     </div>
                   );
                 })}
@@ -676,7 +617,8 @@ export default function ReportsPage() {
             </section>
 
             {/* Sales Overview */}
-            <section className="rounded-2xl border border-sky-100 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+            <section className="min-w-0 rounded-2xl border border-sky-100 bg-white p-5 shadow-sm sm:p-6 dark:border-slate-800 dark:bg-slate-900">
+
               <h2 className="text-xl font-bold text-slate-900 dark:text-white">
                 Sales Overview
               </h2>
@@ -687,55 +629,48 @@ export default function ReportsPage() {
 
               <div className="mt-6 grid gap-4 sm:grid-cols-2">
 
-                <div className="rounded-2xl bg-sky-50 p-5 dark:bg-sky-950/50">
+                <div className="min-w-0 rounded-2xl bg-sky-50 p-4 sm:p-5 dark:bg-sky-950/50">
                   <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
                     Items Sold
                   </p>
 
-                  <p className="mt-2 text-3xl font-extrabold text-sky-600 dark:text-sky-400">
+                  <p className="mt-2 break-words text-2xl font-extrabold text-sky-600 sm:text-3xl dark:text-sky-400">
                     {data.summary.totalItemsSold}
                   </p>
                 </div>
 
-                <div className="rounded-2xl bg-slate-50 p-5 dark:bg-slate-800">
+                <div className="min-w-0 rounded-2xl bg-slate-50 p-4 sm:p-5 dark:bg-slate-800">
                   <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
                     Average Sale
                   </p>
 
-                  <p className="mt-2 text-3xl font-extrabold text-slate-900 dark:text-white">
+                  <p className="mt-2 break-words text-2xl font-extrabold text-slate-900 sm:text-3xl dark:text-white">
                     {formatCurrency(
-                      data.summary.totalSales >
-                        0
-                        ? data.summary
-                            .totalRevenue /
-                          data.summary
-                            .totalSales
+                      data.summary.totalSales > 0
+                        ? data.summary.totalRevenue /
+                            data.summary.totalSales
                         : 0
                     )}
                   </p>
                 </div>
 
-                <div className="rounded-2xl bg-emerald-50 p-5 dark:bg-emerald-950/40">
+                <div className="min-w-0 rounded-2xl bg-emerald-50 p-4 sm:p-5 dark:bg-emerald-950/40">
                   <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
                     Collected
                   </p>
 
-                  <p className="mt-2 text-3xl font-extrabold text-emerald-600 dark:text-emerald-400">
-                    {formatCurrency(
-                      data.summary.totalPayments
-                    )}
+                  <p className="mt-2 break-words text-2xl font-extrabold text-emerald-600 sm:text-3xl dark:text-emerald-400">
+                    {formatCurrency(data.summary.totalPayments)}
                   </p>
                 </div>
 
-                <div className="rounded-2xl bg-orange-50 p-5 dark:bg-orange-950/40">
+                <div className="min-w-0 rounded-2xl bg-orange-50 p-4 sm:p-5 dark:bg-orange-950/40">
                   <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
                     Credit
                   </p>
 
-                  <p className="mt-2 text-3xl font-extrabold text-orange-600 dark:text-orange-400">
-                    {formatCurrency(
-                      data.summary.outstanding
-                    )}
+                  <p className="mt-2 break-words text-2xl font-extrabold text-orange-600 sm:text-3xl dark:text-orange-400">
+                    {formatCurrency(data.summary.outstanding)}
                   </p>
                 </div>
 
@@ -746,8 +681,8 @@ export default function ReportsPage() {
           {/* Recent Sales */}
           <section className="mt-8 overflow-hidden rounded-2xl border border-sky-100 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
 
-            <div className="flex flex-col justify-between gap-2 border-b border-slate-100 p-6 sm:flex-row sm:items-center dark:border-slate-800">
-              <div>
+            <div className="flex min-w-0 flex-col justify-between gap-2 border-b border-slate-100 p-5 sm:p-6 dark:border-slate-800">
+              <div className="min-w-0">
                 <h2 className="text-xl font-bold text-slate-900 dark:text-white">
                   Recent Sales
                 </h2>
@@ -759,7 +694,7 @@ export default function ReportsPage() {
             </div>
 
             {data.recentSales.length === 0 ? (
-              <div className="p-10 text-center">
+              <div className="p-8 text-center sm:p-10">
                 <p className="font-semibold text-slate-700 dark:text-slate-200">
                   No sales found
                 </p>
@@ -767,103 +702,96 @@ export default function ReportsPage() {
             ) : (
               <div className="overflow-x-auto">
                 <table className="w-full min-w-[800px]">
+
                   <thead>
                     <tr className="border-b border-slate-100 bg-slate-50 dark:border-slate-800 dark:bg-slate-800">
-                      <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+
+                      <th className="whitespace-nowrap px-5 py-4 text-left text-xs font-semibold uppercase tracking-wider text-slate-500 sm:px-6 dark:text-slate-400">
                         Invoice
                       </th>
 
-                      <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                      <th className="whitespace-nowrap px-5 py-4 text-left text-xs font-semibold uppercase tracking-wider text-slate-500 sm:px-6 dark:text-slate-400">
                         Customer
                       </th>
 
-                      <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                      <th className="whitespace-nowrap px-5 py-4 text-left text-xs font-semibold uppercase tracking-wider text-slate-500 sm:px-6 dark:text-slate-400">
                         Date
                       </th>
 
-                      <th className="px-6 py-4 text-right text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                      <th className="whitespace-nowrap px-5 py-4 text-right text-xs font-semibold uppercase tracking-wider text-slate-500 sm:px-6 dark:text-slate-400">
                         Total
                       </th>
 
-                      <th className="px-6 py-4 text-right text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                      <th className="whitespace-nowrap px-5 py-4 text-right text-xs font-semibold uppercase tracking-wider text-slate-500 sm:px-6 dark:text-slate-400">
                         Paid
                       </th>
 
-                      <th className="px-6 py-4 text-right text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                      <th className="whitespace-nowrap px-5 py-4 text-right text-xs font-semibold uppercase tracking-wider text-slate-500 sm:px-6 dark:text-slate-400">
                         Balance
                       </th>
 
-                      <th className="px-6 py-4 text-center text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                      <th className="whitespace-nowrap px-5 py-4 text-center text-xs font-semibold uppercase tracking-wider text-slate-500 sm:px-6 dark:text-slate-400">
                         Status
                       </th>
+
                     </tr>
                   </thead>
 
                   <tbody>
-                    {data.recentSales.map(
-                      (sale) => (
-                        <tr
-                          key={sale.id}
-                          className="border-b border-slate-50 transition hover:bg-slate-50 dark:border-slate-800 dark:hover:bg-slate-800"
-                        >
-                          <td className="px-6 py-4">
-                            <span className="font-semibold text-sky-600 dark:text-sky-400">
-                              {sale.invoiceNumber}
-                            </span>
-                          </td>
+                    {data.recentSales.map((sale) => (
+                      <tr
+                        key={sale.id}
+                        className="border-b border-slate-50 transition hover:bg-slate-50 dark:border-slate-800 dark:hover:bg-slate-800"
+                      >
 
-                          <td className="px-6 py-4 font-medium text-slate-700 dark:text-slate-200">
-                            {sale.customerName}
-                          </td>
+                        <td className="px-5 py-4 sm:px-6">
+                          <span className="whitespace-nowrap font-semibold text-sky-600 dark:text-sky-400">
+                            {sale.invoiceNumber}
+                          </span>
+                        </td>
 
-                          <td className="px-6 py-4 text-sm text-slate-500 dark:text-slate-400">
-                            {formatDate(
-                              sale.createdAt
-                            )}
-                          </td>
+                        <td className="max-w-52 truncate px-5 py-4 font-medium text-slate-700 sm:px-6 dark:text-slate-200">
+                          {sale.customerName}
+                        </td>
 
-                          <td className="px-6 py-4 text-right font-semibold text-slate-900 dark:text-white">
-                            {formatCurrency(
-                              sale.total
-                            )}
-                          </td>
+                        <td className="whitespace-nowrap px-5 py-4 text-sm text-slate-500 sm:px-6 dark:text-slate-400">
+                          {formatDate(sale.createdAt)}
+                        </td>
 
-                          <td className="px-6 py-4 text-right font-semibold text-emerald-600 dark:text-emerald-400">
-                            {formatCurrency(
-                              sale.paidAmount
-                            )}
-                          </td>
+                        <td className="whitespace-nowrap px-5 py-4 text-right font-semibold text-slate-900 sm:px-6 dark:text-white">
+                          {formatCurrency(sale.total)}
+                        </td>
 
-                          <td className="px-6 py-4 text-right font-semibold text-orange-600 dark:text-orange-400">
-                            {formatCurrency(
-                              sale.balance
-                            )}
-                          </td>
+                        <td className="whitespace-nowrap px-5 py-4 text-right font-semibold text-emerald-600 sm:px-6 dark:text-emerald-400">
+                          {formatCurrency(sale.paidAmount)}
+                        </td>
 
-                          <td className="px-6 py-4 text-center">
-                            <span
-                              className={`inline-flex rounded-full px-3 py-1 text-xs font-bold ${
-                                sale.paymentStatus ===
-                                "PAID"
-                                  ? "bg-emerald-50 text-emerald-600 dark:bg-emerald-950 dark:text-emerald-400"
-                                  : sale.paymentStatus ===
-                                    "PARTIAL"
-                                  ? "bg-yellow-50 text-yellow-600 dark:bg-yellow-950 dark:text-yellow-400"
-                                  : "bg-orange-50 text-orange-600 dark:bg-orange-950 dark:text-orange-400"
-                              }`}
-                            >
-                              {
-                                sale.paymentStatus
-                              }
-                            </span>
-                          </td>
-                        </tr>
-                      )
-                    )}
+                        <td className="whitespace-nowrap px-5 py-4 text-right font-semibold text-orange-600 sm:px-6 dark:text-orange-400">
+                          {formatCurrency(sale.balance)}
+                        </td>
+
+                        <td className="px-5 py-4 text-center sm:px-6">
+                          <span
+                            className={`inline-flex whitespace-nowrap rounded-full px-3 py-1 text-xs font-bold ${
+                              sale.paymentStatus === "PAID"
+                                ? "bg-emerald-50 text-emerald-600 dark:bg-emerald-950 dark:text-emerald-400"
+                                : sale.paymentStatus === "PARTIAL"
+                                ? "bg-yellow-50 text-yellow-600 dark:bg-yellow-950 dark:text-yellow-400"
+                                : "bg-orange-50 text-orange-600 dark:bg-orange-950 dark:text-orange-400"
+                            }`}
+                          >
+                            {sale.paymentStatus}
+                          </span>
+                        </td>
+
+                      </tr>
+                    ))}
                   </tbody>
+
                 </table>
               </div>
             )}
+
           </section>
 
         </div>
@@ -871,3 +799,4 @@ export default function ReportsPage() {
     </div>
   );
 }
+
