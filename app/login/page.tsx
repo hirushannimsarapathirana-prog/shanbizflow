@@ -60,21 +60,21 @@ export default function LoginPage() {
   }
 
   return (
-    <main className="min-h-screen bg-sky-50 px-6 py-16">
-      <div className="mx-auto max-w-md">
-        <div className="rounded-3xl border border-sky-100 bg-white p-8 shadow-xl shadow-sky-100/50">
+    <main className="min-h-screen overflow-x-hidden bg-sky-50 px-4 py-8 sm:px-6 sm:py-12 md:py-16">
+      <div className="mx-auto flex min-h-[calc(100vh-4rem)] w-full max-w-md items-center justify-center sm:min-h-[calc(100vh-6rem)]">
+        <div className="w-full min-w-0 rounded-3xl border border-sky-100 bg-white p-5 shadow-xl shadow-sky-100/50 sm:p-7 md:p-8">
           <div className="text-center">
-            <h1 className="text-3xl font-bold text-slate-900">
+            <h1 className="text-2xl font-bold text-slate-900 sm:text-3xl">
               Welcome Back
             </h1>
 
-            <p className="mt-2 text-slate-500">
+            <p className="mt-2 text-sm text-slate-500 sm:text-base">
               Sign in to your ShanBizFlow account
             </p>
           </div>
 
-          <form onSubmit={handleSubmit} className="mt-8 space-y-5">
-            <div>
+          <form onSubmit={handleSubmit} className="mt-6 space-y-4 sm:mt-8 sm:space-y-5">
+            <div className="min-w-0">
               <label className="mb-2 block text-sm font-semibold text-slate-700">
                 Email
               </label>
@@ -84,11 +84,11 @@ export default function LoginPage() {
                 value={email}
                 onChange={(event) => setEmail(event.target.value)}
                 placeholder="Enter your email"
-                className="w-full rounded-xl border border-sky-200 bg-white px-4 py-3 text-slate-900 placeholder:text-slate-400 outline-none transition focus:border-sky-400 focus:ring-4 focus:ring-sky-100"
+                className="w-full min-w-0 rounded-xl border border-sky-200 bg-white px-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 outline-none transition focus:border-sky-400 focus:ring-4 focus:ring-sky-100 sm:text-base"
               />
             </div>
 
-            <div>
+            <div className="min-w-0">
               <label className="mb-2 block text-sm font-semibold text-slate-700">
                 Password
               </label>
@@ -98,12 +98,12 @@ export default function LoginPage() {
                 value={password}
                 onChange={(event) => setPassword(event.target.value)}
                 placeholder="Enter your password"
-                className="w-full rounded-xl border border-sky-200 bg-white px-4 py-3 text-slate-900 placeholder:text-slate-400 outline-none transition focus:border-sky-400 focus:ring-4 focus:ring-sky-100"
+                className="w-full min-w-0 rounded-xl border border-sky-200 bg-white px-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 outline-none transition focus:border-sky-400 focus:ring-4 focus:ring-sky-100 sm:text-base"
               />
             </div>
 
             {error && (
-              <div className="rounded-xl bg-red-50 px-4 py-3 text-sm font-medium text-red-600">
+              <div className="w-full rounded-xl bg-red-50 px-4 py-3 text-sm font-medium leading-5 text-red-600 break-words">
                 {error}
               </div>
             )}
@@ -111,13 +111,13 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full rounded-xl bg-sky-500 px-6 py-3 font-semibold text-white transition hover:bg-sky-600 disabled:cursor-not-allowed disabled:opacity-60"
+              className="w-full rounded-xl bg-sky-500 px-6 py-3 text-sm font-semibold text-white transition hover:bg-sky-600 disabled:cursor-not-allowed disabled:opacity-60 sm:text-base"
             >
               {loading ? "Signing In..." : "Sign In"}
             </button>
           </form>
 
-          <p className="mt-6 text-center text-sm text-slate-500">
+          <p className="mt-5 text-center text-sm leading-6 text-slate-500 sm:mt-6">
             Don't have an account?{" "}
             <Link
               href="/register"
@@ -131,3 +131,4 @@ export default function LoginPage() {
     </main>
   );
 }
+
