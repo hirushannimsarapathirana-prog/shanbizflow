@@ -1,4 +1,6 @@
 import { prisma } from "@/lib/prisma";
+import { requireRole } from "@/lib/auth";
+import { UserRole } from "@/generated/prisma/client";
 import { NextResponse } from "next/server";
 
 function getDateRange(range: string, start?: string, end?: string) {
@@ -60,6 +62,12 @@ function getDateRange(range: string, start?: string, end?: string) {
 
 export async function GET(request: Request) {
   try {
+    await requireRole([
+      UserRole.SUPER_ADMIN,
+      UserRole.ADMIN,
+      UserRole.STAFF,
+    ]);
+
     const { searchParams } = new URL(request.url);
 
     const range = searchParams.get("range") || "month";
@@ -218,6 +226,34 @@ export async function GET(request: Request) {
     });
   } catch (error) {
     console.error("Reports error:", error);
+
+    if (
+      error instanceof Error &&
+      error.message === "UNAUTHORIZED"
+    ) {
+      return NextResponse.json(
+        {
+          error: "Unauthorized",
+        },
+        {
+          status: 401,
+        }
+      );
+    }
+
+    if (
+      error instanceof Error &&
+      error.message === "FORBIDDEN"
+    ) {
+      return NextResponse.json(
+        {
+          error: "You do not have permission to view reports",
+        },
+        {
+          status: 403,
+        }
+      );
+    }
 
     return NextResponse.json(
       {

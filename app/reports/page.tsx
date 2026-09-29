@@ -3,6 +3,8 @@
 import { useEffect, useMemo, useState } from "react";
 import DashboardSidebar from "@/components/DashboardSidebar";
 
+type UserRole = "SUPER_ADMIN" | "ADMIN" | "STAFF";
+
 type ReportData = {
   summary: {
     totalRevenue: number;
@@ -56,6 +58,18 @@ function formatDate(dateString: string) {
   );
 }
 
+function getRoleLabel(role: UserRole) {
+  if (role === "SUPER_ADMIN") {
+    return "Super Admin";
+  }
+
+  if (role === "ADMIN") {
+    return "Admin";
+  }
+
+  return "Staff";
+}
+
 export default function ReportsPage() {
   const [data, setData] = useState<ReportData | null>(
     null
@@ -67,7 +81,49 @@ export default function ReportsPage() {
   const [endDate, setEndDate] = useState("");
 
   const [loading, setLoading] = useState(true);
+  const [userLoading, setUserLoading] = useState(true);
   const [error, setError] = useState("");
+  const [userRole, setUserRole] =
+    useState<UserRole | null>(null);
+
+  const canViewReports =
+    userRole === "SUPER_ADMIN" ||
+    userRole === "ADMIN" ||
+    userRole === "STAFF";
+
+  async function loadUser() {
+    try {
+      setUserLoading(true);
+
+      const response = await fetch("/api/auth/me", {
+        method: "GET",
+        credentials: "include",
+        cache: "no-store",
+      });
+
+      if (!response.ok) {
+        setUserRole(null);
+        return;
+      }
+
+      const result = await response.json();
+
+      if (result.authenticated && result.user?.role) {
+        setUserRole(result.user.role as UserRole);
+      } else {
+        setUserRole(null);
+      }
+    } catch (error) {
+      console.error(
+        "User loading error:",
+        error
+      );
+
+      setUserRole(null);
+    } finally {
+      setUserLoading(false);
+    }
+  }
 
   async function loadReports() {
     try {
@@ -85,10 +141,24 @@ export default function ReportsPage() {
       }
 
       const response = await fetch(url, {
+        method: "GET",
+        credentials: "include",
         cache: "no-store",
       });
 
       const result = await response.json();
+
+      if (response.status === 401) {
+        throw new Error(
+          "Your session has expired. Please login again."
+        );
+      }
+
+      if (response.status === 403) {
+        throw new Error(
+          "You do not have permission to view reports."
+        );
+      }
 
       if (!response.ok) {
         throw new Error(
@@ -98,7 +168,10 @@ export default function ReportsPage() {
 
       setData(result);
     } catch (error) {
-      console.error("Reports loading error:", error);
+      console.error(
+        "Reports loading error:",
+        error
+      );
 
       setError(
         error instanceof Error
@@ -111,15 +184,38 @@ export default function ReportsPage() {
   }
 
   useEffect(() => {
+    loadUser();
+  }, []);
+
+  useEffect(() => {
+    if (userLoading) {
+      return;
+    }
+
+    if (!canViewReports) {
+      setLoading(false);
+      setError(
+        "You do not have permission to view reports."
+      );
+      return;
+    }
+
     if (
       range === "custom" &&
       (!startDate || !endDate)
     ) {
+      setLoading(false);
       return;
     }
 
     loadReports();
-  }, [range, startDate, endDate]);
+  }, [
+    userLoading,
+    userRole,
+    range,
+    startDate,
+    endDate,
+  ]);
 
   const maxRevenue = useMemo(() => {
     if (!data?.salesByDay.length) {
@@ -134,17 +230,17 @@ export default function ReportsPage() {
     );
   }, [data]);
 
-  if (loading) {
+  if (loading || userLoading) {
     return (
-      <div className="flex min-h-screen bg-slate-50">
+      <div className="flex min-h-screen bg-slate-50 dark:bg-slate-950">
         <DashboardSidebar />
 
-        <main className="flex-1 p-6 lg:p-10">
+        <main className="flex-1 p-6 lg:ml-64 lg:p-10">
           <div className="mx-auto max-w-7xl">
             <div className="animate-pulse">
-              <div className="h-10 w-48 rounded bg-slate-200" />
+              <div className="h-10 w-48 rounded bg-slate-200 dark:bg-slate-800" />
 
-              <div className="mt-3 h-5 w-80 rounded bg-slate-200" />
+              <div className="mt-3 h-5 w-80 rounded bg-slate-200 dark:bg-slate-800" />
 
               <div className="mt-8 grid gap-5 md:grid-cols-2 xl:grid-cols-4">
                 {Array.from({
@@ -152,12 +248,12 @@ export default function ReportsPage() {
                 }).map((_, index) => (
                   <div
                     key={index}
-                    className="h-36 rounded-2xl bg-white shadow-sm"
+                    className="h-36 rounded-2xl bg-white shadow-sm dark:bg-slate-900"
                   />
                 ))}
               </div>
 
-              <div className="mt-8 h-96 rounded-2xl bg-white shadow-sm" />
+              <div className="mt-8 h-96 rounded-2xl bg-white shadow-sm dark:bg-slate-900" />
             </div>
           </div>
         </main>
@@ -167,12 +263,12 @@ export default function ReportsPage() {
 
   if (error) {
     return (
-      <div className="flex min-h-screen bg-slate-50">
+      <div className="flex min-h-screen bg-slate-50 dark:bg-slate-950">
         <DashboardSidebar />
 
-        <main className="flex-1 p-6 lg:p-10">
+        <main className="flex-1 p-6 lg:ml-64 lg:p-10">
           <div className="mx-auto max-w-7xl">
-            <div className="rounded-2xl border border-red-200 bg-red-50 p-6 text-red-700">
+            <div className="rounded-2xl border border-red-200 bg-red-50 p-6 text-red-700 dark:border-red-900 dark:bg-red-950/40 dark:text-red-300">
               <h2 className="text-lg font-bold">
                 Failed to load reports
               </h2>
@@ -183,7 +279,7 @@ export default function ReportsPage() {
 
               <button
                 onClick={loadReports}
-                className="mt-4 rounded-xl bg-red-600 px-5 py-2.5 font-semibold text-white hover:bg-red-700"
+                className="mt-4 rounded-xl bg-red-600 px-5 py-2.5 font-semibold text-white transition hover:bg-red-700"
               >
                 Try Again
               </button>
@@ -199,31 +295,39 @@ export default function ReportsPage() {
   }
 
   return (
-    <div className="flex min-h-screen bg-slate-50">
+    <div className="flex min-h-screen bg-slate-50 dark:bg-slate-950">
       <DashboardSidebar />
 
-      <main className="flex-1 p-6 lg:p-10">
+      <main className="flex-1 p-6 lg:ml-64 lg:p-10">
         <div className="mx-auto max-w-7xl">
 
           {/* Header */}
           <div className="flex flex-col justify-between gap-5 lg:flex-row lg:items-end">
             <div>
-              <p className="text-sm font-semibold uppercase tracking-wider text-sky-500">
-                Business Analytics
-              </p>
+              <div className="flex flex-wrap items-center gap-3">
+                <p className="text-sm font-semibold uppercase tracking-wider text-sky-500">
+                  Business Analytics
+                </p>
 
-              <h1 className="mt-2 text-4xl font-extrabold tracking-tight text-slate-900">
+                {userRole && (
+                  <span className="rounded-full bg-sky-50 px-3 py-1 text-xs font-bold text-sky-600 dark:bg-sky-950 dark:text-sky-300">
+                    {getRoleLabel(userRole)}
+                  </span>
+                )}
+              </div>
+
+              <h1 className="mt-2 text-4xl font-extrabold tracking-tight text-slate-900 dark:text-white">
                 Reports
               </h1>
 
-              <p className="mt-2 text-slate-500">
+              <p className="mt-2 text-slate-500 dark:text-slate-400">
                 Monitor sales, payments and business
                 performance.
               </p>
             </div>
 
             {/* Date Filter */}
-            <div className="rounded-2xl border border-sky-100 bg-white p-3 shadow-sm">
+            <div className="rounded-2xl border border-sky-100 bg-white p-3 shadow-sm dark:border-slate-800 dark:bg-slate-900">
               <div className="flex flex-wrap gap-2">
                 {[
                   {
@@ -252,7 +356,7 @@ export default function ReportsPage() {
                     className={`rounded-xl px-4 py-2 text-sm font-semibold transition ${
                       range === item.value
                         ? "bg-sky-500 text-white shadow-sm"
-                        : "text-slate-600 hover:bg-sky-50 hover:text-sky-600"
+                        : "text-slate-600 hover:bg-sky-50 hover:text-sky-600 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-sky-400"
                     }`}
                   >
                     {item.label}
@@ -266,18 +370,22 @@ export default function ReportsPage() {
                     type="date"
                     value={startDate}
                     onChange={(event) =>
-                      setStartDate(event.target.value)
+                      setStartDate(
+                        event.target.value
+                      )
                     }
-                    className="rounded-xl border border-slate-200 px-3 py-2 text-sm outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-100"
+                    className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-100 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
                   />
 
                   <input
                     type="date"
                     value={endDate}
                     onChange={(event) =>
-                      setEndDate(event.target.value)
+                      setEndDate(
+                        event.target.value
+                      )
                     }
-                    className="rounded-xl border border-slate-200 px-3 py-2 text-sm outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-100"
+                    className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-100 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
                   />
                 </div>
               )}
@@ -287,9 +395,9 @@ export default function ReportsPage() {
           {/* Summary Cards */}
           <div className="mt-8 grid gap-5 md:grid-cols-2 xl:grid-cols-4">
 
-            <div className="rounded-2xl border border-sky-100 bg-white p-6 shadow-sm">
+            <div className="rounded-2xl border border-sky-100 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
               <div className="flex items-center justify-between">
-                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-sky-50 text-xl">
+                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-sky-50 text-xl dark:bg-sky-950">
                   💰
                 </div>
 
@@ -298,20 +406,20 @@ export default function ReportsPage() {
                 </span>
               </div>
 
-              <p className="mt-5 text-3xl font-extrabold text-slate-900">
+              <p className="mt-5 text-3xl font-extrabold text-slate-900 dark:text-white">
                 {formatCurrency(
                   data.summary.totalRevenue
                 )}
               </p>
 
-              <p className="mt-1 text-sm text-slate-500">
+              <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
                 Total sales revenue
               </p>
             </div>
 
-            <div className="rounded-2xl border border-sky-100 bg-white p-6 shadow-sm">
+            <div className="rounded-2xl border border-sky-100 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
               <div className="flex items-center justify-between">
-                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-sky-50 text-xl">
+                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-sky-50 text-xl dark:bg-sky-950">
                   🧾
                 </div>
 
@@ -320,18 +428,18 @@ export default function ReportsPage() {
                 </span>
               </div>
 
-              <p className="mt-5 text-3xl font-extrabold text-slate-900">
+              <p className="mt-5 text-3xl font-extrabold text-slate-900 dark:text-white">
                 {data.summary.totalSales}
               </p>
 
-              <p className="mt-1 text-sm text-slate-500">
+              <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
                 Completed transactions
               </p>
             </div>
 
-            <div className="rounded-2xl border border-sky-100 bg-white p-6 shadow-sm">
+            <div className="rounded-2xl border border-sky-100 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
               <div className="flex items-center justify-between">
-                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-sky-50 text-xl">
+                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-sky-50 text-xl dark:bg-sky-950">
                   💳
                 </div>
 
@@ -340,20 +448,20 @@ export default function ReportsPage() {
                 </span>
               </div>
 
-              <p className="mt-5 text-3xl font-extrabold text-slate-900">
+              <p className="mt-5 text-3xl font-extrabold text-slate-900 dark:text-white">
                 {formatCurrency(
                   data.summary.totalPayments
                 )}
               </p>
 
-              <p className="mt-1 text-sm text-slate-500">
+              <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
                 Amount collected
               </p>
             </div>
 
-            <div className="rounded-2xl border border-sky-100 bg-white p-6 shadow-sm">
+            <div className="rounded-2xl border border-sky-100 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
               <div className="flex items-center justify-between">
-                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-orange-50 text-xl">
+                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-orange-50 text-xl dark:bg-orange-950">
                   ⚠️
                 </div>
 
@@ -362,33 +470,33 @@ export default function ReportsPage() {
                 </span>
               </div>
 
-              <p className="mt-5 text-3xl font-extrabold text-slate-900">
+              <p className="mt-5 text-3xl font-extrabold text-slate-900 dark:text-white">
                 {formatCurrency(
                   data.summary.outstanding
                 )}
               </p>
 
-              <p className="mt-1 text-sm text-slate-500">
+              <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
                 Remaining customer balance
               </p>
             </div>
           </div>
 
           {/* Bar Graph */}
-          <section className="mt-8 rounded-2xl border border-sky-100 bg-white p-6 shadow-sm">
+          <section className="mt-8 rounded-2xl border border-sky-100 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
 
             <div className="flex flex-col justify-between gap-2 sm:flex-row sm:items-center">
               <div>
-                <h2 className="text-xl font-bold text-slate-900">
+                <h2 className="text-xl font-bold text-slate-900 dark:text-white">
                   Sales Revenue
                 </h2>
 
-                <p className="mt-1 text-sm text-slate-500">
+                <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
                   Daily revenue for the selected period
                 </p>
               </div>
 
-              <div className="rounded-xl bg-sky-50 px-4 py-2 text-sm font-semibold text-sky-600">
+              <div className="rounded-xl bg-sky-50 px-4 py-2 text-sm font-semibold text-sky-600 dark:bg-sky-950 dark:text-sky-300">
                 {data.summary.totalSales} sales
               </div>
             </div>
@@ -400,7 +508,7 @@ export default function ReportsPage() {
                     📊
                   </div>
 
-                  <p className="mt-3 font-semibold text-slate-700">
+                  <p className="mt-3 font-semibold text-slate-700 dark:text-slate-200">
                     No sales data
                   </p>
 
@@ -433,7 +541,7 @@ export default function ReportsPage() {
                           key={item.date}
                           className="group flex min-w-[42px] flex-1 flex-col items-center justify-end"
                         >
-                          <div className="mb-2 hidden rounded-lg bg-slate-900 px-3 py-1.5 text-xs font-semibold text-white group-hover:block">
+                          <div className="mb-2 hidden rounded-lg bg-slate-900 px-3 py-1.5 text-xs font-semibold text-white group-hover:block dark:bg-white dark:text-slate-900">
                             {formatCurrency(
                               item.revenue
                             )}
@@ -452,7 +560,7 @@ export default function ReportsPage() {
                           />
 
                           <div className="mt-3 text-center">
-                            <p className="text-xs font-medium text-slate-500">
+                            <p className="text-xs font-medium text-slate-500 dark:text-slate-400">
                               {new Date(
                                 `${item.date}T00:00:00`
                               ).toLocaleDateString(
@@ -477,13 +585,13 @@ export default function ReportsPage() {
           <div className="mt-8 grid gap-6 lg:grid-cols-2">
 
             {/* Payment Methods */}
-            <section className="rounded-2xl border border-sky-100 bg-white p-6 shadow-sm">
+            <section className="rounded-2xl border border-sky-100 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
               <div>
-                <h2 className="text-xl font-bold text-slate-900">
+                <h2 className="text-xl font-bold text-slate-900 dark:text-white">
                   Payment Methods
                 </h2>
 
-                <p className="mt-1 text-sm text-slate-500">
+                <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
                   Collected payment breakdown
                 </p>
               </div>
@@ -536,25 +644,28 @@ export default function ReportsPage() {
                     >
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-3">
-                          <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-slate-50">
+                          <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-slate-50 dark:bg-slate-800">
                             {method.icon}
                           </span>
 
-                          <span className="font-medium text-slate-700">
+                          <span className="font-medium text-slate-700 dark:text-slate-200">
                             {method.label}
                           </span>
                         </div>
 
-                        <span className="font-semibold text-slate-900">
+                        <span className="font-semibold text-slate-900 dark:text-white">
                           {formatCurrency(amount)}
                         </span>
                       </div>
 
-                      <div className="mt-2 h-2 overflow-hidden rounded-full bg-slate-100">
+                      <div className="mt-2 h-2 overflow-hidden rounded-full bg-slate-100 dark:bg-slate-800">
                         <div
                           className="h-full rounded-full bg-sky-500"
                           style={{
-                            width: `${percentage}%`,
+                            width: `${Math.min(
+                              percentage,
+                              100
+                            )}%`,
                           }}
                         />
                       </div>
@@ -565,33 +676,33 @@ export default function ReportsPage() {
             </section>
 
             {/* Sales Overview */}
-            <section className="rounded-2xl border border-sky-100 bg-white p-6 shadow-sm">
-              <h2 className="text-xl font-bold text-slate-900">
+            <section className="rounded-2xl border border-sky-100 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+              <h2 className="text-xl font-bold text-slate-900 dark:text-white">
                 Sales Overview
               </h2>
 
-              <p className="mt-1 text-sm text-slate-500">
+              <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
                 Business activity for selected period
               </p>
 
               <div className="mt-6 grid gap-4 sm:grid-cols-2">
 
-                <div className="rounded-2xl bg-sky-50 p-5">
-                  <p className="text-sm font-medium text-slate-500">
+                <div className="rounded-2xl bg-sky-50 p-5 dark:bg-sky-950/50">
+                  <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
                     Items Sold
                   </p>
 
-                  <p className="mt-2 text-3xl font-extrabold text-sky-600">
+                  <p className="mt-2 text-3xl font-extrabold text-sky-600 dark:text-sky-400">
                     {data.summary.totalItemsSold}
                   </p>
                 </div>
 
-                <div className="rounded-2xl bg-slate-50 p-5">
-                  <p className="text-sm font-medium text-slate-500">
+                <div className="rounded-2xl bg-slate-50 p-5 dark:bg-slate-800">
+                  <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
                     Average Sale
                   </p>
 
-                  <p className="mt-2 text-3xl font-extrabold text-slate-900">
+                  <p className="mt-2 text-3xl font-extrabold text-slate-900 dark:text-white">
                     {formatCurrency(
                       data.summary.totalSales >
                         0
@@ -604,24 +715,24 @@ export default function ReportsPage() {
                   </p>
                 </div>
 
-                <div className="rounded-2xl bg-emerald-50 p-5">
-                  <p className="text-sm font-medium text-slate-500">
+                <div className="rounded-2xl bg-emerald-50 p-5 dark:bg-emerald-950/40">
+                  <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
                     Collected
                   </p>
 
-                  <p className="mt-2 text-3xl font-extrabold text-emerald-600">
+                  <p className="mt-2 text-3xl font-extrabold text-emerald-600 dark:text-emerald-400">
                     {formatCurrency(
                       data.summary.totalPayments
                     )}
                   </p>
                 </div>
 
-                <div className="rounded-2xl bg-orange-50 p-5">
-                  <p className="text-sm font-medium text-slate-500">
+                <div className="rounded-2xl bg-orange-50 p-5 dark:bg-orange-950/40">
+                  <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
                     Credit
                   </p>
 
-                  <p className="mt-2 text-3xl font-extrabold text-orange-600">
+                  <p className="mt-2 text-3xl font-extrabold text-orange-600 dark:text-orange-400">
                     {formatCurrency(
                       data.summary.outstanding
                     )}
@@ -633,15 +744,15 @@ export default function ReportsPage() {
           </div>
 
           {/* Recent Sales */}
-          <section className="mt-8 overflow-hidden rounded-2xl border border-sky-100 bg-white shadow-sm">
+          <section className="mt-8 overflow-hidden rounded-2xl border border-sky-100 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
 
-            <div className="flex flex-col justify-between gap-2 border-b border-slate-100 p-6 sm:flex-row sm:items-center">
+            <div className="flex flex-col justify-between gap-2 border-b border-slate-100 p-6 sm:flex-row sm:items-center dark:border-slate-800">
               <div>
-                <h2 className="text-xl font-bold text-slate-900">
+                <h2 className="text-xl font-bold text-slate-900 dark:text-white">
                   Recent Sales
                 </h2>
 
-                <p className="mt-1 text-sm text-slate-500">
+                <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
                   Latest completed transactions
                 </p>
               </div>
@@ -649,7 +760,7 @@ export default function ReportsPage() {
 
             {data.recentSales.length === 0 ? (
               <div className="p-10 text-center">
-                <p className="font-semibold text-slate-700">
+                <p className="font-semibold text-slate-700 dark:text-slate-200">
                   No sales found
                 </p>
               </div>
@@ -657,32 +768,32 @@ export default function ReportsPage() {
               <div className="overflow-x-auto">
                 <table className="w-full min-w-[800px]">
                   <thead>
-                    <tr className="border-b border-slate-100 bg-slate-50">
-                      <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">
+                    <tr className="border-b border-slate-100 bg-slate-50 dark:border-slate-800 dark:bg-slate-800">
+                      <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
                         Invoice
                       </th>
 
-                      <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">
+                      <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
                         Customer
                       </th>
 
-                      <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">
+                      <th className="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
                         Date
                       </th>
 
-                      <th className="px-6 py-4 text-right text-xs font-semibold uppercase tracking-wider text-slate-500">
+                      <th className="px-6 py-4 text-right text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
                         Total
                       </th>
 
-                      <th className="px-6 py-4 text-right text-xs font-semibold uppercase tracking-wider text-slate-500">
+                      <th className="px-6 py-4 text-right text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
                         Paid
                       </th>
 
-                      <th className="px-6 py-4 text-right text-xs font-semibold uppercase tracking-wider text-slate-500">
+                      <th className="px-6 py-4 text-right text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
                         Balance
                       </th>
 
-                      <th className="px-6 py-4 text-center text-xs font-semibold uppercase tracking-wider text-slate-500">
+                      <th className="px-6 py-4 text-center text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
                         Status
                       </th>
                     </tr>
@@ -693,37 +804,37 @@ export default function ReportsPage() {
                       (sale) => (
                         <tr
                           key={sale.id}
-                          className="border-b border-slate-50 transition hover:bg-slate-50"
+                          className="border-b border-slate-50 transition hover:bg-slate-50 dark:border-slate-800 dark:hover:bg-slate-800"
                         >
                           <td className="px-6 py-4">
-                            <span className="font-semibold text-sky-600">
+                            <span className="font-semibold text-sky-600 dark:text-sky-400">
                               {sale.invoiceNumber}
                             </span>
                           </td>
 
-                          <td className="px-6 py-4 font-medium text-slate-700">
+                          <td className="px-6 py-4 font-medium text-slate-700 dark:text-slate-200">
                             {sale.customerName}
                           </td>
 
-                          <td className="px-6 py-4 text-sm text-slate-500">
+                          <td className="px-6 py-4 text-sm text-slate-500 dark:text-slate-400">
                             {formatDate(
                               sale.createdAt
                             )}
                           </td>
 
-                          <td className="px-6 py-4 text-right font-semibold text-slate-900">
+                          <td className="px-6 py-4 text-right font-semibold text-slate-900 dark:text-white">
                             {formatCurrency(
                               sale.total
                             )}
                           </td>
 
-                          <td className="px-6 py-4 text-right font-semibold text-emerald-600">
+                          <td className="px-6 py-4 text-right font-semibold text-emerald-600 dark:text-emerald-400">
                             {formatCurrency(
                               sale.paidAmount
                             )}
                           </td>
 
-                          <td className="px-6 py-4 text-right font-semibold text-orange-600">
+                          <td className="px-6 py-4 text-right font-semibold text-orange-600 dark:text-orange-400">
                             {formatCurrency(
                               sale.balance
                             )}
@@ -734,11 +845,11 @@ export default function ReportsPage() {
                               className={`inline-flex rounded-full px-3 py-1 text-xs font-bold ${
                                 sale.paymentStatus ===
                                 "PAID"
-                                  ? "bg-emerald-50 text-emerald-600"
+                                  ? "bg-emerald-50 text-emerald-600 dark:bg-emerald-950 dark:text-emerald-400"
                                   : sale.paymentStatus ===
                                     "PARTIAL"
-                                  ? "bg-yellow-50 text-yellow-600"
-                                  : "bg-orange-50 text-orange-600"
+                                  ? "bg-yellow-50 text-yellow-600 dark:bg-yellow-950 dark:text-yellow-400"
+                                  : "bg-orange-50 text-orange-600 dark:bg-orange-950 dark:text-orange-400"
                               }`}
                             >
                               {

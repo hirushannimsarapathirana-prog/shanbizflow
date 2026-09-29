@@ -1,8 +1,16 @@
 import { prisma } from "@/lib/prisma";
+import { requireRole } from "@/lib/auth";
+import { UserRole } from "@/generated/prisma/client";
 import { NextResponse } from "next/server";
 
 export async function GET() {
   try {
+    await requireRole([
+      UserRole.SUPER_ADMIN,
+      UserRole.ADMIN,
+      UserRole.STAFF,
+    ]);
+
     const products = await prisma.product.findMany({
       orderBy: {
         name: "asc",
@@ -13,6 +21,29 @@ export async function GET() {
   } catch (error) {
     console.error("Get inventory error:", error);
 
+    if (
+      error instanceof Error &&
+      error.message === "UNAUTHORIZED"
+    ) {
+      return NextResponse.json(
+        { error: "Unauthorized" },
+        { status: 401 }
+      );
+    }
+
+    if (
+      error instanceof Error &&
+      error.message === "FORBIDDEN"
+    ) {
+      return NextResponse.json(
+        {
+          error:
+            "You do not have permission to view inventory",
+        },
+        { status: 403 }
+      );
+    }
+
     return NextResponse.json(
       { error: "Failed to fetch inventory" },
       { status: 500 }
@@ -22,6 +53,11 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
+    await requireRole([
+      UserRole.SUPER_ADMIN,
+      UserRole.ADMIN,
+    ]);
+
     const body = await request.json();
 
     const {
@@ -34,7 +70,7 @@ export async function POST(request: Request) {
     const id = Number(productId);
     const qty = Number(quantity);
 
-    if (!Number.isInteger(id)) {
+    if (!Number.isInteger(id) || id <= 0) {
       return NextResponse.json(
         { error: "Invalid product ID" },
         { status: 400 }
@@ -138,9 +174,33 @@ export async function POST(request: Request) {
   } catch (error) {
     console.error("Inventory update error:", error);
 
+    if (
+      error instanceof Error &&
+      error.message === "UNAUTHORIZED"
+    ) {
+      return NextResponse.json(
+        { error: "Unauthorized" },
+        { status: 401 }
+      );
+    }
+
+    if (
+      error instanceof Error &&
+      error.message === "FORBIDDEN"
+    ) {
+      return NextResponse.json(
+        {
+          error:
+            "You do not have permission to update inventory",
+        },
+        { status: 403 }
+      );
+    }
+
     return NextResponse.json(
       { error: "Failed to update inventory" },
       { status: 500 }
     );
   }
 }
+

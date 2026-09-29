@@ -1,8 +1,16 @@
 import { prisma } from "@/lib/prisma";
+import { requireRole } from "@/lib/auth";
+import { UserRole } from "@/generated/prisma/client";
 import { NextResponse } from "next/server";
 
 export async function GET() {
   try {
+    await requireRole([
+      UserRole.SUPER_ADMIN,
+      UserRole.ADMIN,
+      UserRole.STAFF,
+    ]);
+
     const payments = await prisma.salePayment.findMany({
       orderBy: {
         paymentDate: "desc",
@@ -20,6 +28,28 @@ export async function GET() {
   } catch (error) {
     console.error("Get payments error:", error);
 
+    if (error instanceof Error && error.message === "UNAUTHORIZED") {
+      return NextResponse.json(
+        {
+          error: "Unauthorized",
+        },
+        {
+          status: 401,
+        }
+      );
+    }
+
+    if (error instanceof Error && error.message === "FORBIDDEN") {
+      return NextResponse.json(
+        {
+          error: "You do not have permission to view payments",
+        },
+        {
+          status: 403,
+        }
+      );
+    }
+
     return NextResponse.json(
       {
         error: "Failed to fetch payments",
@@ -33,6 +63,12 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
+    await requireRole([
+      UserRole.SUPER_ADMIN,
+      UserRole.ADMIN,
+      UserRole.STAFF,
+    ]);
+
     const body = await request.json();
 
     const {
@@ -45,7 +81,10 @@ export async function POST(request: Request) {
     const parsedSaleId = Number(saleId);
     const parsedAmount = Number(amount);
 
-    if (!Number.isInteger(parsedSaleId)) {
+    if (
+      !Number.isInteger(parsedSaleId) ||
+      parsedSaleId <= 0
+    ) {
       return NextResponse.json(
         {
           error: "Valid sale ID is required",
@@ -56,7 +95,10 @@ export async function POST(request: Request) {
       );
     }
 
-    if (!Number.isFinite(parsedAmount) || parsedAmount <= 0) {
+    if (
+      !Number.isFinite(parsedAmount) ||
+      parsedAmount <= 0
+    ) {
       return NextResponse.json(
         {
           error: "Payment amount must be greater than 0",
@@ -67,7 +109,11 @@ export async function POST(request: Request) {
       );
     }
 
-    if (!paymentMethod || typeof paymentMethod !== "string") {
+    if (
+      !paymentMethod ||
+      typeof paymentMethod !== "string" ||
+      !paymentMethod.trim()
+    ) {
       return NextResponse.json(
         {
           error: "Payment method is required",
@@ -110,7 +156,8 @@ export async function POST(request: Request) {
     }
 
     const currentPaidAmount = sale.payments.reduce(
-      (total, payment) => total + payment.amount,
+      (total, payment) =>
+        total + payment.amount,
       0
     );
 
@@ -147,32 +194,39 @@ export async function POST(request: Request) {
           data: {
             saleId: parsedSaleId,
             amount: parsedAmount,
-            paymentMethod: paymentMethod.trim(),
+            paymentMethod:
+              paymentMethod.trim(),
             note:
-              typeof note === "string" && note.trim()
+              typeof note === "string" &&
+              note.trim()
                 ? note.trim()
                 : null,
           },
         });
 
         const newPaidAmount =
-          currentPaidAmount + parsedAmount;
+          currentPaidAmount +
+          parsedAmount;
 
         let paymentStatus = "PARTIAL";
 
-        if (newPaidAmount >= sale.total) {
+        if (
+          newPaidAmount >= sale.total
+        ) {
           paymentStatus = "PAID";
         }
 
-        const updatedSale = await tx.sale.update({
-          where: {
-            id: parsedSaleId,
-          },
-          data: {
-            paidAmount: newPaidAmount,
-            paymentStatus,
-          },
-        });
+        const updatedSale =
+          await tx.sale.update({
+            where: {
+              id: parsedSaleId,
+            },
+            data: {
+              paidAmount:
+                newPaidAmount,
+              paymentStatus,
+            },
+          });
 
         return {
           payment,
@@ -192,7 +246,39 @@ export async function POST(request: Request) {
       }
     );
   } catch (error) {
-    console.error("Create payment error:", error);
+    console.error(
+      "Create payment error:",
+      error
+    );
+
+    if (
+      error instanceof Error &&
+      error.message === "UNAUTHORIZED"
+    ) {
+      return NextResponse.json(
+        {
+          error: "Unauthorized",
+        },
+        {
+          status: 401,
+        }
+      );
+    }
+
+    if (
+      error instanceof Error &&
+      error.message === "FORBIDDEN"
+    ) {
+      return NextResponse.json(
+        {
+          error:
+            "You do not have permission to create payments",
+        },
+        {
+          status: 403,
+        }
+      );
+    }
 
     return NextResponse.json(
       {

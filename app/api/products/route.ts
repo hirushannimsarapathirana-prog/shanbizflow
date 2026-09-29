@@ -1,8 +1,16 @@
 import { prisma } from "@/lib/prisma";
+import { requireRole } from "@/lib/auth";
+import { UserRole } from "@/generated/prisma/client";
 import { NextResponse } from "next/server";
 
 export async function GET() {
   try {
+    await requireRole([
+      UserRole.SUPER_ADMIN,
+      UserRole.ADMIN,
+      UserRole.STAFF,
+    ]);
+
     const products = await prisma.product.findMany({
       orderBy: {
         createdAt: "desc",
@@ -11,10 +19,24 @@ export async function GET() {
 
     return NextResponse.json(products);
   } catch (error) {
-    console.error("Get products error:", error);
+    console.error("Products GET error:", error);
+
+    if (error instanceof Error && error.message === "UNAUTHORIZED") {
+      return NextResponse.json(
+        { error: "Unauthorized" },
+        { status: 401 }
+      );
+    }
+
+    if (error instanceof Error && error.message === "FORBIDDEN") {
+      return NextResponse.json(
+        { error: "Forbidden" },
+        { status: 403 }
+      );
+    }
 
     return NextResponse.json(
-      { error: "Failed to fetch products" },
+      { error: "Unable to fetch products" },
       { status: 500 }
     );
   }
@@ -22,54 +44,88 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
+    await requireRole([
+      UserRole.SUPER_ADMIN,
+      UserRole.ADMIN,
+    ]);
+
     const body = await request.json();
 
-    const { name, description, price, stock, category, imageUrl } = body;
+    const name =
+      typeof body.name === "string"
+        ? body.name.trim()
+        : "";
 
-    if (!name || price === undefined) {
+    const description =
+      typeof body.description === "string"
+        ? body.description.trim()
+        : null;
+
+    const price = Number(body.price);
+    const stock = Number(body.stock);
+
+    const category =
+      typeof body.category === "string"
+        ? body.category.trim()
+        : null;
+
+    const imageUrl =
+      typeof body.imageUrl === "string"
+        ? body.imageUrl.trim()
+        : null;
+
+    if (!name) {
       return NextResponse.json(
-        { error: "Name and price are required" },
+        { error: "Product name is required" },
         { status: 400 }
       );
     }
 
-    if (Number(price) < 0) {
+    if (!Number.isFinite(price) || price < 0) {
       return NextResponse.json(
-        { error: "Price cannot be negative" },
+        { error: "Price must be a valid positive number" },
         { status: 400 }
       );
     }
 
-    if (Number(stock ?? 0) < 0) {
+    if (!Number.isInteger(stock) || stock < 0) {
       return NextResponse.json(
-        { error: "Stock cannot be negative" },
+        { error: "Stock must be a valid non-negative integer" },
         { status: 400 }
       );
     }
 
     const product = await prisma.product.create({
       data: {
-        name: name.trim(),
-        description: description?.trim() || null,
-        price: Number(price),
-        stock: Number(stock ?? 0),
-        category: category?.trim() || null,
-        imageUrl: imageUrl?.trim() || null,
+        name,
+        description: description || null,
+        price,
+        stock,
+        category: category || null,
+        imageUrl: imageUrl || null,
       },
     });
 
-    return NextResponse.json(
-      {
-        message: "Product created successfully",
-        product,
-      },
-      { status: 201 }
-    );
+    return NextResponse.json(product, { status: 201 });
   } catch (error) {
-    console.error("Create product error:", error);
+    console.error("Products POST error:", error);
+
+    if (error instanceof Error && error.message === "UNAUTHORIZED") {
+      return NextResponse.json(
+        { error: "Unauthorized" },
+        { status: 401 }
+      );
+    }
+
+    if (error instanceof Error && error.message === "FORBIDDEN") {
+      return NextResponse.json(
+        { error: "You do not have permission to add products" },
+        { status: 403 }
+      );
+    }
 
     return NextResponse.json(
-      { error: "Failed to create product" },
+      { error: "Unable to create product" },
       { status: 500 }
     );
   }

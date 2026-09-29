@@ -2,6 +2,14 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useEffect, useState } from "react";
+
+type User = {
+  id: number;
+  name: string;
+  email: string;
+  role: "SUPER_ADMIN" | "ADMIN" | "STAFF";
+};
 
 const menuItems = [
   {
@@ -44,9 +52,55 @@ const menuItems = [
 export default function DashboardSidebar() {
   const pathname = usePathname();
 
+  const [user, setUser] =
+    useState<User | null>(null);
+
+  useEffect(() => {
+    async function loadCurrentUser() {
+      try {
+        const response = await fetch(
+          "/api/auth/me",
+          {
+            method: "GET",
+            credentials: "include",
+            cache: "no-store",
+          }
+        );
+
+        if (!response.ok) {
+          setUser(null);
+          return;
+        }
+
+        const data = await response.json();
+
+        if (
+          data.authenticated &&
+          data.user
+        ) {
+          setUser(data.user);
+        } else {
+          setUser(null);
+        }
+      } catch (error) {
+        console.error(
+          "Failed to load current user:",
+          error
+        );
+
+        setUser(null);
+      }
+    }
+
+    loadCurrentUser();
+  }, []);
+
+  const isSuperAdmin =
+    user?.role === "SUPER_ADMIN";
+
   return (
-    <aside className="hidden min-h-screen w-64 border-r border-sky-100 bg-white lg:block">
-      <div className="sticky top-0 min-h-screen p-5">
+    <aside className="fixed left-0 top-0 z-40 hidden h-screen w-64 border-r border-sky-100 bg-white lg:block dark:border-slate-800 dark:bg-slate-900">
+      <div className="flex h-full flex-col px-5 py-6">
 
         <div className="mb-8 px-3">
           <p className="text-xs font-semibold uppercase tracking-wider text-sky-500">
@@ -54,9 +108,10 @@ export default function DashboardSidebar() {
           </p>
         </div>
 
-        <nav className="space-y-2">
+        <nav className="flex-1 space-y-2 overflow-y-auto">
           {menuItems.map((item) => {
-            const isActive = pathname === item.href;
+            const isActive =
+              pathname === item.href;
 
             return (
               <Link
@@ -64,34 +119,61 @@ export default function DashboardSidebar() {
                 href={item.href}
                 className={`flex items-center gap-3 rounded-xl px-4 py-3 font-medium transition ${
                   isActive
-                    ? "bg-sky-50 text-sky-600"
-                    : "text-slate-600 hover:bg-slate-50 hover:text-sky-600"
+                    ? "bg-sky-50 text-sky-600 dark:bg-sky-900/20 dark:text-sky-400"
+                    : "text-slate-600 hover:bg-slate-50 hover:text-sky-600 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-sky-400"
                 }`}
               >
-                <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-slate-50 text-sm">
+                <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-slate-50 text-sm dark:bg-slate-800">
                   {item.icon}
                 </span>
 
-                <span>{item.name}</span>
+                <span>
+                  {item.name}
+                </span>
               </Link>
             );
           })}
+
+          {isSuperAdmin && (
+            <Link
+              href="/users"
+              className={`flex items-center gap-3 rounded-xl px-4 py-3 font-medium transition ${
+                pathname === "/users"
+                  ? "bg-sky-50 text-sky-600 dark:bg-sky-900/20 dark:text-sky-400"
+                  : "text-slate-600 hover:bg-slate-50 hover:text-sky-600 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-sky-400"
+              }`}
+            >
+              <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-slate-50 text-sm dark:bg-slate-800">
+                👤
+              </span>
+
+              <span>
+                Users
+              </span>
+            </Link>
+          )}
         </nav>
 
-        <div className="mt-10 border-t border-slate-100 pt-6">
+        <div className="mt-6 border-t border-slate-100 pt-6 dark:border-slate-800">
           <p className="px-3 text-xs font-semibold uppercase tracking-wider text-slate-400">
             System
           </p>
 
           <Link
             href="/settings"
-            className="mt-3 flex items-center gap-3 rounded-xl px-4 py-3 font-medium text-slate-600 transition hover:bg-slate-50 hover:text-sky-600"
+            className={`mt-3 flex items-center gap-3 rounded-xl px-4 py-3 font-medium transition ${
+              pathname === "/settings"
+                ? "bg-sky-50 text-sky-600 dark:bg-sky-900/20 dark:text-sky-400"
+                : "text-slate-600 hover:bg-slate-50 hover:text-sky-600 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-sky-400"
+            }`}
           >
-            <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-slate-50">
+            <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-slate-50 dark:bg-slate-800">
               ⚙️
             </span>
 
-            <span>Settings</span>
+            <span>
+              Settings
+            </span>
           </Link>
         </div>
 

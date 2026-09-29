@@ -1,4 +1,6 @@
 import { prisma } from "@/lib/prisma";
+import { requireRole } from "@/lib/auth";
+import { UserRole } from "@/generated/prisma/client";
 import { NextResponse } from "next/server";
 
 type RouteContext = {
@@ -18,10 +20,16 @@ export async function GET(
   context: RouteContext
 ) {
   try {
+    await requireRole([
+      UserRole.SUPER_ADMIN,
+      UserRole.ADMIN,
+      UserRole.STAFF,
+    ]);
+
     const { id } = await context.params;
     const customerId = Number(id);
 
-    if (!Number.isInteger(customerId)) {
+    if (!Number.isInteger(customerId) || customerId <= 0) {
       return NextResponse.json(
         { error: "Invalid customer ID" },
         { status: 400 }
@@ -45,6 +53,22 @@ export async function GET(
   } catch (error) {
     console.error("Get customer error:", error);
 
+    if (error instanceof Error && error.message === "UNAUTHORIZED") {
+      return NextResponse.json(
+        { error: "Unauthorized" },
+        { status: 401 }
+      );
+    }
+
+    if (error instanceof Error && error.message === "FORBIDDEN") {
+      return NextResponse.json(
+        {
+          error: "You do not have permission to view customers",
+        },
+        { status: 403 }
+      );
+    }
+
     return NextResponse.json(
       { error: "Failed to fetch customer" },
       { status: 500 }
@@ -57,10 +81,16 @@ export async function PUT(
   context: RouteContext
 ) {
   try {
+    await requireRole([
+      UserRole.SUPER_ADMIN,
+      UserRole.ADMIN,
+      UserRole.STAFF,
+    ]);
+
     const { id } = await context.params;
     const customerId = Number(id);
 
-    if (!Number.isInteger(customerId)) {
+    if (!Number.isInteger(customerId) || customerId <= 0) {
       return NextResponse.json(
         { error: "Invalid customer ID" },
         { status: 400 }
@@ -84,9 +114,14 @@ export async function PUT(
       );
     }
 
-    if (typeof phone !== "string" || !isValidPhone(phone)) {
+    if (
+      typeof phone !== "string" ||
+      !isValidPhone(phone.trim())
+    ) {
       return NextResponse.json(
-        { error: "Phone number must contain exactly 10 digits" },
+        {
+          error: "Phone number must contain exactly 10 digits",
+        },
         { status: 400 }
       );
     }
@@ -97,7 +132,9 @@ export async function PUT(
         !isValidEmail(email.trim())
       ) {
         return NextResponse.json(
-          { error: "Please enter a valid email address" },
+          {
+            error: "Please enter a valid email address",
+          },
           { status: 400 }
         );
       }
@@ -149,14 +186,61 @@ export async function PUT(
       );
     }
 
+    const normalizedPhone = phone.trim();
+
+    const normalizedEmail =
+      typeof email === "string" && email.trim()
+        ? email.trim().toLowerCase()
+        : null;
+
+    const existingPhone = await prisma.customer.findFirst({
+      where: {
+        phone: normalizedPhone,
+        NOT: {
+          id: customerId,
+        },
+      },
+    });
+
+    if (existingPhone) {
+      return NextResponse.json(
+        {
+          error:
+            "A customer with this phone number already exists",
+        },
+        { status: 409 }
+      );
+    }
+
+    if (normalizedEmail) {
+      const existingEmail = await prisma.customer.findFirst({
+        where: {
+          email: normalizedEmail,
+          NOT: {
+            id: customerId,
+          },
+        },
+      });
+
+      if (existingEmail) {
+        return NextResponse.json(
+          {
+            error:
+              "A customer with this email already exists",
+          },
+          { status: 409 }
+        );
+      }
+    }
+
     const customer = await prisma.customer.update({
       where: {
         id: customerId,
       },
       data: {
         name: name.trim(),
-        email: email?.trim() || null,
-        phone: phone.trim(),
+        email: normalizedEmail,
+        phone: normalizedPhone,
         address: address?.trim() || null,
         imageUrl: imageUrl?.trim() || null,
       },
@@ -166,8 +250,24 @@ export async function PUT(
       message: "Customer updated successfully",
       customer,
     });
-} catch (error: unknown) {
+  } catch (error: unknown) {
     console.error("Update customer error:", error);
+
+    if (error instanceof Error && error.message === "UNAUTHORIZED") {
+      return NextResponse.json(
+        { error: "Unauthorized" },
+        { status: 401 }
+      );
+    }
+
+    if (error instanceof Error && error.message === "FORBIDDEN") {
+      return NextResponse.json(
+        {
+          error: "You do not have permission to update customers",
+        },
+        { status: 403 }
+      );
+    }
 
     if (
       typeof error === "object" &&
@@ -187,39 +287,6 @@ export async function PUT(
       { error: "Failed to update customer" },
       { status: 500 }
     );
-const existingPhone = await prisma.customer.findFirst({
-  where: {
-    phone: phone.trim(),
-    NOT: {
-      id: customerId,
-    },
-  },
-});
-
-if (existingPhone) {
-  return NextResponse.json(
-    { error: "A customer with this phone number already exists" },
-    { status: 409 }
-  );
-}
-
-if (email?.trim()) {
-  const existingEmail = await prisma.customer.findFirst({
-    where: {
-      email: email.trim(),
-      NOT: {
-        id: customerId,
-      },
-    },
-  });
-
-  if (existingEmail) {
-    return NextResponse.json(
-      { error: "A customer with this email already exists" },
-      { status: 409 }
-    );
-  }
-}
   }
 }
 
@@ -228,10 +295,15 @@ export async function DELETE(
   context: RouteContext
 ) {
   try {
+    await requireRole([
+      UserRole.SUPER_ADMIN,
+      UserRole.ADMIN,
+    ]);
+
     const { id } = await context.params;
     const customerId = Number(id);
 
-    if (!Number.isInteger(customerId)) {
+    if (!Number.isInteger(customerId) || customerId <= 0) {
       return NextResponse.json(
         { error: "Invalid customer ID" },
         { status: 400 }
@@ -262,6 +334,23 @@ export async function DELETE(
     });
   } catch (error) {
     console.error("Delete customer error:", error);
+
+    if (error instanceof Error && error.message === "UNAUTHORIZED") {
+      return NextResponse.json(
+        { error: "Unauthorized" },
+        { status: 401 }
+      );
+    }
+
+    if (error instanceof Error && error.message === "FORBIDDEN") {
+      return NextResponse.json(
+        {
+          error:
+            "You do not have permission to delete customers",
+        },
+        { status: 403 }
+      );
+    }
 
     return NextResponse.json(
       { error: "Failed to delete customer" },

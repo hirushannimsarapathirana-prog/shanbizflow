@@ -1,69 +1,206 @@
 "use client";
 
-import { useEffect } from "react";
+import Link from "next/link";
+import { useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 
-export default function SessionGuard() {
+type User = {
+  id: number;
+  name: string;
+  email: string;
+  role: string;
+};
+
+export default function Navbar() {
   const router = useRouter();
   const pathname = usePathname();
 
-  useEffect(() => {
-    if (
-      pathname === "/login" ||
-      pathname === "/register"
-    ) {
-      return;
-    }
+  const [user, setUser] =
+    useState<User | null>(null);
 
-    let timer: ReturnType<typeof setTimeout> | null = null;
+  const [loading, setLoading] =
+    useState(true);
 
-    async function setupSessionTimer() {
-      try {
-        const response = await fetch("/api/auth/me", {
+  const [loggingOut, setLoggingOut] =
+    useState(false);
+
+  async function checkAuthentication() {
+    try {
+      setLoading(true);
+
+      const response = await fetch(
+        "/api/auth/me",
+        {
           method: "GET",
           credentials: "include",
           cache: "no-store",
-        });
-
-        if (response.status === 401) {
-          router.replace("/login?session=expired");
-          return;
         }
+      );
 
-        if (!response.ok) {
-          return;
-        }
-
-        const data = await response.json();
-
-        if (!data.authenticated) {
-          router.replace("/login?session=expired");
-          return;
-        }
-
-        timer = setTimeout(
-          () => {
-            router.replace("/login?session=expired");
-          },
-          30 * 60 * 1000
-        );
-      } catch (error) {
-
-        console.warn(
-          "Unable to verify session:",
-          error
-        );
+      if (!response.ok) {
+        setUser(null);
+        return;
       }
+
+      const data =
+        await response.json();
+
+      if (
+        data.authenticated &&
+        data.user
+      ) {
+        setUser(data.user);
+      } else {
+        setUser(null);
+      }
+    } catch (error) {
+      console.error(
+        "Authentication check failed:",
+        error
+      );
+
+      setUser(null);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  useEffect(() => {
+    checkAuthentication();
+  }, [pathname]);
+
+  async function handleLogout() {
+    if (loggingOut) {
+      return;
     }
 
-    setupSessionTimer();
+    try {
+      setLoggingOut(true);
 
-    return () => {
-      if (timer) {
-        clearTimeout(timer);
+      const response =
+        await fetch(
+          "/api/auth/logout",
+          {
+            method: "POST",
+            credentials: "include",
+            cache: "no-store",
+          }
+        );
+
+      if (!response.ok) {
+        const data =
+          await response
+            .json()
+            .catch(() => null);
+
+        console.error(
+          "Logout failed:",
+          data?.error ||
+            `HTTP ${response.status}`
+        );
+
+        return;
       }
-    };
-  }, [pathname, router]);
 
-  return null;
+      setUser(null);
+
+      router.replace("/");
+      router.refresh();
+    } catch (error) {
+      console.error(
+        "Logout error:",
+        error
+      );
+    } finally {
+      setLoggingOut(false);
+    }
+  }
+
+  return (
+    <nav className="border-b border-sky-100 bg-white dark:border-slate-800 dark:bg-slate-900">
+
+      <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-5">
+
+        {/* Logo */}
+        <div>
+          <Link href="/">
+            <h1 className="text-2xl font-bold tracking-tight text-sky-600">
+              ShanBizFlow
+            </h1>
+          </Link>
+
+          <p className="text-xs text-slate-400 dark:text-slate-500">
+            Business Management
+          </p>
+        </div>
+
+        {/* Navigation */}
+        <div className="flex items-center gap-6">
+
+          <Link
+            href="/"
+            className="font-medium text-slate-700 transition hover:text-sky-600 dark:text-slate-300 dark:hover:text-sky-400"
+          >
+            Home
+          </Link>
+
+          <Link
+            href="/about"
+            className="font-medium text-slate-700 transition hover:text-sky-600 dark:text-slate-300 dark:hover:text-sky-400"
+          >
+            About
+          </Link>
+
+          {loading ? (
+            <span className="text-sm text-slate-400">
+              Loading...
+            </span>
+          ) : user ? (
+            <>
+              <Link
+                href="/dashboard"
+                className="font-medium text-slate-700 transition hover:text-sky-600 dark:text-slate-300 dark:hover:text-sky-400"
+              >
+                Dashboard
+              </Link>
+
+              <span className="font-medium text-slate-600 dark:text-slate-300">
+                Hi, {user.name}
+              </span>
+
+              <button
+                type="button"
+                onClick={handleLogout}
+                disabled={loggingOut}
+                className="rounded-full bg-red-500 px-6 py-2.5 font-semibold text-white transition hover:bg-red-600 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                {loggingOut
+                  ? "Logging out..."
+                  : "Logout"}
+              </button>
+            </>
+          ) : (
+            <>
+              <Link
+                href="/login"
+                className="font-medium text-slate-700 transition hover:text-sky-600 dark:text-slate-300 dark:hover:text-sky-400"
+              >
+                Login
+              </Link>
+
+              <Link
+                href="/register"
+                className="rounded-full bg-sky-500 px-6 py-2.5 font-semibold text-white transition hover:bg-sky-600"
+              >
+                Get Started
+              </Link>
+            </>
+          )}
+
+        </div>
+
+      </div>
+
+    </nav>
+  );
 }
