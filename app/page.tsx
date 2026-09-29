@@ -41,89 +41,74 @@ const features = [
 
 export default function AboutPage() {
   return (
-    <main className="min-h-screen bg-white dark:bg-slate-950">
-
+    <main className="min-h-screen overflow-x-hidden bg-white dark:bg-slate-950">
       {/* Hero */}
       <section className="bg-sky-50 dark:bg-slate-950">
-        <div className="mx-auto max-w-7xl px-6 py-20 lg:py-28">
-
+        <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 sm:py-16 md:py-20 lg:px-8 lg:py-28">
           <div className="mx-auto max-w-4xl text-center">
-
-            <span className="inline-flex rounded-full bg-sky-100 px-5 py-2 text-sm font-semibold text-sky-600 dark:bg-sky-950 dark:text-sky-400">
+            <span className="inline-flex max-w-full rounded-full bg-sky-100 px-4 py-2 text-xs font-semibold text-sky-600 sm:px-5 sm:text-sm dark:bg-sky-950 dark:text-sky-400">
               About ShanBizFlow
             </span>
 
-            <h1 className="mt-7 text-4xl font-extrabold tracking-tight text-slate-900 sm:text-5xl lg:text-6xl dark:text-white">
+            <h1 className="mt-5 text-3xl font-extrabold tracking-tight text-slate-900 sm:mt-7 sm:text-5xl lg:text-6xl dark:text-white">
               Everything your business needs,
-              <span className="block text-sky-500">
-                in one place.
-              </span>
+              <span className="block text-sky-500">in one place.</span>
             </h1>
 
-            <p className="mx-auto mt-6 max-w-2xl text-lg leading-8 text-slate-600 dark:text-slate-400">
-              ShanBizFlow is a modern business management system
-              designed to simplify everyday business operations.
-              Manage products, customers, sales, inventory,
-              payments and reports from one platform.
+            <p className="mx-auto mt-5 max-w-2xl text-base leading-7 text-slate-600 sm:mt-6 sm:text-lg sm:leading-8 dark:text-slate-400">
+              ShanBizFlow is a modern business management system designed to
+              simplify everyday business operations. Manage products,
+              customers, sales, inventory, payments and reports from one
+              platform.
             </p>
 
-            <div className="mt-9 flex flex-wrap justify-center gap-4">
-
+            <div className="mt-7 flex flex-col justify-center gap-3 sm:mt-9 sm:flex-row sm:flex-wrap sm:gap-4">
               <Link
                 href="/register"
-                className="rounded-xl bg-sky-500 px-7 py-3.5 font-semibold text-white shadow-sm transition hover:bg-sky-600"
+                className="w-full rounded-xl bg-sky-500 px-7 py-3.5 text-center font-semibold text-white shadow-sm transition hover:bg-sky-600 sm:w-auto"
               >
                 Get Started
               </Link>
 
               <Link
                 href="/login"
-                className="rounded-xl border border-sky-200 bg-white px-7 py-3.5 font-semibold text-sky-600 transition hover:bg-sky-50 dark:border-slate-700 dark:bg-slate-900 dark:text-sky-400 dark:hover:bg-slate-800"
+                className="w-full rounded-xl border border-sky-200 bg-white px-7 py-3.5 text-center font-semibold text-sky-600 transition hover:bg-sky-50 sm:w-auto dark:border-slate-700 dark:bg-slate-900 dark:text-sky-400 dark:hover:bg-slate-800"
               >
                 Sign In
               </Link>
-
             </div>
-
           </div>
-
         </div>
       </section>
 
       {/* About */}
-      <section className="bg-white py-20 dark:bg-slate-950">
-
-        <div className="mx-auto max-w-7xl px-6">
-
-          <div className="grid items-center gap-12 lg:grid-cols-2">
-
-            <div>
-
+      <section className="bg-white py-14 sm:py-16 md:py-20 dark:bg-slate-950">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="grid min-w-0 items-center gap-10 sm:gap-12 lg:grid-cols-2">
+            <div className="min-w-0">
               <p className="text-sm font-semibold uppercase tracking-wider text-sky-500">
                 Our Platform
               </p>
 
-              <h2 className="mt-3 text-3xl font-extrabold tracking-tight text-slate-900 sm:text-4xl dark:text-white">
+              <h2 className="mt-3 text-2xl font-extrabold tracking-tight text-slate-900 sm:text-4xl dark:text-white">
                 A smarter way to manage your business
               </h2>
 
-              <p className="mt-5 leading-8 text-slate-600 dark:text-slate-400">
-                Managing a business involves many daily activities.
-                Products, customers, sales, payments and inventory
-                all need to be organized and monitored.
+              <p className="mt-4 leading-7 text-slate-600 sm:mt-5 sm:leading-8 dark:text-slate-400">
+                Managing a business involves many daily activities. Products,
+                customers, sales, payments and inventory all need to be
+                organized and monitored.
               </p>
 
-              <p className="mt-4 leading-8 text-slate-600 dark:text-slate-400">
-                ShanBizFlow brings these operations together into
-                one modern management system, helping businesses
-                keep their information organized and accessible.
+              <p className="mt-4 leading-7 text-slate-600 sm:leading-8 dark:text-slate-400">
+                ShanBizFlow brings these operations together into one modern
+                management system, helping businesses keep their information
+                organized and accessible.
               </p>
-
             </div>
 
-            <div className="grid grid-cols-2 gap-5">
-
-              <div className="rounded-3xl border border-sky-100 bg-sky-50 p-6 dark:border-slate-800 dark:bg-slate-900">
+            <div className="grid min-w-0 grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-5">
+              <div className="rounded-3xl border border-sky-100 bg-sky-50 p-5 sm:p-6 dark:border-slate-800 dark:bg-slate-900">
                 <div className="text-3xl">⚡</div>
 
                 <h3 className="mt-4 text-lg font-bold text-slate-900 dark:text-white">
@@ -135,7 +120,7 @@ export default function AboutPage() {
                 </p>
               </div>
 
-              <div className="rounded-3xl border border-sky-100 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+              <div className="rounded-3xl border border-sky-100 bg-white p-5 shadow-sm sm:p-6 dark:border-slate-800 dark:bg-slate-900">
                 <div className="text-3xl">🔒</div>
 
                 <h3 className="mt-4 text-lg font-bold text-slate-900 dark:text-white">
@@ -147,7 +132,7 @@ export default function AboutPage() {
                 </p>
               </div>
 
-              <div className="rounded-3xl border border-sky-100 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+              <div className="rounded-3xl border border-sky-100 bg-white p-5 shadow-sm sm:p-6 dark:border-slate-800 dark:bg-slate-900">
                 <div className="text-3xl">📊</div>
 
                 <h3 className="mt-4 text-lg font-bold text-slate-900 dark:text-white">
@@ -159,7 +144,7 @@ export default function AboutPage() {
                 </p>
               </div>
 
-              <div className="rounded-3xl border border-sky-100 bg-sky-50 p-6 dark:border-slate-800 dark:bg-slate-900">
+              <div className="rounded-3xl border border-sky-100 bg-sky-50 p-5 sm:p-6 dark:border-slate-800 dark:bg-slate-900">
                 <div className="text-3xl">📱</div>
 
                 <h3 className="mt-4 text-lg font-bold text-slate-900 dark:text-white">
@@ -170,85 +155,66 @@ export default function AboutPage() {
                   Designed for desktop, tablet and mobile screens.
                 </p>
               </div>
-
             </div>
-
           </div>
-
         </div>
-
       </section>
 
       {/* Features */}
-      <section className="bg-slate-50 py-20 dark:bg-slate-900">
-
-        <div className="mx-auto max-w-7xl px-6">
-
+      <section className="bg-slate-50 py-14 sm:py-16 md:py-20 dark:bg-slate-900">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="mx-auto max-w-2xl text-center">
-
             <p className="text-sm font-semibold uppercase tracking-wider text-sky-500">
               Features
             </p>
 
-            <h2 className="mt-3 text-3xl font-extrabold tracking-tight text-slate-900 sm:text-4xl dark:text-white">
+            <h2 className="mt-3 text-2xl font-extrabold tracking-tight text-slate-900 sm:text-4xl dark:text-white">
               Everything in one platform
             </h2>
 
             <p className="mt-4 leading-7 text-slate-500 dark:text-slate-400">
-              Manage the important parts of your business from
-              one centralized system.
+              Manage the important parts of your business from one centralized
+              system.
             </p>
-
           </div>
 
-          <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-
+          <div className="mt-9 grid gap-4 sm:mt-12 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3">
             {features.map((feature) => (
               <div
                 key={feature.title}
-                className="rounded-3xl border border-sky-100 bg-white p-7 shadow-sm transition duration-200 hover:-translate-y-1 hover:shadow-md dark:border-slate-800 dark:bg-slate-950"
+                className="min-w-0 rounded-3xl border border-sky-100 bg-white p-5 shadow-sm transition duration-200 hover:-translate-y-1 hover:shadow-md sm:p-7 dark:border-slate-800 dark:bg-slate-950"
               >
-
-                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-sky-100 text-xl dark:bg-sky-950">
+                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-sky-100 text-xl dark:bg-sky-950">
                   {feature.icon}
                 </div>
 
-                <h3 className="mt-5 text-xl font-bold text-slate-900 dark:text-white">
+                <h3 className="mt-5 text-lg font-bold text-slate-900 sm:text-xl dark:text-white">
                   {feature.title}
                 </h3>
 
                 <p className="mt-2 leading-7 text-slate-500 dark:text-slate-400">
                   {feature.description}
                 </p>
-
               </div>
             ))}
-
           </div>
-
         </div>
-
       </section>
 
       {/* How It Works */}
-      <section className="bg-white py-20 dark:bg-slate-950">
-
-        <div className="mx-auto max-w-7xl px-6">
-
+      <section className="bg-white py-14 sm:py-16 md:py-20 dark:bg-slate-950">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="mx-auto max-w-3xl text-center">
-
             <p className="text-sm font-semibold uppercase tracking-wider text-sky-500">
               How It Works
             </p>
 
-            <h2 className="mt-3 text-3xl font-extrabold tracking-tight text-slate-900 sm:text-4xl dark:text-white">
+            <h2 className="mt-3 text-2xl font-extrabold tracking-tight text-slate-900 sm:text-4xl dark:text-white">
               Manage your business in four simple steps
             </h2>
-
           </div>
 
-          <div className="mt-14 grid gap-8 md:grid-cols-4">
-
+          <div className="mt-10 grid gap-8 sm:mt-14 sm:grid-cols-2 md:grid-cols-4">
             {[
               {
                 number: "01",
@@ -271,11 +237,7 @@ export default function AboutPage() {
                 text: "Understand your business performance.",
               },
             ].map((step) => (
-              <div
-                key={step.number}
-                className="text-center"
-              >
-
+              <div key={step.number} className="min-w-0 text-center">
                 <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-sky-500 text-lg font-bold text-white">
                   {step.number}
                 </div>
@@ -287,58 +249,43 @@ export default function AboutPage() {
                 <p className="mt-2 text-sm leading-6 text-slate-500 dark:text-slate-400">
                   {step.text}
                 </p>
-
               </div>
             ))}
-
           </div>
-
         </div>
-
       </section>
 
       {/* CTA */}
-      <section className="bg-sky-500 py-16">
-
-        <div className="mx-auto max-w-4xl px-6 text-center">
-
-          <h2 className="text-3xl font-extrabold tracking-tight text-white sm:text-4xl">
+      <section className="bg-sky-500 py-12 sm:py-16">
+        <div className="mx-auto max-w-4xl px-4 text-center sm:px-6">
+          <h2 className="text-2xl font-extrabold tracking-tight text-white sm:text-4xl">
             Ready to manage your business smarter?
           </h2>
 
           <p className="mx-auto mt-4 max-w-2xl leading-7 text-sky-100">
-            Start organizing your products, customers, sales,
-            inventory and reports with ShanBizFlow.
+            Start organizing your products, customers, sales, inventory and
+            reports with ShanBizFlow.
           </p>
 
           <Link
             href="/register"
-            className="mt-8 inline-flex rounded-xl bg-white px-7 py-3.5 font-semibold text-sky-600 shadow-sm transition hover:bg-sky-50"
+            className="mt-7 inline-flex w-full justify-center rounded-xl bg-white px-7 py-3.5 font-semibold text-sky-600 shadow-sm transition hover:bg-sky-50 sm:mt-8 sm:w-auto"
           >
             Create Your Account
           </Link>
-
         </div>
-
       </section>
 
       {/* Footer */}
-      <footer className="border-t border-slate-100 bg-white py-8 dark:border-slate-800 dark:bg-slate-950">
-
-        <div className="mx-auto max-w-7xl px-6 text-center">
-
-          <p className="font-bold text-sky-600">
-            ShanBizFlow
-          </p>
+      <footer className="border-t border-slate-100 bg-white py-7 sm:py-8 dark:border-slate-800 dark:bg-slate-950">
+        <div className="mx-auto max-w-7xl px-4 text-center sm:px-6 lg:px-8">
+          <p className="font-bold text-sky-600">ShanBizFlow</p>
 
           <p className="mt-2 text-sm text-slate-400">
             Business Management System
           </p>
-
         </div>
-
       </footer>
-
     </main>
   );
 }

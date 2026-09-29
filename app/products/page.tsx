@@ -188,6 +188,7 @@ export default function ProductsPage() {
       "/api/uploads/product-image",
       {
         method: "POST",
+        credentials: "include",
         body: formData,
       }
     );
@@ -246,6 +247,7 @@ export default function ProductsPage() {
 
       const response = await fetch(url, {
         method,
+        credentials: "include",
         headers: {
           "Content-Type": "application/json",
         },
@@ -318,6 +320,7 @@ export default function ProductsPage() {
         `/api/products/${productId}`,
         {
           method: "DELETE",
+          credentials: "include",
         }
       );
 
@@ -387,30 +390,30 @@ export default function ProductsPage() {
   });
 
   return (
-    <div className="flex min-h-screen bg-slate-50 dark:bg-slate-950">
+    <div className="flex min-h-screen overflow-x-hidden bg-slate-50 dark:bg-slate-950">
       <DashboardSidebar />
 
-      <main className="min-w-0 flex-1 px-6 py-10 lg:ml-64">
-        <div className="mx-auto max-w-7xl">
+      <main className="min-w-0 flex-1 px-4 py-6 sm:px-6 sm:py-8 lg:ml-64 lg:px-8 lg:py-10">
+        <div className="mx-auto w-full max-w-7xl min-w-0">
 
-          <div className="mb-8">
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-              <div>
+          <div className="mb-6 sm:mb-8">
+            <div className="flex min-w-0 flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+              <div className="min-w-0">
                 <p className="text-sm font-semibold text-sky-500">
                   Product Management
                 </p>
 
-                <h1 className="mt-2 text-4xl font-bold tracking-tight text-slate-900 dark:text-white">
+                <h1 className="mt-2 text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl dark:text-white">
                   Products
                 </h1>
 
-                <p className="mt-2 text-slate-500 dark:text-slate-400">
+                <p className="mt-2 text-sm text-slate-500 sm:text-base dark:text-slate-400">
                   Create, view, update and manage your products.
                 </p>
               </div>
 
               {!userLoading && (
-                <div className="rounded-full border border-sky-100 bg-sky-50 px-4 py-2 text-sm font-semibold text-sky-600 dark:border-sky-900/40 dark:bg-sky-950/40 dark:text-sky-400">
+                <div className="w-fit shrink-0 rounded-full border border-sky-100 bg-sky-50 px-3 py-2 text-xs font-semibold text-sky-600 sm:px-4 sm:text-sm dark:border-sky-900/40 dark:bg-sky-950/40 dark:text-sky-400">
                   {userRole === "SUPER_ADMIN"
                     ? "SUPER ADMIN"
                     : userRole === "ADMIN"
@@ -422,33 +425,33 @@ export default function ProductsPage() {
           </div>
 
           {error && (
-            <div className="mb-6 rounded-xl border border-red-100 bg-red-50 px-5 py-4 text-sm font-medium text-red-600 dark:border-red-900/40 dark:bg-red-950/30 dark:text-red-400">
+            <div className="mb-5 break-words rounded-xl border border-red-100 bg-red-50 px-4 py-3 text-sm font-medium text-red-600 sm:mb-6 sm:px-5 sm:py-4 dark:border-red-900/40 dark:bg-red-950/30 dark:text-red-400">
               {error}
             </div>
           )}
 
           {message && (
-            <div className="mb-6 rounded-xl border border-green-100 bg-green-50 px-5 py-4 text-sm font-medium text-green-600 dark:border-green-900/40 dark:bg-green-950/30 dark:text-green-400">
+            <div className="mb-5 break-words rounded-xl border border-green-100 bg-green-50 px-4 py-3 text-sm font-medium text-green-600 sm:mb-6 sm:px-5 sm:py-4 dark:border-green-900/40 dark:bg-green-950/30 dark:text-green-400">
               {message}
             </div>
           )}
 
           {userLoading ? (
-            <div className="rounded-2xl border border-sky-100 bg-white p-10 text-center shadow-sm dark:border-slate-800 dark:bg-slate-900">
-              <p className="text-slate-500 dark:text-slate-400">
+            <div className="rounded-2xl border border-sky-100 bg-white p-8 text-center shadow-sm sm:p-10 dark:border-slate-800 dark:bg-slate-900">
+              <p className="text-sm text-slate-500 sm:text-base dark:text-slate-400">
                 Loading permissions...
               </p>
             </div>
           ) : (
-            <div className="grid gap-8 lg:grid-cols-3">
+            <div className="grid min-w-0 gap-5 sm:gap-6 lg:gap-8 lg:grid-cols-3">
 
               {canManageProducts && (
-                <div className="rounded-2xl border border-sky-100 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+                <div className="min-w-0 rounded-2xl border border-sky-100 bg-white p-5 shadow-sm sm:p-6 dark:border-slate-800 dark:bg-slate-900">
 
-                  <div className="flex items-center justify-between">
+                  <div className="flex min-w-0 items-start justify-between gap-3">
 
-                    <div>
-                      <h2 className="text-xl font-bold text-slate-900 dark:text-white">
+                    <div className="min-w-0">
+                      <h2 className="text-lg font-bold text-slate-900 sm:text-xl dark:text-white">
                         {editingProduct
                           ? "Edit Product"
                           : "Add Product"}
@@ -465,7 +468,7 @@ export default function ProductsPage() {
                       <button
                         type="button"
                         onClick={resetForm}
-                        className="text-sm font-semibold text-slate-500 hover:text-slate-700 dark:hover:text-slate-300"
+                        className="shrink-0 text-sm font-semibold text-slate-500 hover:text-slate-700 dark:hover:text-slate-300"
                       >
                         Cancel
                       </button>
@@ -475,7 +478,7 @@ export default function ProductsPage() {
 
                   <form
                     onSubmit={handleSubmit}
-                    className="mt-6 space-y-4"
+                    className="mt-5 space-y-4 sm:mt-6"
                   >
 
                     <div>
@@ -490,7 +493,7 @@ export default function ProductsPage() {
                           setName(event.target.value)
                         }
                         placeholder="Enter product name"
-                        className="w-full rounded-xl border border-sky-200 bg-white px-4 py-3 text-slate-900 placeholder:text-slate-400 outline-none transition focus:border-sky-400 focus:ring-4 focus:ring-sky-100 dark:border-slate-700 dark:bg-slate-800 dark:text-white dark:focus:border-sky-500 dark:focus:ring-sky-900/30"
+                        className="w-full min-w-0 rounded-xl border border-sky-200 bg-white px-3 py-3 text-sm text-slate-900 placeholder:text-slate-400 outline-none transition focus:border-sky-400 focus:ring-4 focus:ring-sky-100 sm:px-4 sm:text-base dark:border-slate-700 dark:bg-slate-800 dark:text-white dark:focus:border-sky-500 dark:focus:ring-sky-900/30"
                       />
                     </div>
 
@@ -506,7 +509,7 @@ export default function ProductsPage() {
                         }
                         placeholder="Product description"
                         rows={3}
-                        className="w-full rounded-xl border border-sky-200 bg-white px-4 py-3 text-slate-900 placeholder:text-slate-400 outline-none transition focus:border-sky-400 focus:ring-4 focus:ring-sky-100 dark:border-slate-700 dark:bg-slate-800 dark:text-white dark:focus:border-sky-500 dark:focus:ring-sky-900/30"
+                        className="w-full min-w-0 rounded-xl border border-sky-200 bg-white px-3 py-3 text-sm text-slate-900 placeholder:text-slate-400 outline-none transition focus:border-sky-400 focus:ring-4 focus:ring-sky-100 sm:px-4 sm:text-base dark:border-slate-700 dark:bg-slate-800 dark:text-white dark:focus:border-sky-500 dark:focus:ring-sky-900/30"
                       />
                     </div>
 
@@ -523,7 +526,7 @@ export default function ProductsPage() {
                         }
                         placeholder="0.00"
                         min="0"
-                        className="w-full rounded-xl border border-sky-200 bg-white px-4 py-3 text-slate-900 placeholder:text-slate-400 outline-none transition focus:border-sky-400 focus:ring-4 focus:ring-sky-100 dark:border-slate-700 dark:bg-slate-800 dark:text-white dark:focus:border-sky-500 dark:focus:ring-sky-900/30"
+                        className="w-full min-w-0 rounded-xl border border-sky-200 bg-white px-3 py-3 text-sm text-slate-900 placeholder:text-slate-400 outline-none transition focus:border-sky-400 focus:ring-4 focus:ring-sky-100 sm:px-4 sm:text-base dark:border-slate-700 dark:bg-slate-800 dark:text-white dark:focus:border-sky-500 dark:focus:ring-sky-900/30"
                       />
                     </div>
 
@@ -540,7 +543,7 @@ export default function ProductsPage() {
                         }
                         placeholder="0"
                         min="0"
-                        className="w-full rounded-xl border border-sky-200 bg-white px-4 py-3 text-slate-900 placeholder:text-slate-400 outline-none transition focus:border-sky-400 focus:ring-4 focus:ring-sky-100 dark:border-slate-700 dark:bg-slate-800 dark:text-white dark:focus:border-sky-500 dark:focus:ring-sky-900/30"
+                        className="w-full min-w-0 rounded-xl border border-sky-200 bg-white px-3 py-3 text-sm text-slate-900 placeholder:text-slate-400 outline-none transition focus:border-sky-400 focus:ring-4 focus:ring-sky-100 sm:px-4 sm:text-base dark:border-slate-700 dark:bg-slate-800 dark:text-white dark:focus:border-sky-500 dark:focus:ring-sky-900/30"
                       />
                     </div>
 
@@ -556,7 +559,7 @@ export default function ProductsPage() {
                           setCategory(event.target.value)
                         }
                         placeholder="Electronics"
-                        className="w-full rounded-xl border border-sky-200 bg-white px-4 py-3 text-slate-900 placeholder:text-slate-400 outline-none transition focus:border-sky-400 focus:ring-4 focus:ring-sky-100 dark:border-slate-700 dark:bg-slate-800 dark:text-white dark:focus:border-sky-500 dark:focus:ring-sky-900/30"
+                        className="w-full min-w-0 rounded-xl border border-sky-200 bg-white px-3 py-3 text-sm text-slate-900 placeholder:text-slate-400 outline-none transition focus:border-sky-400 focus:ring-4 focus:ring-sky-100 sm:px-4 sm:text-base dark:border-slate-700 dark:bg-slate-800 dark:text-white dark:focus:border-sky-500 dark:focus:ring-sky-900/30"
                       />
                     </div>
 
@@ -572,11 +575,11 @@ export default function ProductsPage() {
                         type="file"
                         accept="image/*"
                         onChange={handleImageChange}
-                        className="w-full rounded-xl border border-sky-200 bg-white px-4 py-3 text-sm text-slate-700 file:mr-4 file:rounded-lg file:border-0 file:bg-sky-50 file:px-4 file:py-2 file:font-semibold file:text-sky-600 hover:file:bg-sky-100 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:file:bg-slate-700 dark:file:text-sky-400"
+                        className="w-full min-w-0 rounded-xl border border-sky-200 bg-white px-3 py-3 text-xs text-slate-700 file:mr-2 file:rounded-lg file:border-0 file:bg-sky-50 file:px-2 file:py-2 file:font-semibold file:text-sky-600 hover:file:bg-sky-100 sm:px-4 sm:text-sm sm:file:mr-4 sm:file:px-4 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:file:bg-slate-700 dark:file:text-sky-400"
                       />
 
                       {imagePreview && (
-                        <div className="mt-4 rounded-2xl border border-sky-100 bg-sky-50 p-4 dark:border-slate-700 dark:bg-slate-800">
+                        <div className="mt-4 rounded-2xl border border-sky-100 bg-sky-50 p-3 sm:p-4 dark:border-slate-700 dark:bg-slate-800">
 
                           <p className="mb-3 text-sm font-semibold text-slate-700 dark:text-slate-300">
                             Image Preview
@@ -585,7 +588,7 @@ export default function ProductsPage() {
                           <img
                             src={imagePreview}
                             alt="Product preview"
-                            className="h-40 w-full rounded-xl object-cover shadow-sm"
+                            className="h-36 w-full rounded-xl object-cover shadow-sm sm:h-40"
                           />
 
                           <button
@@ -603,7 +606,7 @@ export default function ProductsPage() {
                     <button
                       type="submit"
                       disabled={saving}
-                      className="w-full rounded-xl bg-sky-500 px-6 py-3 font-semibold text-white transition hover:bg-sky-600 disabled:cursor-not-allowed disabled:opacity-60"
+                      className="w-full rounded-xl bg-sky-500 px-5 py-3 text-sm font-semibold text-white transition hover:bg-sky-600 disabled:cursor-not-allowed disabled:opacity-60 sm:px-6 sm:text-base"
                     >
                       {saving
                         ? editingProduct
@@ -621,19 +624,19 @@ export default function ProductsPage() {
               <div
                 className={
                   canManageProducts
-                    ? "lg:col-span-2"
-                    : "lg:col-span-3"
+                    ? "min-w-0 lg:col-span-2"
+                    : "min-w-0 lg:col-span-3"
                 }
               >
 
-                <div className="rounded-2xl border border-sky-100 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
+                <div className="min-w-0 overflow-hidden rounded-2xl border border-sky-100 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
 
-                  <div className="border-b border-slate-100 p-6 dark:border-slate-800">
+                  <div className="border-b border-slate-100 p-4 sm:p-6 dark:border-slate-800">
 
-                    <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
+                    <div className="flex min-w-0 flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
 
-                      <div>
-                        <h2 className="text-xl font-bold text-slate-900 dark:text-white">
+                      <div className="min-w-0">
+                        <h2 className="text-lg font-bold text-slate-900 sm:text-xl dark:text-white">
                           Product List
                         </h2>
 
@@ -643,7 +646,7 @@ export default function ProductsPage() {
                         </p>
                       </div>
 
-                      <div className="flex flex-col gap-3 sm:flex-row">
+                      <div className="grid min-w-0 gap-3 sm:grid-cols-2 xl:flex">
 
                         <input
                           type="text"
@@ -652,7 +655,7 @@ export default function ProductsPage() {
                             setSearch(event.target.value)
                           }
                           placeholder="Search products..."
-                          className="rounded-xl border border-sky-200 bg-white px-4 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 outline-none focus:border-sky-400 focus:ring-4 focus:ring-sky-100 dark:border-slate-700 dark:bg-slate-800 dark:text-white dark:focus:border-sky-500 dark:focus:ring-sky-900/30"
+                          className="w-full min-w-0 rounded-xl border border-sky-200 bg-white px-3 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 outline-none focus:border-sky-400 focus:ring-4 focus:ring-sky-100 sm:px-4 xl:w-56 dark:border-slate-700 dark:bg-slate-800 dark:text-white dark:focus:border-sky-500 dark:focus:ring-sky-900/30"
                         />
 
                         <select
@@ -660,7 +663,7 @@ export default function ProductsPage() {
                           onChange={(event) =>
                             setCategoryFilter(event.target.value)
                           }
-                          className="rounded-xl border border-sky-200 bg-white px-4 py-2.5 text-sm text-slate-900 outline-none focus:border-sky-400 focus:ring-4 focus:ring-sky-100 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
+                          className="w-full min-w-0 rounded-xl border border-sky-200 bg-white px-3 py-2.5 text-sm text-slate-900 outline-none focus:border-sky-400 focus:ring-4 focus:ring-sky-100 sm:px-4 xl:w-48 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
                         >
                           <option
                             value="ALL"
@@ -685,7 +688,7 @@ export default function ProductsPage() {
                           onChange={(event) =>
                             setStockFilter(event.target.value)
                           }
-                          className="rounded-xl border border-sky-200 bg-white px-4 py-2.5 text-sm text-slate-900 outline-none focus:border-sky-400 focus:ring-4 focus:ring-sky-100 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
+                          className="w-full min-w-0 rounded-xl border border-sky-200 bg-white px-3 py-2.5 text-sm text-slate-900 outline-none focus:border-sky-400 focus:ring-4 focus:ring-sky-100 sm:px-4 xl:w-40 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
                         >
                           <option
                             value="ALL"
@@ -723,11 +726,11 @@ export default function ProductsPage() {
                   </div>
 
                   {loading ? (
-                    <div className="p-10 text-center text-slate-500 dark:text-slate-400">
+                    <div className="p-8 text-center text-sm text-slate-500 sm:p-10 sm:text-base dark:text-slate-400">
                       Loading products...
                     </div>
                   ) : filteredProducts.length === 0 ? (
-                    <div className="p-10 text-center">
+                    <div className="p-8 text-center sm:p-10">
 
                       <div className="text-4xl">
                         📦
@@ -743,31 +746,31 @@ export default function ProductsPage() {
 
                     </div>
                   ) : (
-                    <div className="overflow-x-auto">
+                    <div className="w-full overflow-x-auto">
 
-                      <table className="w-full">
+                      <table className="w-full min-w-[760px]">
 
                         <thead>
                           <tr className="border-b border-slate-100 bg-slate-50 dark:border-slate-800 dark:bg-slate-800/50">
 
-                            <th className="px-6 py-4 text-left text-sm font-semibold text-slate-600 dark:text-slate-300">
+                            <th className="whitespace-nowrap px-4 py-4 text-left text-xs font-semibold text-slate-600 sm:px-6 sm:text-sm dark:text-slate-300">
                               Product
                             </th>
 
-                            <th className="px-6 py-4 text-left text-sm font-semibold text-slate-600 dark:text-slate-300">
+                            <th className="whitespace-nowrap px-4 py-4 text-left text-xs font-semibold text-slate-600 sm:px-6 sm:text-sm dark:text-slate-300">
                               Category
                             </th>
 
-                            <th className="px-6 py-4 text-left text-sm font-semibold text-slate-600 dark:text-slate-300">
+                            <th className="whitespace-nowrap px-4 py-4 text-left text-xs font-semibold text-slate-600 sm:px-6 sm:text-sm dark:text-slate-300">
                               Price
                             </th>
 
-                            <th className="px-6 py-4 text-left text-sm font-semibold text-slate-600 dark:text-slate-300">
+                            <th className="whitespace-nowrap px-4 py-4 text-left text-xs font-semibold text-slate-600 sm:px-6 sm:text-sm dark:text-slate-300">
                               Stock
                             </th>
 
                             {canManageProducts && (
-                              <th className="px-6 py-4 text-right text-sm font-semibold text-slate-600 dark:text-slate-300">
+                              <th className="whitespace-nowrap px-4 py-4 text-right text-xs font-semibold text-slate-600 sm:px-6 sm:text-sm dark:text-slate-300">
                                 Actions
                               </th>
                             )}
@@ -783,9 +786,9 @@ export default function ProductsPage() {
                               className="border-b border-slate-100 last:border-0 hover:bg-sky-50/40 dark:border-slate-800 dark:hover:bg-slate-800/40"
                             >
 
-                              <td className="px-6 py-4">
+                              <td className="px-4 py-4 sm:px-6">
 
-                                <div className="flex items-center gap-3">
+                                <div className="flex min-w-0 items-center gap-3">
 
                                   {product.imageUrl ? (
                                     <button
@@ -795,7 +798,7 @@ export default function ProductsPage() {
                                           product.imageUrl
                                         )
                                       }
-                                      className="group relative h-14 w-14 shrink-0 overflow-hidden rounded-xl border border-sky-100 bg-sky-50 dark:border-slate-700 dark:bg-slate-800"
+                                      className="group relative h-12 w-12 shrink-0 overflow-hidden rounded-xl border border-sky-100 bg-sky-50 sm:h-14 sm:w-14 dark:border-slate-700 dark:bg-slate-800"
                                       title="View image"
                                     >
 
@@ -811,18 +814,18 @@ export default function ProductsPage() {
 
                                     </button>
                                   ) : (
-                                    <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-sky-50 text-xl dark:bg-slate-800">
+                                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-sky-50 text-lg sm:h-14 sm:w-14 sm:text-xl dark:bg-slate-800">
                                       📦
                                     </div>
                                   )}
 
-                                  <div className="min-w-0">
+                                  <div className="min-w-0 max-w-[180px] sm:max-w-[260px]">
 
-                                    <p className="truncate font-semibold text-slate-900 dark:text-white">
+                                    <p className="truncate text-sm font-semibold text-slate-900 sm:text-base dark:text-white">
                                       {product.name}
                                     </p>
 
-                                    <p className="text-sm text-slate-400">
+                                    <p className="text-xs text-slate-400 sm:text-sm">
                                       #{product.id}
                                     </p>
 
@@ -832,19 +835,19 @@ export default function ProductsPage() {
 
                               </td>
 
-                              <td className="px-6 py-4 text-sm text-slate-600 dark:text-slate-300">
+                              <td className="max-w-[160px] truncate px-4 py-4 text-sm text-slate-600 sm:px-6 dark:text-slate-300">
                                 {product.category || "Uncategorized"}
                               </td>
 
-                              <td className="px-6 py-4 font-semibold text-slate-900 dark:text-white">
+                              <td className="whitespace-nowrap px-4 py-4 text-sm font-semibold text-slate-900 sm:px-6 dark:text-white">
                                 Rs.{" "}
                                 {product.price.toLocaleString()}
                               </td>
 
-                              <td className="px-6 py-4">
+                              <td className="px-4 py-4 sm:px-6">
 
                                 <span
-                                  className={`rounded-full px-3 py-1 text-xs font-semibold ${
+                                  className={`inline-flex whitespace-nowrap rounded-full px-2.5 py-1 text-xs font-semibold sm:px-3 ${
                                     product.stock === 0
                                       ? "bg-red-50 text-red-600 dark:bg-red-950/40 dark:text-red-400"
                                       : product.stock <= 5
@@ -858,7 +861,7 @@ export default function ProductsPage() {
                               </td>
 
                               {canManageProducts && (
-                                <td className="px-6 py-4">
+                                <td className="px-4 py-4 sm:px-6">
 
                                   <div className="flex justify-end gap-2">
 
@@ -867,7 +870,7 @@ export default function ProductsPage() {
                                       onClick={() =>
                                         startEdit(product)
                                       }
-                                      className="rounded-lg bg-sky-50 px-3 py-2 text-sm font-semibold text-sky-600 transition hover:bg-sky-100 dark:bg-sky-950/40 dark:text-sky-400 dark:hover:bg-sky-900/50"
+                                      className="rounded-lg bg-sky-50 px-2.5 py-2 text-xs font-semibold text-sky-600 transition hover:bg-sky-100 sm:px-3 sm:text-sm dark:bg-sky-950/40 dark:text-sky-400 dark:hover:bg-sky-900/50"
                                     >
                                       Edit
                                     </button>
@@ -880,7 +883,7 @@ export default function ProductsPage() {
                                       disabled={
                                         deletingId === product.id
                                       }
-                                      className="rounded-lg bg-red-50 px-3 py-2 text-sm font-semibold text-red-600 transition hover:bg-red-100 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-red-950/40 dark:text-red-400 dark:hover:bg-red-900/50"
+                                      className="rounded-lg bg-red-50 px-2.5 py-2 text-xs font-semibold text-red-600 transition hover:bg-red-100 disabled:cursor-not-allowed disabled:opacity-50 sm:px-3 sm:text-sm dark:bg-red-950/40 dark:text-red-400 dark:hover:bg-red-900/50"
                                     >
                                       {deletingId === product.id
                                         ? "Deleting..."
@@ -914,7 +917,7 @@ export default function ProductsPage() {
 
       {selectedImage && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-6"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4 sm:p-6"
           onClick={() => setSelectedImage(null)}
         >
 
@@ -928,7 +931,7 @@ export default function ProductsPage() {
             <button
               type="button"
               onClick={() => setSelectedImage(null)}
-              className="absolute -right-3 -top-3 z-10 flex h-10 w-10 items-center justify-center rounded-full bg-white text-xl font-bold text-slate-700 shadow-lg transition hover:bg-slate-100"
+              className="absolute -right-2 -top-2 z-10 flex h-9 w-9 items-center justify-center rounded-full bg-white text-xl font-bold text-slate-700 shadow-lg transition hover:bg-slate-100 sm:-right-3 sm:-top-3 sm:h-10 sm:w-10"
             >
               ×
             </button>
@@ -936,7 +939,7 @@ export default function ProductsPage() {
             <img
               src={selectedImage}
               alt="Product preview"
-              className="max-h-[85vh] max-w-full rounded-2xl object-contain shadow-2xl"
+              className="max-h-[85vh] max-w-[calc(100vw-2rem)] rounded-2xl object-contain shadow-2xl sm:max-w-[90vw]"
             />
 
           </div>
@@ -947,3 +950,4 @@ export default function ProductsPage() {
     </div>
   );
 }
+

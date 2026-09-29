@@ -24,7 +24,7 @@ const roles: UserRole[] = [
 ];
 
 const inputClass =
-  "w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-slate-900 placeholder:text-slate-400 outline-none transition focus:border-sky-500 focus:ring-2 focus:ring-sky-100 dark:border-slate-700 dark:bg-slate-800 dark:text-white dark:placeholder:text-slate-400 dark:focus:border-sky-500 dark:focus:ring-sky-900/30";
+  "w-full min-w-0 rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 outline-none transition focus:border-sky-500 focus:ring-2 focus:ring-sky-100 dark:border-slate-700 dark:bg-slate-800 dark:text-white dark:placeholder:text-slate-400 dark:focus:border-sky-500 dark:focus:ring-sky-900/30 sm:text-base";
 
 export default function UsersPage() {
   const [users, setUsers] = useState<User[]>([]);
@@ -34,8 +34,7 @@ export default function UsersPage() {
   const [success, setSuccess] = useState("");
   const [search, setSearch] = useState("");
 
-  const [showModal, setShowModal] =
-    useState(false);
+  const [showModal, setShowModal] = useState(false);
 
   const [editingUser, setEditingUser] =
     useState<User | null>(null);
@@ -52,14 +51,11 @@ export default function UsersPage() {
       setLoading(true);
       setError("");
 
-      const response = await fetch(
-        "/api/users",
-        {
-          method: "GET",
-          credentials: "include",
-          cache: "no-store",
-        }
-      );
+      const response = await fetch("/api/users", {
+        method: "GET",
+        credentials: "include",
+        cache: "no-store",
+      });
 
       const data = await response.json();
 
@@ -86,8 +82,7 @@ export default function UsersPage() {
   }, []);
 
   const filteredUsers = useMemo(() => {
-    const value =
-      search.trim().toLowerCase();
+    const value = search.trim().toLowerCase();
 
     if (!value) {
       return users;
@@ -95,15 +90,9 @@ export default function UsersPage() {
 
     return users.filter(
       (user) =>
-        user.name
-          .toLowerCase()
-          .includes(value) ||
-        user.email
-          .toLowerCase()
-          .includes(value) ||
-        user.role
-          .toLowerCase()
-          .includes(value)
+        user.name.toLowerCase().includes(value) ||
+        user.email.toLowerCase().includes(value) ||
+        user.role.toLowerCase().includes(value)
     );
   }, [users, search]);
 
@@ -158,18 +147,15 @@ export default function UsersPage() {
       setSuccess("");
 
       if (!form.name.trim()) {
-        throw new Error(
-          "Name is required"
-        );
+        throw new Error("Name is required");
       }
 
       if (!form.email.trim()) {
-        throw new Error(
-          "Email is required"
-        );
+        throw new Error("Email is required");
       }
 
-      if (!editingUser &&
+      if (
+        !editingUser &&
         form.password.length < 6
       ) {
         throw new Error(
@@ -183,8 +169,7 @@ export default function UsersPage() {
           {
             method: "PUT",
             headers: {
-              "Content-Type":
-                "application/json",
+              "Content-Type": "application/json",
             },
             credentials: "include",
             body: JSON.stringify({
@@ -195,8 +180,7 @@ export default function UsersPage() {
           }
         );
 
-        const data =
-          await response.json();
+        const data = await response.json();
 
         if (!response.ok) {
           throw new Error(
@@ -214,8 +198,7 @@ export default function UsersPage() {
           {
             method: "POST",
             headers: {
-              "Content-Type":
-                "application/json",
+              "Content-Type": "application/json",
             },
             credentials: "include",
             body: JSON.stringify({
@@ -227,8 +210,7 @@ export default function UsersPage() {
           }
         );
 
-        const data =
-          await response.json();
+        const data = await response.json();
 
         if (!response.ok) {
           throw new Error(
@@ -260,13 +242,10 @@ export default function UsersPage() {
     }
   }
 
-  async function handleDelete(
-    user: User
-  ) {
-    const confirmed =
-      window.confirm(
-        `Are you sure you want to delete ${user.name}?`
-      );
+  async function handleDelete(user: User) {
+    const confirmed = window.confirm(
+      `Are you sure you want to delete ${user.name}?`
+    );
 
     if (!confirmed) {
       return;
@@ -284,8 +263,7 @@ export default function UsersPage() {
         }
       );
 
-      const data =
-        await response.json();
+      const data = await response.json();
 
       if (!response.ok) {
         throw new Error(
@@ -312,9 +290,7 @@ export default function UsersPage() {
     }
   }
 
-  function getRoleStyle(
-    role: UserRole
-  ) {
+  function getRoleStyle(role: UserRole) {
     if (role === "SUPER_ADMIN") {
       return "bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300";
     }
@@ -327,56 +303,59 @@ export default function UsersPage() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950">
+    <div className="min-h-screen overflow-x-hidden bg-slate-50 dark:bg-slate-950">
       <DashboardSidebar />
 
-      <main className="ml-64 p-8">
-        <div className="mx-auto max-w-7xl">
+      <main className="min-w-0 flex-1 px-4 py-6 sm:px-6 sm:py-8 lg:ml-64 lg:px-8 lg:py-10">
+        <div className="mx-auto max-w-7xl min-w-0">
 
-          <div className="mb-8 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-            <div>
-              <p className="mb-2 text-sm font-semibold text-sky-600">
+          {/* Header */}
+          <div className="mb-6 flex flex-col gap-5 sm:mb-8 lg:flex-row lg:items-center lg:justify-between">
+
+            <div className="min-w-0">
+              <p className="mb-2 text-xs font-semibold text-sky-600 sm:text-sm">
                 System Management
               </p>
 
-              <h1 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white">
+              <h1 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white sm:text-4xl">
                 Users
               </h1>
 
-              <p className="mt-2 text-slate-500 dark:text-slate-400">
-                Manage system users and their
-                access roles.
+              <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-500 dark:text-slate-400 sm:text-base">
+                Manage system users and their access roles.
               </p>
             </div>
 
             <button
               onClick={openCreateModal}
-              className="rounded-xl bg-sky-600 px-5 py-3 font-semibold text-white shadow-sm transition hover:bg-sky-700"
+              className="w-full shrink-0 rounded-xl bg-sky-600 px-5 py-3 font-semibold text-white shadow-sm transition hover:bg-sky-700 sm:w-auto"
             >
               + Add User
             </button>
           </div>
 
+          {/* Messages */}
           {success && (
-            <div className="mb-6 rounded-xl border border-green-200 bg-green-50 px-4 py-3 text-sm font-medium text-green-700 dark:border-green-900/40 dark:bg-green-900/20 dark:text-green-300">
+            <div className="mb-5 break-words rounded-xl border border-green-200 bg-green-50 px-4 py-3 text-sm font-medium leading-5 text-green-700 dark:border-green-900/40 dark:bg-green-900/20 dark:text-green-300 sm:mb-6">
               {success}
             </div>
           )}
 
           {error && (
-            <div className="mb-6 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-700 dark:border-red-900/40 dark:bg-red-900/20 dark:text-red-300">
+            <div className="mb-5 break-words rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium leading-5 text-red-700 dark:border-red-900/40 dark:bg-red-900/20 dark:text-red-300 sm:mb-6">
               {error}
             </div>
           )}
 
-          <div className="mb-6 grid gap-4 md:grid-cols-3">
+          {/* Stats */}
+          <div className="mb-5 grid gap-4 sm:mb-6 sm:grid-cols-2 lg:grid-cols-3">
 
             <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
               <p className="text-sm text-slate-500 dark:text-slate-400">
                 Total Users
               </p>
 
-              <p className="mt-2 text-3xl font-bold text-slate-900 dark:text-white">
+              <p className="mt-2 text-2xl font-bold text-slate-900 dark:text-white sm:text-3xl">
                 {users.length}
               </p>
             </div>
@@ -386,28 +365,26 @@ export default function UsersPage() {
                 Administrators
               </p>
 
-              <p className="mt-2 text-3xl font-bold text-slate-900 dark:text-white">
+              <p className="mt-2 text-2xl font-bold text-slate-900 dark:text-white sm:text-3xl">
                 {
                   users.filter(
                     (user) =>
-                      user.role ===
-                      "ADMIN"
+                      user.role === "ADMIN"
                   ).length
                 }
               </p>
             </div>
 
-            <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+            <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900 sm:col-span-2 lg:col-span-1">
               <p className="text-sm text-slate-500 dark:text-slate-400">
                 Staff
               </p>
 
-              <p className="mt-2 text-3xl font-bold text-slate-900 dark:text-white">
+              <p className="mt-2 text-2xl font-bold text-slate-900 dark:text-white sm:text-3xl">
                 {
                   users.filter(
                     (user) =>
-                      user.role ===
-                      "STAFF"
+                      user.role === "STAFF"
                   ).length
                 }
               </p>
@@ -415,29 +392,27 @@ export default function UsersPage() {
 
           </div>
 
-          <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
+          {/* Users Table */}
+          <div className="min-w-0 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
 
-            <div className="border-b border-slate-200 p-5 dark:border-slate-800">
+            <div className="border-b border-slate-200 p-4 dark:border-slate-800 sm:p-5">
               <input
                 type="text"
                 placeholder="Search by name, email or role..."
                 value={search}
                 onChange={(event) =>
-                  setSearch(
-                    event.target.value
-                  )
+                  setSearch(event.target.value)
                 }
                 className={inputClass}
               />
             </div>
 
             {loading ? (
-              <div className="p-12 text-center text-slate-500">
+              <div className="p-10 text-center text-sm text-slate-500 sm:p-12 sm:text-base">
                 Loading users...
               </div>
-            ) : filteredUsers.length ===
-              0 ? (
-              <div className="p-12 text-center">
+            ) : filteredUsers.length === 0 ? (
+              <div className="p-8 text-center sm:p-12">
 
                 <div className="text-4xl">
                   👥
@@ -447,37 +422,36 @@ export default function UsersPage() {
                   No users found
                 </h3>
 
-                <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-                  Try another search or create
-                  a new user.
+                <p className="mt-1 text-sm leading-5 text-slate-500 dark:text-slate-400">
+                  Try another search or create a new user.
                 </p>
 
               </div>
             ) : (
-              <div className="overflow-x-auto">
+              <div className="w-full overflow-x-auto">
 
-                <table className="w-full">
+                <table className="w-full min-w-[850px]">
 
                   <thead>
                     <tr className="border-b border-slate-200 bg-slate-50 text-left dark:border-slate-800 dark:bg-slate-950">
 
-                      <th className="px-6 py-4 text-xs font-semibold uppercase tracking-wider text-slate-500">
+                      <th className="whitespace-nowrap px-5 py-4 text-xs font-semibold uppercase tracking-wider text-slate-500 sm:px-6">
                         User
                       </th>
 
-                      <th className="px-6 py-4 text-xs font-semibold uppercase tracking-wider text-slate-500">
+                      <th className="whitespace-nowrap px-5 py-4 text-xs font-semibold uppercase tracking-wider text-slate-500 sm:px-6">
                         Email
                       </th>
 
-                      <th className="px-6 py-4 text-xs font-semibold uppercase tracking-wider text-slate-500">
+                      <th className="whitespace-nowrap px-5 py-4 text-xs font-semibold uppercase tracking-wider text-slate-500 sm:px-6">
                         Role
                       </th>
 
-                      <th className="px-6 py-4 text-xs font-semibold uppercase tracking-wider text-slate-500">
+                      <th className="whitespace-nowrap px-5 py-4 text-xs font-semibold uppercase tracking-wider text-slate-500 sm:px-6">
                         Created
                       </th>
 
-                      <th className="px-6 py-4 text-right text-xs font-semibold uppercase tracking-wider text-slate-500">
+                      <th className="whitespace-nowrap px-5 py-4 text-right text-xs font-semibold uppercase tracking-wider text-slate-500 sm:px-6">
                         Actions
                       </th>
 
@@ -485,91 +459,80 @@ export default function UsersPage() {
                   </thead>
 
                   <tbody>
-                    {filteredUsers.map(
-                      (user) => (
-                        <tr
-                          key={user.id}
-                          className="border-b border-slate-100 last:border-0 dark:border-slate-800"
-                        >
+                    {filteredUsers.map((user) => (
+                      <tr
+                        key={user.id}
+                        className="border-b border-slate-100 last:border-0 dark:border-slate-800"
+                      >
 
-                          <td className="px-6 py-5">
-                            <div className="flex items-center gap-3">
+                        <td className="px-5 py-5 sm:px-6">
+                          <div className="flex items-center gap-3">
 
-                              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-sky-100 font-bold text-sky-700 dark:bg-sky-900/30 dark:text-sky-300">
-                                {user.name
-                                  .charAt(0)
-                                  .toUpperCase()}
-                              </div>
-
-                              <div>
-                                <p className="font-semibold text-slate-900 dark:text-white">
-                                  {user.name}
-                                </p>
-
-                                <p className="text-xs text-slate-500 dark:text-slate-400">
-                                  #{user.id}
-                                </p>
-                              </div>
-
+                            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-sky-100 font-bold text-sky-700 dark:bg-sky-900/30 dark:text-sky-300">
+                              {user.name
+                                .charAt(0)
+                                .toUpperCase()}
                             </div>
-                          </td>
 
-                          <td className="px-6 py-5 text-sm text-slate-600 dark:text-slate-300">
-                            {user.email}
-                          </td>
+                            <div className="min-w-0">
+                              <p className="max-w-[180px] truncate font-semibold text-slate-900 dark:text-white">
+                                {user.name}
+                              </p>
 
-                          <td className="px-6 py-5">
-                            <span
-                              className={`rounded-full px-3 py-1 text-xs font-semibold ${getRoleStyle(
-                                user.role
-                              )}`}
+                              <p className="text-xs text-slate-500 dark:text-slate-400">
+                                #{user.id}
+                              </p>
+                            </div>
+
+                          </div>
+                        </td>
+
+                        <td className="max-w-[240px] truncate px-5 py-5 text-sm text-slate-600 dark:text-slate-300 sm:px-6">
+                          {user.email}
+                        </td>
+
+                        <td className="px-5 py-5 sm:px-6">
+                          <span
+                            className={`whitespace-nowrap rounded-full px-3 py-1 text-xs font-semibold ${getRoleStyle(
+                              user.role
+                            )}`}
+                          >
+                            {user.role.replace("_", " ")}
+                          </span>
+                        </td>
+
+                        <td className="whitespace-nowrap px-5 py-5 text-sm text-slate-500 dark:text-slate-400 sm:px-6">
+                          {new Date(
+                            user.createdAt
+                          ).toLocaleDateString()}
+                        </td>
+
+                        <td className="px-5 py-5 sm:px-6">
+                          <div className="flex justify-end gap-2">
+
+                            <button
+                              onClick={() =>
+                                openEditModal(user)
+                              }
+                              className="rounded-lg border border-slate-200 px-3 py-2 text-sm font-medium text-slate-600 transition hover:bg-slate-50 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800"
                             >
-                              {user.role.replace(
-                                "_",
-                                " "
-                              )}
-                            </span>
-                          </td>
+                              Edit
+                            </button>
 
-                          <td className="px-6 py-5 text-sm text-slate-500 dark:text-slate-400">
-                            {new Date(
-                              user.createdAt
-                            ).toLocaleDateString()}
-                          </td>
+                            <button
+                              onClick={() =>
+                                handleDelete(user)
+                              }
+                              className="rounded-lg border border-red-200 px-3 py-2 text-sm font-medium text-red-600 transition hover:bg-red-50 dark:border-red-900/40 dark:hover:bg-red-900/20"
+                            >
+                              Delete
+                            </button>
 
-                          <td className="px-6 py-5">
+                          </div>
+                        </td>
 
-                            <div className="flex justify-end gap-2">
-
-                              <button
-                                onClick={() =>
-                                  openEditModal(
-                                    user
-                                  )
-                                }
-                                className="rounded-lg border border-slate-200 px-3 py-2 text-sm font-medium text-slate-600 transition hover:bg-slate-50 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800"
-                              >
-                                Edit
-                              </button>
-
-                              <button
-                                onClick={() =>
-                                  handleDelete(
-                                    user
-                                  )
-                                }
-                                className="rounded-lg border border-red-200 px-3 py-2 text-sm font-medium text-red-600 transition hover:bg-red-50 dark:border-red-900/40 dark:hover:bg-red-900/20"
-                              >
-                                Delete
-                              </button>
-
-                            </div>
-
-                          </td>
-
-                        </tr>
-                      )
-                    )}
+                      </tr>
+                    ))}
                   </tbody>
 
                 </table>
@@ -582,21 +545,22 @@ export default function UsersPage() {
         </div>
       </main>
 
+      {/* Modal */}
       {showModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/50 p-4 backdrop-blur-sm">
+        <div className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-slate-950/50 p-3 backdrop-blur-sm sm:p-4">
 
-          <div className="w-full max-w-lg rounded-2xl border border-slate-200 bg-white p-6 shadow-2xl dark:border-slate-700 dark:bg-slate-900">
+          <div className="my-4 w-full max-w-lg rounded-2xl border border-slate-200 bg-white p-5 shadow-2xl dark:border-slate-700 dark:bg-slate-900 sm:my-8 sm:p-6">
 
-            <div className="mb-6 flex items-center justify-between">
+            <div className="mb-5 flex items-start justify-between gap-4 sm:mb-6">
 
-              <div>
-                <h2 className="text-xl font-bold text-slate-900 dark:text-white">
+              <div className="min-w-0">
+                <h2 className="text-lg font-bold text-slate-900 dark:text-white sm:text-xl">
                   {editingUser
                     ? "Edit User"
                     : "Add User"}
                 </h2>
 
-                <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+                <p className="mt-1 text-sm leading-5 text-slate-500 dark:text-slate-400">
                   {editingUser
                     ? "Update user details and access role."
                     : "Create a new ShanBizFlow user."}
@@ -605,7 +569,7 @@ export default function UsersPage() {
 
               <button
                 onClick={closeModal}
-                className="text-2xl text-slate-400 transition hover:text-slate-700 dark:hover:text-white"
+                className="shrink-0 text-2xl leading-none text-slate-400 transition hover:text-slate-700 dark:hover:text-white"
               >
                 ×
               </button>
@@ -628,8 +592,7 @@ export default function UsersPage() {
                   onChange={(event) =>
                     setForm({
                       ...form,
-                      name: event.target
-                        .value,
+                      name: event.target.value,
                     })
                   }
                   className={inputClass}
@@ -648,8 +611,7 @@ export default function UsersPage() {
                   onChange={(event) =>
                     setForm({
                       ...form,
-                      email: event.target
-                        .value,
+                      email: event.target.value,
                     })
                   }
                   className={inputClass}
@@ -669,18 +631,15 @@ export default function UsersPage() {
                     onChange={(event) =>
                       setForm({
                         ...form,
-                        password:
-                          event.target
-                            .value,
+                        password: event.target.value,
                       })
                     }
                     className={inputClass}
                     placeholder="Minimum 6 characters"
                   />
 
-                  <p className="mt-2 text-xs text-slate-400">
-                    Password must contain at
-                    least 6 characters.
+                  <p className="mt-2 text-xs leading-5 text-slate-400">
+                    Password must contain at least 6 characters.
                   </p>
                 </div>
               )}
@@ -695,42 +654,36 @@ export default function UsersPage() {
                   onChange={(event) =>
                     setForm({
                       ...form,
-                      role: event.target
-                        .value as UserRole,
+                      role: event.target.value as UserRole,
                     })
                   }
                   className={`${inputClass} cursor-pointer`}
                 >
-                  {roles.map(
-                    (role) => (
-                      <option
-                        key={role}
-                        value={role}
-                        className="bg-white text-slate-900 dark:bg-slate-800 dark:text-white"
-                      >
-                        {role.replace(
-                          "_",
-                          " "
-                        )}
-                      </option>
-                    )
-                  )}
+                  {roles.map((role) => (
+                    <option
+                      key={role}
+                      value={role}
+                      className="bg-white text-slate-900 dark:bg-slate-800 dark:text-white"
+                    >
+                      {role.replace("_", " ")}
+                    </option>
+                  ))}
                 </select>
               </div>
 
               {error && (
-                <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600 dark:border-red-900/40 dark:bg-red-900/20 dark:text-red-300">
+                <div className="break-words rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm leading-5 text-red-600 dark:border-red-900/40 dark:bg-red-900/20 dark:text-red-300">
                   {error}
                 </div>
               )}
 
-              <div className="flex gap-3 pt-2">
+              <div className="flex flex-col gap-3 pt-2 sm:flex-row">
 
                 <button
                   type="button"
                   onClick={closeModal}
                   disabled={saving}
-                  className="flex-1 rounded-xl border border-slate-200 bg-white px-4 py-3 font-semibold text-slate-600 transition hover:bg-slate-50 disabled:opacity-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300 dark:hover:bg-slate-800"
+                  className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 font-semibold text-slate-600 transition hover:bg-slate-50 disabled:opacity-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300 dark:hover:bg-slate-800 sm:flex-1"
                 >
                   Cancel
                 </button>
@@ -738,7 +691,7 @@ export default function UsersPage() {
                 <button
                   type="submit"
                   disabled={saving}
-                  className="flex-1 rounded-xl bg-sky-600 px-4 py-3 font-semibold text-white transition hover:bg-sky-700 disabled:cursor-not-allowed disabled:opacity-50"
+                  className="w-full rounded-xl bg-sky-600 px-4 py-3 font-semibold text-white transition hover:bg-sky-700 disabled:cursor-not-allowed disabled:opacity-50 sm:flex-1"
                 >
                   {saving
                     ? "Saving..."
