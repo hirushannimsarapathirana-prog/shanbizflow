@@ -121,7 +121,6 @@ export default function CustomersPage() {
     event: ChangeEvent<HTMLInputElement>
   ) {
     const value = event.target.value;
-
     const numbersOnly = value.replace(/\D/g, "");
 
     if (numbersOnly.length <= 10) {
@@ -361,7 +360,7 @@ export default function CustomersPage() {
   }
 
   const filteredCustomers = customers.filter((customer) => {
-    const searchText = search.toLowerCase();
+    const searchText = search.toLowerCase().trim();
 
     return (
       customer.name.toLowerCase().includes(searchText) ||
@@ -372,16 +371,16 @@ export default function CustomersPage() {
   });
 
   const inputClass =
-    "w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-sky-400 focus:ring-4 focus:ring-sky-50 dark:border-slate-700 dark:bg-slate-800 dark:text-white dark:placeholder:text-slate-400 dark:focus:border-sky-500 dark:focus:ring-sky-900/30";
+    "w-full min-w-0 rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm sm:text-base text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-sky-400 focus:ring-4 focus:ring-sky-50 dark:border-slate-700 dark:bg-slate-800 dark:text-white dark:placeholder:text-slate-400 dark:focus:border-sky-500 dark:focus:ring-sky-900/30";
 
   if (userLoading) {
     return (
-      <div className="flex min-h-screen bg-slate-50 dark:bg-slate-950">
+      <div className="min-h-screen bg-slate-50 dark:bg-slate-950">
         <DashboardSidebar />
 
-        <main className="min-w-0 flex-1 px-6 py-10 lg:ml-64">
-          <div className="mx-auto max-w-7xl">
-            <div className="rounded-3xl border border-sky-100 bg-white p-12 text-center shadow-sm dark:border-slate-800 dark:bg-slate-900">
+        <main className="min-w-0 lg:ml-64">
+          <div className="mx-auto w-full max-w-7xl px-4 py-6 sm:px-6 sm:py-8 lg:px-8 lg:py-10">
+            <div className="rounded-2xl border border-sky-100 bg-white p-8 text-center shadow-sm sm:rounded-3xl sm:p-12 dark:border-slate-800 dark:bg-slate-900">
               <p className="font-medium text-slate-500 dark:text-slate-400">
                 Checking permissions...
               </p>
@@ -393,53 +392,57 @@ export default function CustomersPage() {
   }
 
   return (
-    <div className="flex min-h-screen bg-slate-50 dark:bg-slate-950">
+    <div className="min-h-screen overflow-x-hidden bg-slate-50 dark:bg-slate-950">
       <DashboardSidebar />
 
-      <main className="min-w-0 flex-1 px-6 py-10 lg:ml-64">
-        <div className="mx-auto max-w-7xl">
+      <main className="min-w-0 lg:ml-64">
+        <div className="mx-auto w-full max-w-7xl px-4 py-6 sm:px-6 sm:py-8 lg:px-8 lg:py-10">
 
-          <div className="mb-10">
+          <div className="mb-7 sm:mb-10">
             <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
-              <div>
-                <p className="text-sm font-semibold uppercase tracking-wider text-sky-500">
+
+              <div className="min-w-0">
+                <p className="text-xs font-semibold uppercase tracking-wider text-sky-500 sm:text-sm">
                   Customer Management
                 </p>
 
-                <h1 className="mt-2 text-4xl font-extrabold tracking-tight text-slate-900 dark:text-white">
+                <h1 className="mt-2 text-3xl font-extrabold tracking-tight text-slate-900 sm:text-4xl dark:text-white">
                   Customers
                 </h1>
 
-                <p className="mt-2 text-slate-500 dark:text-slate-400">
+                <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-500 sm:text-base dark:text-slate-400">
                   Manage your customers and their contact
                   information.
                 </p>
               </div>
 
               {userRole && (
-                <div className="w-fit rounded-full border border-sky-200 bg-sky-50 px-4 py-2 text-sm font-semibold text-sky-600 dark:border-sky-900 dark:bg-sky-950/40 dark:text-sky-400">
+                <div className="w-fit shrink-0 rounded-full border border-sky-200 bg-sky-50 px-3 py-2 text-xs font-semibold text-sky-600 sm:px-4 sm:text-sm dark:border-sky-900 dark:bg-sky-950/40 dark:text-sky-400">
                   Role: {userRole.replace("_", " ")}
                 </div>
               )}
+
             </div>
           </div>
 
           {message && (
-            <div className="mb-6 rounded-xl border border-green-200 bg-green-50 px-5 py-4 text-sm font-medium text-green-700 dark:border-green-900 dark:bg-green-950/30 dark:text-green-400">
+            <div className="mb-5 rounded-xl border border-green-200 bg-green-50 px-4 py-3 text-sm font-medium text-green-700 sm:mb-6 sm:px-5 sm:py-4 dark:border-green-900 dark:bg-green-950/30 dark:text-green-400">
               {message}
             </div>
           )}
 
           {error && (
-            <div className="mb-6 rounded-xl border border-red-200 bg-red-50 px-5 py-4 text-sm font-medium text-red-700 dark:border-red-900 dark:bg-red-950/30 dark:text-red-400">
+            <div className="mb-5 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-700 sm:mb-6 sm:px-5 sm:py-4 dark:border-red-900 dark:bg-red-950/30 dark:text-red-400">
               {error}
             </div>
           )}
 
-          <section className="mb-10 rounded-3xl border border-sky-100 bg-white p-7 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-            <div className="mb-6 flex items-center justify-between">
-              <div>
-                <h2 className="text-2xl font-bold text-slate-900 dark:text-white">
+          <section className="mb-8 rounded-2xl border border-sky-100 bg-white p-4 shadow-sm sm:mb-10 sm:rounded-3xl sm:p-6 lg:p-7 dark:border-slate-800 dark:bg-slate-900">
+
+            <div className="mb-5 flex flex-col gap-4 sm:mb-6 sm:flex-row sm:items-center sm:justify-between">
+
+              <div className="min-w-0">
+                <h2 className="text-xl font-bold text-slate-900 sm:text-2xl dark:text-white">
                   {editingCustomer
                     ? "Edit Customer"
                     : "Add Customer"}
@@ -454,19 +457,22 @@ export default function CustomersPage() {
                 <button
                   type="button"
                   onClick={resetForm}
-                  className="rounded-xl border border-slate-200 px-5 py-2.5 font-semibold text-slate-600 transition hover:bg-slate-50 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800"
+                  className="w-full shrink-0 rounded-xl border border-slate-200 px-4 py-2.5 text-sm font-semibold text-slate-600 transition hover:bg-slate-50 sm:w-auto sm:px-5 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800"
                 >
                   Cancel Edit
                 </button>
               )}
+
             </div>
 
             <form
               onSubmit={handleSubmit}
-              className="grid gap-8 lg:grid-cols-[220px_1fr]"
+              className="grid gap-7 lg:grid-cols-[190px_minmax(0,1fr)] xl:grid-cols-[220px_minmax(0,1fr)]"
             >
-              <div>
-                <div className="flex h-48 w-48 items-center justify-center overflow-hidden rounded-3xl border-2 border-dashed border-sky-200 bg-sky-50 dark:border-sky-900 dark:bg-sky-950/30">
+
+              <div className="mx-auto w-full max-w-[220px] lg:mx-0">
+
+                <div className="aspect-square w-full overflow-hidden rounded-2xl border-2 border-dashed border-sky-200 bg-sky-50 dark:border-sky-900 dark:bg-sky-950/30">
                   {imagePreview ? (
                     <img
                       src={imagePreview}
@@ -477,17 +483,19 @@ export default function CustomersPage() {
                       }
                     />
                   ) : (
-                    <div className="text-center">
-                      <div className="text-5xl">👤</div>
+                    <div className="flex h-full w-full flex-col items-center justify-center text-center">
+                      <div className="text-4xl sm:text-5xl">
+                        👤
+                      </div>
 
-                      <p className="mt-3 text-sm font-medium text-slate-500 dark:text-slate-400">
+                      <p className="mt-2 text-sm font-medium text-slate-500 dark:text-slate-400">
                         No photo
                       </p>
                     </div>
                   )}
                 </div>
 
-                <label className="mt-4 block cursor-pointer rounded-xl bg-sky-500 px-5 py-3 text-center font-semibold text-white transition hover:bg-sky-600">
+                <label className="mt-3 block cursor-pointer rounded-xl bg-sky-500 px-4 py-3 text-center text-sm font-semibold text-white transition hover:bg-sky-600 sm:mt-4 sm:px-5">
                   {imagePreview
                     ? "Change Photo"
                     : "Choose Photo"}
@@ -504,20 +512,21 @@ export default function CustomersPage() {
                   <button
                     type="button"
                     onClick={removeImage}
-                    className="mt-2 w-full rounded-xl border border-red-200 px-5 py-3 font-semibold text-red-500 transition hover:bg-red-50 dark:border-red-900 dark:hover:bg-red-950/30"
+                    className="mt-2 w-full rounded-xl border border-red-200 px-4 py-3 text-sm font-semibold text-red-500 transition hover:bg-red-50 sm:px-5 dark:border-red-900 dark:hover:bg-red-950/30"
                   >
                     Remove Photo
                   </button>
                 )}
 
-                <p className="mt-3 text-center text-xs text-slate-400">
+                <p className="mt-3 text-center text-[11px] leading-5 text-slate-400 sm:text-xs">
                   JPG, PNG or WEBP • Max 5MB
                 </p>
+
               </div>
 
-              <div className="grid gap-5 md:grid-cols-2">
+              <div className="grid min-w-0 gap-4 sm:gap-5 md:grid-cols-2">
 
-                <div>
+                <div className="min-w-0">
                   <label className="mb-2 block text-sm font-semibold text-slate-700 dark:text-slate-300">
                     Customer Name *
                   </label>
@@ -532,7 +541,7 @@ export default function CustomersPage() {
                   />
                 </div>
 
-                <div>
+                <div className="min-w-0">
                   <label className="mb-2 block text-sm font-semibold text-slate-700 dark:text-slate-300">
                     Phone *
                   </label>
@@ -553,7 +562,7 @@ export default function CustomersPage() {
                   </p>
                 </div>
 
-                <div>
+                <div className="min-w-0">
                   <label className="mb-2 block text-sm font-semibold text-slate-700 dark:text-slate-300">
                     Email
                   </label>
@@ -568,7 +577,7 @@ export default function CustomersPage() {
                   />
                 </div>
 
-                <div>
+                <div className="min-w-0">
                   <label className="mb-2 block text-sm font-semibold text-slate-700 dark:text-slate-300">
                     Address
                   </label>
@@ -587,7 +596,7 @@ export default function CustomersPage() {
                   <button
                     type="submit"
                     disabled={saving}
-                    className="rounded-xl bg-sky-500 px-7 py-3.5 font-semibold text-white shadow-sm transition hover:bg-sky-600 disabled:cursor-not-allowed disabled:opacity-60"
+                    className="w-full rounded-xl bg-sky-500 px-5 py-3.5 text-sm font-semibold text-white shadow-sm transition hover:bg-sky-600 disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto sm:px-7"
                   >
                     {saving
                       ? "Saving..."
@@ -602,9 +611,11 @@ export default function CustomersPage() {
           </section>
 
           <section>
-            <div className="mb-6 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+
+            <div className="mb-5 flex flex-col gap-4 sm:mb-6 md:flex-row md:items-center md:justify-between">
+
               <div>
-                <h2 className="text-2xl font-bold text-slate-900 dark:text-white">
+                <h2 className="text-xl font-bold text-slate-900 sm:text-2xl dark:text-white">
                   Customer List
                 </h2>
 
@@ -621,41 +632,48 @@ export default function CustomersPage() {
                   setSearch(event.target.value)
                 }
                 placeholder="Search customers..."
-                className={`${inputClass} md:w-80`}
+                className={`${inputClass} w-full md:max-w-sm`}
               />
+
             </div>
 
             {loading ? (
-              <div className="rounded-3xl border border-sky-100 bg-white p-12 text-center shadow-sm dark:border-slate-800 dark:bg-slate-900">
+              <div className="rounded-2xl border border-sky-100 bg-white p-8 text-center shadow-sm sm:rounded-3xl sm:p-12 dark:border-slate-800 dark:bg-slate-900">
                 <p className="font-medium text-slate-500 dark:text-slate-400">
                   Loading customers...
                 </p>
               </div>
             ) : filteredCustomers.length === 0 ? (
-              <div className="rounded-3xl border border-sky-100 bg-white p-12 text-center shadow-sm dark:border-slate-800 dark:bg-slate-900">
-                <div className="text-5xl">👥</div>
+              <div className="rounded-2xl border border-sky-100 bg-white p-8 text-center shadow-sm sm:rounded-3xl sm:p-12 dark:border-slate-800 dark:bg-slate-900">
 
-                <h3 className="mt-4 text-xl font-bold text-slate-900 dark:text-white">
+                <div className="text-5xl">
+                  👥
+                </div>
+
+                <h3 className="mt-4 text-lg font-bold text-slate-900 sm:text-xl dark:text-white">
                   No customers found
                 </h3>
 
-                <p className="mt-2 text-slate-500 dark:text-slate-400">
+                <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
                   Add your first customer using the form above.
                 </p>
+
               </div>
             ) : (
-              <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+              <div className="grid min-w-0 gap-4 sm:gap-5 md:grid-cols-2 xl:grid-cols-3">
+
                 {filteredCustomers.map((customer) => (
                   <div
                     key={customer.id}
-                    className="overflow-hidden rounded-3xl border border-sky-100 bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-md dark:border-slate-800 dark:bg-slate-900"
+                    className="min-w-0 overflow-hidden rounded-2xl border border-sky-100 bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-md sm:rounded-3xl dark:border-slate-800 dark:bg-slate-900"
                   >
-                    <div className="flex h-64 items-center justify-center bg-slate-50 p-3 dark:bg-slate-800">
+
+                    <div className="aspect-[4/3] w-full bg-slate-50 p-3 sm:aspect-[16/10] dark:bg-slate-800">
                       {customer.imageUrl ? (
                         <img
                           src={customer.imageUrl}
                           alt={customer.name}
-                          className="h-full w-full cursor-pointer object-contain"
+                          className="h-full w-full cursor-pointer rounded-xl object-contain"
                           onClick={() =>
                             setSelectedImage(
                               customer.imageUrl
@@ -663,46 +681,70 @@ export default function CustomersPage() {
                           }
                         />
                       ) : (
-                        <div className="text-center">
-                          <div className="text-6xl">👤</div>
+                        <div className="flex h-full w-full flex-col items-center justify-center">
+                          <div className="text-5xl sm:text-6xl">
+                            👤
+                          </div>
 
-                          <p className="mt-2 text-sm text-slate-400">
+                          <p className="mt-2 text-xs text-slate-400 sm:text-sm">
                             No photo
                           </p>
                         </div>
                       )}
                     </div>
 
-                    <div className="p-6">
-                      <h3 className="text-xl font-bold text-slate-900 dark:text-white">
+                    <div className="p-4 sm:p-5 lg:p-6">
+
+                      <h3 className="truncate text-lg font-bold text-slate-900 sm:text-xl dark:text-white">
                         {customer.name}
                       </h3>
 
-                      <div className="mt-4 space-y-3 text-sm">
-                        <p className="text-slate-600 dark:text-slate-300">
-                          📱 {customer.phone}
+                      <div className="mt-3 space-y-2.5 text-sm sm:mt-4 sm:space-y-3">
+
+                        <p className="flex min-w-0 items-start gap-2 text-slate-600 dark:text-slate-300">
+                          <span className="shrink-0">
+                            📱
+                          </span>
+
+                          <span className="break-all">
+                            {customer.phone}
+                          </span>
                         </p>
 
                         {customer.email && (
-                          <p className="break-all text-slate-600 dark:text-slate-300">
-                            📧 {customer.email}
+                          <p className="flex min-w-0 items-start gap-2 text-slate-600 dark:text-slate-300">
+                            <span className="shrink-0">
+                              📧
+                            </span>
+
+                            <span className="break-all">
+                              {customer.email}
+                            </span>
                           </p>
                         )}
 
                         {customer.address && (
-                          <p className="text-slate-600 dark:text-slate-300">
-                            📍 {customer.address}
+                          <p className="flex min-w-0 items-start gap-2 text-slate-600 dark:text-slate-300">
+                            <span className="shrink-0">
+                              📍
+                            </span>
+
+                            <span className="break-words">
+                              {customer.address}
+                            </span>
                           </p>
                         )}
+
                       </div>
 
-                      <div className="mt-6 flex gap-3">
+                      <div className="mt-5 flex flex-col gap-2.5 sm:mt-6 sm:flex-row sm:gap-3">
+
                         <button
                           type="button"
                           onClick={() =>
                             handleEdit(customer)
                           }
-                          className="flex-1 rounded-xl bg-sky-50 px-4 py-2.5 font-semibold text-sky-600 transition hover:bg-sky-100 dark:bg-sky-950/40 dark:text-sky-400 dark:hover:bg-sky-950/70"
+                          className="w-full rounded-xl bg-sky-50 px-4 py-2.5 text-sm font-semibold text-sky-600 transition hover:bg-sky-100 sm:flex-1 dark:bg-sky-950/40 dark:text-sky-400 dark:hover:bg-sky-950/70"
                         >
                           Edit
                         </button>
@@ -713,40 +755,51 @@ export default function CustomersPage() {
                             onClick={() =>
                               handleDelete(customer.id)
                             }
-                            className="flex-1 rounded-xl bg-red-50 px-4 py-2.5 font-semibold text-red-500 transition hover:bg-red-100 dark:bg-red-950/30 dark:text-red-400 dark:hover:bg-red-950/50"
+                            className="w-full rounded-xl bg-red-50 px-4 py-2.5 text-sm font-semibold text-red-500 transition hover:bg-red-100 sm:flex-1 dark:bg-red-950/30 dark:text-red-400 dark:hover:bg-red-950/50"
                           >
                             Delete
                           </button>
                         )}
+
                       </div>
                     </div>
+
                   </div>
                 ))}
+
               </div>
             )}
+
           </section>
         </div>
       </main>
 
       {selectedImage && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-6"
+          className="fixed inset-0 z-50 flex items-center justify-center overflow-auto bg-black/80 p-4 sm:p-6"
           onClick={() => setSelectedImage(null)}
         >
-          <div className="relative max-h-full max-w-5xl">
+          <div
+            className="relative flex max-h-[92vh] max-w-5xl items-center justify-center"
+            onClick={(event) =>
+              event.stopPropagation()
+            }
+          >
+
             <img
               src={selectedImage}
               alt="Customer"
-              className="max-h-[90vh] max-w-full rounded-2xl object-contain"
+              className="max-h-[85vh] max-w-[92vw] rounded-xl object-contain shadow-2xl sm:max-h-[90vh] sm:max-w-full sm:rounded-2xl"
             />
 
             <button
               type="button"
               onClick={() => setSelectedImage(null)}
-              className="absolute right-3 top-3 rounded-full bg-white px-4 py-2 font-bold text-slate-900 shadow"
+              className="absolute right-2 top-2 flex h-9 w-9 items-center justify-center rounded-full bg-white text-lg font-bold text-slate-900 shadow sm:right-3 sm:top-3 sm:h-10 sm:w-10"
             >
               ✕
             </button>
+
           </div>
         </div>
       )}
