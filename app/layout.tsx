@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import Navbar from "@/components/Navbar";
+import SessionGuard from "@/components/SessionGuard";
 
 export const metadata: Metadata = {
   title: "ShanBizFlow",
@@ -14,8 +14,8 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className="bg-gray-100">
-        <Navbar />
+      <body>
+        <SessionGuard />
         {children}
       </body>
     </html>
